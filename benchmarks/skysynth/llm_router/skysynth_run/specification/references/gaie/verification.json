@@ -1,0 +1,596 @@
+{
+  "system": "gaie",
+  "checked_at": "2026-09-13T19:04:18",
+  "method": "Every file:line in this system's spec.json, properties.json, design_principles.json and decisions.json was re-read from the pinned source. The asserted line number was ignored: the most distinctive identifier or numeric literal on that line was extracted and the whole file grepped for it. CONFIRMED = the symbol really is on that line; OFF_BY = it is elsewhere in the file (corrected line given); WRONG = it is not in the file at all; UNVERIFIABLE = the file or line does not exist, or the line carries no distinctive symbol (a brace, a comment marker).",
+  "source_pin": "read at commit 1748e829d1161147aaf35e76699ec86fd88406d2 (a70292c^), because pkg/epp was deleted before cloned HEAD",
+  "counts": {
+    "CONFIRMED": 73
+  },
+  "total": 73,
+  "rows": [
+    {
+      "path": "pkg/common/error/error.go",
+      "line": 62,
+      "verdict": "CONFIRMED",
+      "symbol": "ProcessingResponse",
+      "matched_within_lines": 1,
+      "text": "func BuildErrResponse(err error) (*extProcPb.ProcessingResponse, error) {"
+    },
+    {
+      "path": "pkg/epp/config/loader/defaults.go",
+      "line": 42,
+      "verdict": "CONFIRMED",
+      "symbol": "DefaultScorerWeight",
+      "matched_within_lines": 1,
+      "text": "const DefaultScorerWeight = 1.0"
+    },
+    {
+      "path": "pkg/epp/config/loader/defaults.go",
+      "line": 46,
+      "verdict": "CONFIRMED",
+      "symbol": "EndpointPickerConfig",
+      "matched_within_lines": 1,
+      "text": "func loadDefaultConfig() *configapi.EndpointPickerConfig {"
+    },
+    {
+      "path": "pkg/epp/config/loader/defaults.go",
+      "line": 47,
+      "verdict": "CONFIRMED",
+      "symbol": "queueScorerWeight",
+      "matched_within_lines": 1,
+      "text": "queueScorerWeight := 2.0"
+    },
+    {
+      "path": "pkg/epp/config/loader/defaults.go",
+      "line": 123,
+      "verdict": "CONFIRMED",
+      "symbol": "EndpointPickerConfig",
+      "matched_within_lines": 1,
+      "text": "func applySystemDefaults(cfg *configapi.EndpointPickerConfig, handle fwkplugin.Handle) error {"
+    },
+    {
+      "path": "pkg/epp/datastore/datastore.go",
+      "line": 46,
+      "verdict": "CONFIRMED",
+      "symbol": "AllPodsPredicate",
+      "matched_within_lines": 1,
+      "text": "AllPodsPredicate = func(_ fwkdl.Endpoint) bool { return true }"
+    },
+    {
+      "path": "pkg/epp/flowcontrol/controller/config.go",
+      "line": 28,
+      "verdict": "CONFIRMED",
+      "symbol": "defaultExpiryCleanupInterval",
+      "matched_within_lines": 1,
+      "text": "defaultExpiryCleanupInterval = 1 * time.Second"
+    },
+    {
+      "path": "pkg/epp/flowcontrol/controller/config.go",
+      "line": 37,
+      "verdict": "CONFIRMED",
+      "symbol": "DefaultRequestTTL",
+      "matched_within_lines": 1,
+      "text": "// DefaultRequestTTL is the default Time-To-Live applied to requests that do not"
+    },
+    {
+      "path": "pkg/epp/flowcontrol/controller/controller.go",
+      "line": 280,
+      "verdict": "CONFIRMED",
+      "symbol": "ErrShardDraining",
+      "matched_within_lines": 1,
+      "text": "if errors.Is(err, contracts.ErrShardDraining) {"
+    },
+    {
+      "path": "pkg/epp/flowcontrol/controller/controller.go",
+      "line": 383,
+      "verdict": "CONFIRMED",
+      "symbol": "createRequestContext",
+      "matched_within_lines": 1,
+      "text": "// createRequestContext derives the context that governs a request's lifecycle, enforcing the TTL deadline."
+    },
+    {
+      "path": "pkg/epp/flowcontrol/controller/controller.go",
+      "line": 434,
+      "verdict": "CONFIRMED",
+      "symbol": "candidates",
+      "matched_within_lines": 1,
+      "text": "slices.SortFunc(candidates, func(a, b candidate) int {"
+    },
+    {
+      "path": "pkg/epp/flowcontrol/controller/controller.go",
+      "line": 456,
+      "verdict": "CONFIRMED",
+      "symbol": "distributeRequest",
+      "matched_within_lines": 1,
+      "text": "func (fc *FlowController) distributeRequest("
+    },
+    {
+      "path": "pkg/epp/flowcontrol/controller/internal/processor.go",
+      "line": 116,
+      "verdict": "CONFIRMED",
+      "symbol": "processor",
+      "matched_within_lines": 1,
+      "text": "// Submit attempts a non-blocking handoff of an item to the processor's internal enqueue channel."
+    },
+    {
+      "path": "pkg/epp/flowcontrol/controller/internal/processor.go",
+      "line": 288,
+      "verdict": "CONFIRMED",
+      "symbol": "ShardProcessor",
+      "matched_within_lines": 1,
+      "text": "func (sp *ShardProcessor) hasCapacity(priority int, itemByteSize uint64) bool {"
+    },
+    {
+      "path": "pkg/epp/flowcontrol/controller/internal/processor.go",
+      "line": 334,
+      "verdict": "CONFIRMED",
+      "symbol": "AllOrderedPriorityLevels",
+      "matched_within_lines": 1,
+      "text": "priorities := sp.shard.AllOrderedPriorityLevels()"
+    },
+    {
+      "path": "pkg/epp/flowcontrol/controller/internal/processor.go",
+      "line": 335,
+      "verdict": "CONFIRMED",
+      "symbol": "usageLimitPolicy",
+      "matched_within_lines": 1,
+      "text": "ceilings := sp.usageLimitPolicy.ComputeLimit(ctx, saturation, priorities)"
+    },
+    {
+      "path": "pkg/epp/flowcontrol/registry/config.go",
+      "line": 43,
+      "verdict": "CONFIRMED",
+      "symbol": "GlobalStrictFairnessPolicyType",
+      "matched_within_lines": 1,
+      "text": "DefaultFairnessPolicyRef string = globalstrict.GlobalStrictFairnessPolicyType"
+    },
+    {
+      "path": "pkg/epp/flowcontrol/registry/config.go",
+      "line": 51,
+      "verdict": "CONFIRMED",
+      "symbol": "defaultPriorityBandMaxBytes",
+      "matched_within_lines": 1,
+      "text": "defaultPriorityBandMaxBytes uint64 = 1_000_000_000"
+    },
+    {
+      "path": "pkg/epp/flowcontrol/registry/config.go",
+      "line": 58,
+      "verdict": "CONFIRMED",
+      "symbol": "defaultFlowGCTimeout",
+      "matched_within_lines": 1,
+      "text": "defaultFlowGCTimeout time.Duration = 5 * time.Minute"
+    },
+    {
+      "path": "pkg/epp/flowcontrol/registry/config.go",
+      "line": 61,
+      "verdict": "CONFIRMED",
+      "symbol": "defaultPriorityBandGCTimeout",
+      "matched_within_lines": 1,
+      "text": "defaultPriorityBandGCTimeout time.Duration = 2 * defaultFlowGCTimeout"
+    },
+    {
+      "path": "pkg/epp/flowcontrol/registry/config.go",
+      "line": 571,
+      "verdict": "CONFIRMED",
+      "symbol": "PriorityBandConfig",
+      "matched_within_lines": 1,
+      "text": "func (p *PriorityBandConfig) applyDefaults(handle plugin.Handle) error {"
+    },
+    {
+      "path": "pkg/epp/framework/plugins/flowcontrol/eviction/filtering/sheddable.go",
+      "line": 56,
+      "verdict": "CONFIRMED",
+      "symbol": "SheddableFilter",
+      "matched_within_lines": 1,
+      "text": "func (f *SheddableFilter) Accept(item *flowcontrol.EvictionItem) bool {"
+    },
+    {
+      "path": "pkg/epp/framework/plugins/flowcontrol/fairness/globalstrict/global_strict.go",
+      "line": 73,
+      "verdict": "CONFIRMED",
+      "symbol": "globalStrict",
+      "matched_within_lines": 1,
+      "text": "func (p *globalStrict) Pick("
+    },
+    {
+      "path": "pkg/epp/framework/plugins/flowcontrol/fairness/roundrobin/roundrobin.go",
+      "line": 78,
+      "verdict": "CONFIRMED",
+      "symbol": "roundRobin",
+      "matched_within_lines": 1,
+      "text": "func (p *roundRobin) Pick("
+    },
+    {
+      "path": "pkg/epp/framework/plugins/flowcontrol/ordering/fcfs/fcfs.go",
+      "line": 79,
+      "verdict": "CONFIRMED",
+      "symbol": "QueueItemAccessor",
+      "matched_within_lines": 1,
+      "text": "func (p *fcfs) Less(a, b flowcontrol.QueueItemAccessor) bool {"
+    },
+    {
+      "path": "pkg/epp/framework/plugins/flowcontrol/ordering/slodeadline/slo_deadline.go",
+      "line": 86,
+      "verdict": "CONFIRMED",
+      "symbol": "calculateSLODeadline",
+      "matched_within_lines": 1,
+      "text": "// calculateSLODeadline computes the SLO-based deadline for a request: ReceivedTimestamp + x-slo-ttft-ms (ms)."
+    },
+    {
+      "path": "pkg/epp/framework/plugins/flowcontrol/saturationdetector/concurrency/config.go",
+      "line": 89,
+      "verdict": "CONFIRMED",
+      "symbol": "defaultMaxConcurrency",
+      "matched_within_lines": 2,
+      "text": "const ( ... // defaultMaxConcurrency is the safe baseline for many LLM serving engines."
+    },
+    {
+      "path": "pkg/epp/framework/plugins/flowcontrol/saturationdetector/utilization/config.go",
+      "line": 31,
+      "verdict": "CONFIRMED",
+      "symbol": "DefaultQueueDepthThreshold",
+      "matched_within_lines": 1,
+      "text": "DefaultQueueDepthThreshold int = 5"
+    },
+    {
+      "path": "pkg/epp/framework/plugins/flowcontrol/saturationdetector/utilization/config.go",
+      "line": 33,
+      "verdict": "CONFIRMED",
+      "symbol": "DefaultKVCacheUtilThreshold",
+      "matched_within_lines": 1,
+      "text": "DefaultKVCacheUtilThreshold float64 = 0.8"
+    },
+    {
+      "path": "pkg/epp/framework/plugins/flowcontrol/saturationdetector/utilization/config.go",
+      "line": 36,
+      "verdict": "CONFIRMED",
+      "symbol": "DefaultMetricsStalenessThreshold",
+      "matched_within_lines": 1,
+      "text": "DefaultMetricsStalenessThreshold time.Duration = 200 * time.Millisecond"
+    },
+    {
+      "path": "pkg/epp/framework/plugins/flowcontrol/saturationdetector/utilization/detector.go",
+      "line": 115,
+      "verdict": "CONFIRMED",
+      "symbol": "Saturation",
+      "matched_within_lines": 1,
+      "text": "func (d *Detector) Saturation(_ context.Context, candidates []datalayer.Endpoint) float64 {"
+    },
+    {
+      "path": "pkg/epp/framework/plugins/flowcontrol/saturationdetector/utilization/detector.go",
+      "line": 124,
+      "verdict": "CONFIRMED",
+      "symbol": "MetricsStalenessThreshold",
+      "matched_within_lines": 1,
+      "text": "if metrics == nil || time.Since(metrics.UpdateTime) > d.config.MetricsStalenessThreshold {"
+    },
+    {
+      "path": "pkg/epp/framework/plugins/flowcontrol/saturationdetector/utilization/detector.go",
+      "line": 156,
+      "verdict": "CONFIRMED",
+      "symbol": "MetricsStalenessThreshold",
+      "matched_within_lines": 1,
+      "text": "if metrics == nil || time.Since(metrics.UpdateTime) > d.config.MetricsStalenessThreshold {"
+    },
+    {
+      "path": "pkg/epp/framework/plugins/flowcontrol/saturationdetector/utilization/detector.go",
+      "line": 164,
+      "verdict": "CONFIRMED",
+      "symbol": "filtered",
+      "matched_within_lines": 1,
+      "text": "if len(filtered) == 0 {"
+    },
+    {
+      "path": "pkg/epp/framework/plugins/flowcontrol/usagelimits/usagelimitpolicy.go",
+      "line": 39,
+      "verdict": "CONFIRMED",
+      "symbol": "StaticPolicyFactory",
+      "matched_within_lines": 1,
+      "text": "func StaticPolicyFactory(name string, rawConfig json.RawMessage, _ plugin.Handle) (plugin.Plugin, error) {"
+    },
+    {
+      "path": "pkg/epp/framework/plugins/requestcontrol/dataproducer/approximateprefix/types.go",
+      "line": 88,
+      "verdict": "CONFIRMED",
+      "symbol": "podActiveCheckInterval",
+      "matched_within_lines": 1,
+      "text": "podActiveCheckInterval = 2 * time.Minute"
+    },
+    {
+      "path": "pkg/epp/framework/plugins/requestcontrol/dataproducer/approximateprefix/types.go",
+      "line": 98,
+      "verdict": "CONFIRMED",
+      "symbol": "defaultMaxPrefixBlocks",
+      "matched_within_lines": 1,
+      "text": "defaultMaxPrefixBlocks = 256"
+    },
+    {
+      "path": "pkg/epp/framework/plugins/requestcontrol/dataproducer/approximateprefix/types.go",
+      "line": 109,
+      "verdict": "CONFIRMED",
+      "symbol": "defaultLRUCapacityPerServer",
+      "matched_within_lines": 1,
+      "text": "defaultLRUCapacityPerServer = 31250"
+    },
+    {
+      "path": "pkg/epp/framework/plugins/scheduling/picker/common.go",
+      "line": 36,
+      "verdict": "CONFIRMED",
+      "symbol": "DefaultMaxNumOfEndpoints",
+      "matched_within_lines": 1,
+      "text": "DefaultMaxNumOfEndpoints = 1"
+    },
+    {
+      "path": "pkg/epp/framework/plugins/scheduling/picker/common.go",
+      "line": 49,
+      "verdict": "CONFIRMED",
+      "symbol": "newLockedRand",
+      "matched_within_lines": 1,
+      "text": "func newLockedRand() *lockedRand {"
+    },
+    {
+      "path": "pkg/epp/framework/plugins/scheduling/picker/maxscore/picker.go",
+      "line": 91,
+      "verdict": "CONFIRMED",
+      "symbol": "Shuffle",
+      "matched_within_lines": 1,
+      "text": "// Shuffle in-place - needed for random tie break when scores are equal"
+    },
+    {
+      "path": "pkg/epp/handlers/server.go",
+      "line": 162,
+      "verdict": "CONFIRMED",
+      "symbol": "ExternalProcessor_ProcessServer",
+      "matched_within_lines": 1,
+      "text": "func (s *StreamingServer) Process(srv extProcPb.ExternalProcessor_ProcessServer) error {"
+    },
+    {
+      "path": "pkg/epp/metrics/metrics.go",
+      "line": 319,
+      "verdict": "CONFIRMED",
+      "symbol": "scheduler_e2e_duration_seconds",
+      "matched_within_lines": 1,
+      "text": "Name:      \"scheduler_e2e_duration_seconds\","
+    },
+    {
+      "path": "pkg/epp/metrics/metrics.go",
+      "line": 340,
+      "verdict": "CONFIRMED",
+      "symbol": "plugin_duration_seconds",
+      "matched_within_lines": 1,
+      "text": "Name:      \"plugin_duration_seconds\","
+    },
+    {
+      "path": "pkg/epp/metrics/metrics.go",
+      "line": 431,
+      "verdict": "CONFIRMED",
+      "symbol": "flow_control_queue_size",
+      "matched_within_lines": 1,
+      "text": "Name:      \"flow_control_queue_size\","
+    },
+    {
+      "path": "pkg/epp/metrics/metrics.go",
+      "line": 449,
+      "verdict": "CONFIRMED",
+      "symbol": "flow_control_pool_saturation",
+      "matched_within_lines": 1,
+      "text": "Name:      \"flow_control_pool_saturation\","
+    },
+    {
+      "path": "pkg/epp/requestcontrol/admission.go",
+      "line": 73,
+      "verdict": "CONFIRMED",
+      "symbol": "IsSheddable",
+      "matched_within_lines": 1,
+      "text": "if requtil.IsSheddable(priority) {"
+    },
+    {
+      "path": "pkg/epp/requestcontrol/admission.go",
+      "line": 210,
+      "verdict": "CONFIRMED",
+      "symbol": "flowControlRequest",
+      "matched_within_lines": 1,
+      "text": "func (r *flowControlRequest) FlowKey() flowcontrol.FlowKey {"
+    },
+    {
+      "path": "pkg/epp/requestcontrol/admission.go",
+      "line": 216,
+      "verdict": "CONFIRMED",
+      "symbol": "translateFlowControlOutcome",
+      "matched_within_lines": 1,
+      "text": "func translateFlowControlOutcome(outcome types.QueueOutcome, err error) error {"
+    },
+    {
+      "path": "pkg/epp/requestcontrol/candidates.go",
+      "line": 104,
+      "verdict": "CONFIRMED",
+      "symbol": "AllPodsPredicate",
+      "matched_within_lines": 1,
+      "text": "return d.datastore.PodList(datastore.AllPodsPredicate)"
+    },
+    {
+      "path": "pkg/epp/requestcontrol/director.go",
+      "line": 55,
+      "verdict": "CONFIRMED",
+      "symbol": "prepareDataTimeout",
+      "matched_within_lines": 1,
+      "text": "prepareDataTimeout = 400 * time.Millisecond"
+    },
+    {
+      "path": "pkg/epp/requestcontrol/director.go",
+      "line": 133,
+      "verdict": "CONFIRMED",
+      "symbol": "getInferenceObjective",
+      "matched_within_lines": 1,
+      "text": "func (d *Director) getInferenceObjective(ctx context.Context, reqCtx *handlers.RequestContext) *v1alpha2.InferenceObjective {"
+    },
+    {
+      "path": "pkg/epp/requestcontrol/director.go",
+      "line": 152,
+      "verdict": "CONFIRMED",
+      "symbol": "inference",
+      "matched_within_lines": 1,
+      "text": "tracer := otel.Tracer(\"gateway-api-inference-extension\")"
+    },
+    {
+      "path": "pkg/epp/requestcontrol/director.go",
+      "line": 173,
+      "verdict": "CONFIRMED",
+      "symbol": "SchedulingRequest",
+      "matched_within_lines": 1,
+      "text": "reqCtx.SchedulingRequest = &fwksched.InferenceRequest{"
+    },
+    {
+      "path": "pkg/epp/requestcontrol/director.go",
+      "line": 186,
+      "verdict": "CONFIRMED",
+      "symbol": "admissionController",
+      "matched_within_lines": 1,
+      "text": "if err := d.admissionController.Admit(ctx, reqCtx, *infObjective.Spec.Priority); err != nil {"
+    },
+    {
+      "path": "pkg/epp/requestcontrol/director.go",
+      "line": 190,
+      "verdict": "CONFIRMED",
+      "symbol": "endpointCandidates",
+      "matched_within_lines": 1,
+      "text": "endpointCandidates := d.endpointCandidates.Locate(ctx, reqCtx.Request.Metadata)"
+    },
+    {
+      "path": "pkg/epp/requestcontrol/director.go",
+      "line": 200,
+      "verdict": "CONFIRMED",
+      "symbol": "snapshotOfCandidatePods",
+      "matched_within_lines": 1,
+      "text": "err = d.runPrepareDataPlugins(ctx, reqCtx.SchedulingRequest, snapshotOfCandidatePods)"
+    },
+    {
+      "path": "pkg/epp/requestcontrol/director.go",
+      "line": 211,
+      "verdict": "CONFIRMED",
+      "symbol": "snapshotOfCandidatePods",
+      "matched_within_lines": 1,
+      "text": "result, err := d.scheduler.Schedule(ctx, reqCtx.SchedulingRequest, snapshotOfCandidatePods)"
+    },
+    {
+      "path": "pkg/epp/requestcontrol/director.go",
+      "line": 248,
+      "verdict": "CONFIRMED",
+      "symbol": "TargetModelName",
+      "matched_within_lines": 1,
+      "text": "if reqCtx.TargetModelName == \"\" {"
+    },
+    {
+      "path": "pkg/epp/requestcontrol/director.go",
+      "line": 276,
+      "verdict": "CONFIRMED",
+      "symbol": "applyWeightedModelRewrite",
+      "matched_within_lines": 1,
+      "text": "func (d *Director) applyWeightedModelRewrite(reqCtx *handlers.RequestContext) {"
+    },
+    {
+      "path": "pkg/epp/requestcontrol/director.go",
+      "line": 285,
+      "verdict": "CONFIRMED",
+      "symbol": "selectWeightedModel",
+      "matched_within_lines": 1,
+      "text": "func (d *Director) selectWeightedModel(models []v1alpha2.TargetModel) string {"
+    },
+    {
+      "path": "pkg/epp/requestcontrol/director.go",
+      "line": 332,
+      "verdict": "CONFIRMED",
+      "symbol": "multiEndpointString",
+      "matched_within_lines": 1,
+      "text": "logger.V(logutil.VERBOSE).Info(\"Request handled\", \"objectiveKey\", reqCtx.ObjectiveKey, \"incomingModelName\", reqCtx.IncomingModelName, \"targe"
+    },
+    {
+      "path": "pkg/epp/requestcontrol/director.go",
+      "line": 361,
+      "verdict": "CONFIRMED",
+      "symbol": "functionality",
+      "matched_within_lines": 1,
+      "text": "// TODO: to extend fallback functionality, handle cases where target pod is unavailable"
+    },
+    {
+      "path": "pkg/epp/requestcontrol/director.go",
+      "line": 417,
+      "verdict": "CONFIRMED",
+      "symbol": "responseBodyWork",
+      "matched_within_lines": 1,
+      "text": "ch:   make(chan responseBodyWork, 100),"
+    },
+    {
+      "path": "pkg/epp/scheduling/scheduler_profile.go",
+      "line": 117,
+      "verdict": "CONFIRMED",
+      "symbol": "candidateEndpoints",
+      "matched_within_lines": 1,
+      "text": "func (p *SchedulerProfile) Run(ctx context.Context, request *fwksched.InferenceRequest, cycleState *fwksched.CycleState, candidateEndpoints "
+    },
+    {
+      "path": "pkg/epp/scheduling/scheduler_profile.go",
+      "line": 119,
+      "verdict": "CONFIRMED",
+      "symbol": "endpoints",
+      "matched_within_lines": 1,
+      "text": "if len(endpoints) == 0 {"
+    },
+    {
+      "path": "pkg/epp/scheduling/scheduler_profile.go",
+      "line": 151,
+      "verdict": "CONFIRMED",
+      "symbol": "SchedulerProfile",
+      "matched_within_lines": 1,
+      "text": "func (p *SchedulerProfile) runScorerPlugins(ctx context.Context, request *fwksched.InferenceRequest, cycleState *fwksched.CycleState, endpoi"
+    },
+    {
+      "path": "pkg/epp/scheduling/scheduler_profile.go",
+      "line": 167,
+      "verdict": "CONFIRMED",
+      "symbol": "weightedScorePerEndpoint",
+      "matched_within_lines": 1,
+      "text": "weightedScorePerEndpoint[endpoint] += enforceScoreRange(score) * scorer.Weight()"
+    },
+    {
+      "path": "pkg/epp/scheduling/scheduler_profile.go",
+      "line": 194,
+      "verdict": "CONFIRMED",
+      "symbol": "enforceScoreRange",
+      "matched_within_lines": 1,
+      "text": "func enforceScoreRange(score float64) float64 {"
+    },
+    {
+      "path": "pkg/epp/server/options.go",
+      "line": 102,
+      "verdict": "CONFIRMED",
+      "symbol": "RefreshMetricsInterval",
+      "matched_within_lines": 1,
+      "text": "RefreshMetricsInterval:           50 * time.Millisecond,"
+    },
+    {
+      "path": "pkg/epp/server/options.go",
+      "line": 120,
+      "verdict": "CONFIRMED",
+      "symbol": "AddFlags",
+      "matched_within_lines": 1,
+      "text": "func (opts *Options) AddFlags(fs *pflag.FlagSet) {"
+    },
+    {
+      "path": "pkg/epp/server/runserver.go",
+      "line": 139,
+      "verdict": "CONFIRMED",
+      "symbol": "RefreshPrometheusMetricsInterval",
+      "matched_within_lines": 1,
+      "text": "datalayerlogger.StartMetricsLogger(ctx, r.Datastore, r.RefreshPrometheusMetricsInterval, r.MetricsStalenessThreshold)"
+    },
+    {
+      "path": "pkg/epp/util/request/sheddable.go",
+      "line": 20,
+      "verdict": "CONFIRMED",
+      "symbol": "IsSheddable",
+      "matched_within_lines": 1,
+      "text": "func IsSheddable(priority int) bool {"
+    }
+  ]
+}

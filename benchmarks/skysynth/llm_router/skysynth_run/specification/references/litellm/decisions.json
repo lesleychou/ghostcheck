@@ -1,0 +1,129 @@
+[
+  {
+    "axis": "placement",
+    "property": "placement signal",
+    "reference_choice": "pluggable; the shipped default ignores live load entirely and picks at random by declared weight",
+    "question": "Among the providers that can serve the chosen model, what decides which one gets the request?",
+    "default": "live remaining headroom and expected time-to-answer together",
+    "alternatives": [
+      "always the first provider that stocks the model",
+      "the cheapest provider that stocks the model",
+      "the provider with the most remaining headroom",
+      "the provider expected to answer soonest",
+      "live remaining headroom and expected time-to-answer together"
+    ],
+    "mode": "ask",
+    "rationale": "The reference systems disagree sharply and the shipped fleet makes price, speed and headroom point at three different providers; this is the single largest behavioural choice in the build."
+  },
+  {
+    "axis": "admission_and_overload",
+    "property": "behaviour when nothing has headroom",
+    "reference_choice": "refuse immediately with an explicit rejection; waiting is opt-in per request",
+    "question": "When no provider can serve a request right now, does the router wait for capacity or refuse the request?",
+    "default": "wait for capacity, with an explicit give-up point",
+    "alternatives": [
+      "refuse immediately",
+      "wait for capacity indefinitely",
+      "wait for capacity, with an explicit give-up point"
+    ],
+    "mode": "ask",
+    "rationale": "Refusing is scored as a violated SLO AND zero quality here, so instant refusal is expensive; but waiting indefinitely is a typed loss. The give-up point is the real question."
+  },
+  {
+    "axis": "retry_and_fallback",
+    "property": "retry target",
+    "reference_choice": "prefer a different target with zero delay; back off only when no alternative exists",
+    "question": "After an attempt is rejected, should the next attempt go to a different provider or wait and retry the same one?",
+    "default": "a different provider first, waiting only when no alternative exists",
+    "alternatives": [
+      "wait and retry the same provider",
+      "a different provider first, waiting only when no alternative exists",
+      "give up after a fixed number of attempts"
+    ],
+    "mode": "assume",
+    "rationale": "Both production gateways prefer diverting over waiting, and the shipped fleet always has at least one other provider stocking the same model."
+  },
+  {
+    "axis": "retry_and_fallback",
+    "property": "retry safety",
+    "reference_choice": "retries are never gated on idempotency; even an authentication failure is retried when the group has more than one target",
+    "question": "May any request be retried, or only the ones declared safe to repeat?",
+    "default": "only requests declared safe to repeat",
+    "alternatives": [
+      "any request may be retried",
+      "only requests declared safe to repeat"
+    ],
+    "mode": "ask",
+    "rationale": "The shipped Request carries an explicit retry_safe flag, and the most-cited reference system ignores the equivalent distinction, which is exactly the production bug class this run should avoid."
+  },
+  {
+    "axis": "outage_and_health",
+    "property": "re-probe policy",
+    "reference_choice": "a fixed short quarantine, then re-probe with real traffic",
+    "question": "Once a provider is known to be unavailable, when may the router send it real traffic again?",
+    "default": "not before the announced end of its unavailability",
+    "alternatives": [
+      "immediately, on every request",
+      "after a fixed waiting period",
+      "not before the announced end of its unavailability"
+    ],
+    "mode": "assume",
+    "rationale": "The shipped fleet publishes an explicit end-of-outage time, so re-probing early is pure loss; dispatching into an announced outage past a grace of 8 attempts loses the request outright."
+  },
+  {
+    "axis": "rate_limit_pacing",
+    "property": "quota respect",
+    "reference_choice": "reserve request slots before the call, charge tokens after",
+    "question": "How should the router stay inside a provider's published request and token allowance?",
+    "default": "subtract the request's own expected consumption from the published headroom before dispatching",
+    "alternatives": [
+      "dispatch and learn from rejections",
+      "subtract the request's own expected consumption from the published headroom before dispatching",
+      "keep a reserve of headroom unused so a burst has somewhere to land"
+    ],
+    "mode": "ask",
+    "rationale": "The fleet publishes live remaining request and token headroom and the request declares its own expected token consumption, so pre-emptive pacing is available here in a way it is not in the reference systems; the reserve variant is what the shipped baseline does."
+  },
+  {
+    "axis": "cost_control",
+    "property": "spend bound",
+    "reference_choice": "hard caps per provider and per tag that filter candidates before placement",
+    "question": "Is spend bounded by anything other than the traffic itself?",
+    "default": "a price-aware preference with no hard ceiling",
+    "alternatives": [
+      "no cost consideration at all",
+      "a price-aware preference with no hard ceiling",
+      "a hard spend ceiling per window that changes behaviour once crossed"
+    ],
+    "mode": "ask",
+    "rationale": "Production gateways ship hard caps; the offline routing literature ships only soft preferences. Cost carries weight 3.0 in the scored objective."
+  },
+  {
+    "axis": "tenant_isolation",
+    "property": "shared-fleet fairness",
+    "reference_choice": "per-caller consumption quotas, with nothing reserved",
+    "question": "On a shared fleet, what stops one traffic shape from starving another?",
+    "default": "each traffic shape is capped at what it may consume",
+    "alternatives": [
+      "nothing: first come, first served",
+      "each traffic shape is capped at what it may consume",
+      "each traffic shape is guaranteed a reserved share of capacity"
+    ],
+    "mode": "ask",
+    "rationale": "The two tenants here share one saturating provider and are scored separately, so whether the specialist may take capacity from the other tenant is a real and consequential choice."
+  },
+  {
+    "axis": "decision_observability",
+    "property": "failure visibility",
+    "reference_choice": "the full attempt chain and its cost travel back with the answer",
+    "question": "What must an operator be able to see after a request goes wrong?",
+    "default": "which provider served it, how many attempts it took, and why each earlier attempt failed",
+    "alternatives": [
+      "nothing",
+      "which provider served it",
+      "which provider served it, how many attempts it took, and why each earlier attempt failed"
+    ],
+    "mode": "assume",
+    "rationale": "Both production gateways surface the attempt chain; nothing the router reports can move the score, so this is pure operator value at no risk."
+  }
+]

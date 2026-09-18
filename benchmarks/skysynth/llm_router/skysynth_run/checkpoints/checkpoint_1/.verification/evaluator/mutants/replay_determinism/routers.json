@@ -1,0 +1,5 @@
+{
+  "_note": "Delivery convention, decision-log row `routers-json`: the implementation directory names the class that serves each tenant, as <module>.<Class> relative to the directory itself. The trusted reference is tenant-blind by construction (it is the same policy for both), so both entries name the one class; a TENANT class attribute is the fallback for a directory without this file.",
+  "A": "reference_router.ReferenceRouter",
+  "B": "reference_router.ReferenceRouter"
+}

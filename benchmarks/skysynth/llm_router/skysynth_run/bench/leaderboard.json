@@ -1,0 +1,380 @@
+[
+  {
+    "iteration": 1,
+    "candidate": "C0 bootstrap (BudgetedJointRouter, LAM=3.0, never-shed spine)",
+    "impl": "synthesis/impl",
+    "role": "candidate",
+    "draw": "scored",
+    "input_digests": {
+      "implementation": "sha256:67f35d577eb9e295c913d3f721a22c6651e447521b7115e9da56780ecc2c54b1",
+      "task": "sha256:ca3a2d09cb16f890c1b7735c459b0bdc9d8318c4028957eb938b00597f2ee750",
+      "specification": "sha256:558d0191b7842175df31c8bf12b3c25c6c522b4547d5d5711254714fea0bc214",
+      "tests": "sha256:3d268f7a682c88d85ce25c52d7f6e1a23a4fbc9d5f143839195a4205d08825b1",
+      "evaluator": "sha256:5a873eda14a7219adadb739b9f393e43685772d49f82a515ca6033472921405f"
+    },
+    "config": {
+      "operating_point": "cards/requirements.json operating_point: TRAIN trace per tenant, --split val outage schedule, full trace, no truncation",
+      "harness": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "harness_sha256": "fea8979ca81c61a28c7821c96d1a94fa688ddd1a72afbd8e0307aa7f64535bc2",
+      "replay_sha256": "bc44239aace17032cb541d3b0ed2c686b931b395ff3fe499ed6b5704fcf84a87",
+      "env_card": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml",
+      "env_card_sha256": "04a63812f54082abdd2dc4b4d4c865d0bb27cb0719315325cdfbb917ec0135c4",
+      "env_card_sha256_note": "the cards label this file 14b1d5b1...; that label is stale (decision log finding on provenance digests). 04a63812 is the file the harness actually read, git-clean at commit c30ca19.",
+      "trace_split": "train",
+      "outage_schedule": "val (prime down 300000-420000 ms and 780000-930000 ms, retry_grace 8)",
+      "trace_tenantA": "trace_tenantA_train.jsonl",
+      "trace_tenantA_sha256": "0b8cceecc9fef82c5a857e0ec8c9ffef9e5523568790a32d5af697025ae035a0",
+      "trace_tenantB": "trace_tenantB_train.jsonl",
+      "trace_tenantB_sha256": "e5f4160154d633841aa5f94563e93f6a0a634e5c6c53d0de59ebc14090dd9870",
+      "predictions_artifact_sha256": "5980ac97fc4009c9ede3f4a95a174aeca3fd133b6a1c45f4db6598448bb96bed",
+      "max_wall_ms": null,
+      "max_decides": null,
+      "replays_per_tenant": 2,
+      "python": "3.10.9",
+      "host": "Apple M2, 8 cores, macOS 15.6.1, arm64",
+      "constructed": "zero-arg, fresh instance per replay; PYTHONPATH=<run>/synthesis/impl"
+    },
+    "metrics": {
+      "U_tenantA": 0.6687,
+      "mean_quality_tenantA": 0.7178,
+      "cost_usd_per_request_tenantA": 0.007515,
+      "slo_violation_rate_tenantA": 0.0266,
+      "cost_usd_tenantA": 21.7863,
+      "requests_tenantA": 2899,
+      "completed_tenantA": 2899,
+      "shed_tenantA": 0,
+      "throttles_429_tenantA": 0,
+      "violation_count_tenantA": 0,
+      "decides_tenantA": 2936,
+      "U_tenantB": 0.4591,
+      "mean_quality_tenantB": 0.4933,
+      "cost_usd_per_request_tenantB": 0.011397,
+      "slo_violation_rate_tenantB": 0.0,
+      "cost_usd_tenantB": 22.1098,
+      "requests_tenantB": 1940,
+      "completed_tenantB": 1940,
+      "shed_tenantB": 0,
+      "throttles_429_tenantB": 222,
+      "violation_count_tenantB": 0,
+      "decides_tenantB": 8646,
+      "U_mean": 0.5639,
+      "U_min": 0.4591,
+      "violation_count_total": 0
+    },
+    "objective": "U_mean",
+    "direction": "max",
+    "baseline": "GenericPolicy(lam=40, placement='latency')",
+    "tenants": {
+      "A": {
+        "violation_count": 0,
+        "violation_kinds": {},
+        "requests": 2899,
+        "completed": 2899,
+        "shed": 0,
+        "lost_or_dead": 0,
+        "accounted_exactly_once": true,
+        "mean_quality": 0.7178,
+        "cost_usd": 21.7863,
+        "cost_usd_per_request": 0.007515,
+        "slo_violation_rate": 0.0266,
+        "throttles_429": 0,
+        "outage_rejects": 0,
+        "p95_latency_ms": 1720.8,
+        "decides": 2936,
+        "U": 0.6687
+      },
+      "B": {
+        "violation_count": 0,
+        "violation_kinds": {},
+        "requests": 1940,
+        "completed": 1940,
+        "shed": 0,
+        "lost_or_dead": 0,
+        "accounted_exactly_once": true,
+        "mean_quality": 0.4933,
+        "cost_usd": 22.1098,
+        "cost_usd_per_request": 0.011397,
+        "slo_violation_rate": 0.0,
+        "throttles_429": 222,
+        "outage_rejects": 0,
+        "p95_latency_ms": 207431,
+        "decides": 8646,
+        "U": 0.4591
+      }
+    },
+    "gate": {
+      "A": {
+        "quality_ge_baseline": true,
+        "cost_le_baseline": false,
+        "slo_lt_baseline": true,
+        "slo_clause": "strict (<)",
+        "verdict": "FAIL",
+        "failing_clauses": [
+          "cost"
+        ]
+      },
+      "B": {
+        "quality_ge_baseline": true,
+        "cost_le_baseline": false,
+        "slo_lt_baseline": true,
+        "slo_clause": "non-strict (<=), baseline rate is 0",
+        "verdict": "FAIL",
+        "failing_clauses": [
+          "cost"
+        ]
+      }
+    },
+    "determinism": {
+      "replays_per_tenant": 2,
+      "fresh_instance_each": true,
+      "tenantA_books_identical": true,
+      "tenantB_books_identical": true,
+      "method": "byte-compare of the two --json books"
+    },
+    "tests_passing": true,
+    "notes": [
+      "Zero violations, zero shed, every request accounted exactly once, on both tenants.",
+      "U_A 0.6687 equals the environment card's observable-feature ceiling for this policy shape (cards/environment.json bound.evidence: observable ridge head reaches U_A 0.6687 / U_B 0.4631 at LAM=3); the oracle ceiling is U_A 0.8016 / U_B 0.5718. The candidate sits 0.133 (A) and 0.113 (B) BELOW the oracle ceiling, so there is no ground-truth-lookup signature.",
+      "Both tenants beat the baseline on U but FAIL the three-clause pass condition on the cost clause: LAM=3.0 is the unconstrained-U optimum, not the cost-gate-feasible optimum.",
+      "val traces were NOT replayed; the five-evaluation val budget is untouched at 5 remaining."
+    ]
+  },
+  {
+    "iteration": 1,
+    "role": "baseline",
+    "name": "GenericPolicy(lam=40, placement='latency')",
+    "impl": "skydiscover/synthesize/examples/llm-router/evaluator/generic_policy.py",
+    "draw": "scored",
+    "tenant": "A",
+    "input_digests": {
+      "implementation": "sha256:67f35d577eb9e295c913d3f721a22c6651e447521b7115e9da56780ecc2c54b1",
+      "task": "sha256:ca3a2d09cb16f890c1b7735c459b0bdc9d8318c4028957eb938b00597f2ee750",
+      "specification": "sha256:558d0191b7842175df31c8bf12b3c25c6c522b4547d5d5711254714fea0bc214",
+      "tests": "sha256:3d268f7a682c88d85ce25c52d7f6e1a23a4fbc9d5f143839195a4205d08825b1",
+      "evaluator": "sha256:5a873eda14a7219adadb739b9f393e43685772d49f82a515ca6033472921405f"
+    },
+    "config": {
+      "operating_point": "cards/requirements.json operating_point: TRAIN trace per tenant, --split val outage schedule, full trace, no truncation",
+      "harness": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "harness_sha256": "fea8979ca81c61a28c7821c96d1a94fa688ddd1a72afbd8e0307aa7f64535bc2",
+      "replay_sha256": "bc44239aace17032cb541d3b0ed2c686b931b395ff3fe499ed6b5704fcf84a87",
+      "env_card": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml",
+      "env_card_sha256": "04a63812f54082abdd2dc4b4d4c865d0bb27cb0719315325cdfbb917ec0135c4",
+      "env_card_sha256_note": "the cards label this file 14b1d5b1...; that label is stale (decision log finding on provenance digests). 04a63812 is the file the harness actually read, git-clean at commit c30ca19.",
+      "trace_split": "train",
+      "outage_schedule": "val (prime down 300000-420000 ms and 780000-930000 ms, retry_grace 8)",
+      "trace_tenantA": "trace_tenantA_train.jsonl",
+      "trace_tenantA_sha256": "0b8cceecc9fef82c5a857e0ec8c9ffef9e5523568790a32d5af697025ae035a0",
+      "trace_tenantB": "trace_tenantB_train.jsonl",
+      "trace_tenantB_sha256": "e5f4160154d633841aa5f94563e93f6a0a634e5c6c53d0de59ebc14090dd9870",
+      "predictions_artifact_sha256": "5980ac97fc4009c9ede3f4a95a174aeca3fd133b6a1c45f4db6598448bb96bed",
+      "max_wall_ms": null,
+      "max_decides": null,
+      "replays_per_tenant": 2,
+      "python": "3.10.9",
+      "host": "Apple M2, 8 cores, macOS 15.6.1, arm64",
+      "constructed": "zero-arg, fresh instance per replay; PYTHONPATH=<run>/synthesis/impl"
+    },
+    "metrics": {
+      "U_tenantA": 0.5695,
+      "mean_quality_tenantA": 0.6212,
+      "cost_usd_per_request_tenantA": 0.004362,
+      "slo_violation_rate_tenantA": 0.0386
+    },
+    "tenants": {
+      "A": {
+        "violation_count": 0,
+        "violation_kinds": {},
+        "requests": 2899,
+        "completed": 2899,
+        "shed": 0,
+        "lost_or_dead": 0,
+        "accounted_exactly_once": true,
+        "mean_quality": 0.6212,
+        "cost_usd": 12.6458,
+        "cost_usd_per_request": 0.004362,
+        "slo_violation_rate": 0.0386,
+        "throttles_429": 0,
+        "outage_rejects": 0,
+        "p95_latency_ms": 1733.0,
+        "decides": 2939,
+        "U": 0.5695
+      }
+    },
+    "notes": [
+      "re-measured beside the candidate; reproduces the registered value U 0.5695 exactly"
+    ]
+  },
+  {
+    "iteration": 1,
+    "role": "baseline",
+    "name": "GenericPolicy(lam=40, placement='latency')",
+    "impl": "skydiscover/synthesize/examples/llm-router/evaluator/generic_policy.py",
+    "draw": "scored",
+    "tenant": "B",
+    "input_digests": {
+      "implementation": "sha256:67f35d577eb9e295c913d3f721a22c6651e447521b7115e9da56780ecc2c54b1",
+      "task": "sha256:ca3a2d09cb16f890c1b7735c459b0bdc9d8318c4028957eb938b00597f2ee750",
+      "specification": "sha256:558d0191b7842175df31c8bf12b3c25c6c522b4547d5d5711254714fea0bc214",
+      "tests": "sha256:3d268f7a682c88d85ce25c52d7f6e1a23a4fbc9d5f143839195a4205d08825b1",
+      "evaluator": "sha256:5a873eda14a7219adadb739b9f393e43685772d49f82a515ca6033472921405f"
+    },
+    "config": {
+      "operating_point": "cards/requirements.json operating_point: TRAIN trace per tenant, --split val outage schedule, full trace, no truncation",
+      "harness": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "harness_sha256": "fea8979ca81c61a28c7821c96d1a94fa688ddd1a72afbd8e0307aa7f64535bc2",
+      "replay_sha256": "bc44239aace17032cb541d3b0ed2c686b931b395ff3fe499ed6b5704fcf84a87",
+      "env_card": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml",
+      "env_card_sha256": "04a63812f54082abdd2dc4b4d4c865d0bb27cb0719315325cdfbb917ec0135c4",
+      "env_card_sha256_note": "the cards label this file 14b1d5b1...; that label is stale (decision log finding on provenance digests). 04a63812 is the file the harness actually read, git-clean at commit c30ca19.",
+      "trace_split": "train",
+      "outage_schedule": "val (prime down 300000-420000 ms and 780000-930000 ms, retry_grace 8)",
+      "trace_tenantA": "trace_tenantA_train.jsonl",
+      "trace_tenantA_sha256": "0b8cceecc9fef82c5a857e0ec8c9ffef9e5523568790a32d5af697025ae035a0",
+      "trace_tenantB": "trace_tenantB_train.jsonl",
+      "trace_tenantB_sha256": "e5f4160154d633841aa5f94563e93f6a0a634e5c6c53d0de59ebc14090dd9870",
+      "predictions_artifact_sha256": "5980ac97fc4009c9ede3f4a95a174aeca3fd133b6a1c45f4db6598448bb96bed",
+      "max_wall_ms": null,
+      "max_decides": null,
+      "replays_per_tenant": 2,
+      "python": "3.10.9",
+      "host": "Apple M2, 8 cores, macOS 15.6.1, arm64",
+      "constructed": "zero-arg, fresh instance per replay; PYTHONPATH=<run>/synthesis/impl"
+    },
+    "metrics": {
+      "U_tenantB": 0.3855,
+      "mean_quality_tenantB": 0.3907,
+      "cost_usd_per_request_tenantB": 0.001746,
+      "slo_violation_rate_tenantB": 0.0
+    },
+    "tenants": {
+      "B": {
+        "violation_count": 0,
+        "violation_kinds": {},
+        "requests": 1940,
+        "completed": 1940,
+        "shed": 0,
+        "lost_or_dead": 0,
+        "accounted_exactly_once": true,
+        "mean_quality": 0.3907,
+        "cost_usd": 3.3881,
+        "cost_usd_per_request": 0.001746,
+        "slo_violation_rate": 0.0,
+        "throttles_429": 0,
+        "outage_rejects": 0,
+        "p95_latency_ms": 172202,
+        "decides": 4708,
+        "U": 0.3855
+      }
+    },
+    "notes": [
+      "re-measured beside the candidate; reproduces the registered value U 0.3855 exactly"
+    ]
+  },
+  {
+    "iteration": 1,
+    "role": "baseline",
+    "name": "GenericPolicy(lam=40, placement='latency')",
+    "impl": "skydiscover/synthesize/examples/llm-router/evaluator/generic_policy.py",
+    "draw": "scored",
+    "input_digests": {
+      "implementation": "sha256:67f35d577eb9e295c913d3f721a22c6651e447521b7115e9da56780ecc2c54b1",
+      "task": "sha256:ca3a2d09cb16f890c1b7735c459b0bdc9d8318c4028957eb938b00597f2ee750",
+      "specification": "sha256:558d0191b7842175df31c8bf12b3c25c6c522b4547d5d5711254714fea0bc214",
+      "tests": "sha256:3d268f7a682c88d85ce25c52d7f6e1a23a4fbc9d5f143839195a4205d08825b1",
+      "evaluator": "sha256:5a873eda14a7219adadb739b9f393e43685772d49f82a515ca6033472921405f"
+    },
+    "config": {
+      "operating_point": "cards/requirements.json operating_point: TRAIN trace per tenant, --split val outage schedule, full trace, no truncation",
+      "harness": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "harness_sha256": "fea8979ca81c61a28c7821c96d1a94fa688ddd1a72afbd8e0307aa7f64535bc2",
+      "replay_sha256": "bc44239aace17032cb541d3b0ed2c686b931b395ff3fe499ed6b5704fcf84a87",
+      "env_card": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml",
+      "env_card_sha256": "04a63812f54082abdd2dc4b4d4c865d0bb27cb0719315325cdfbb917ec0135c4",
+      "env_card_sha256_note": "the cards label this file 14b1d5b1...; that label is stale (decision log finding on provenance digests). 04a63812 is the file the harness actually read, git-clean at commit c30ca19.",
+      "trace_split": "train",
+      "outage_schedule": "val (prime down 300000-420000 ms and 780000-930000 ms, retry_grace 8)",
+      "trace_tenantA": "trace_tenantA_train.jsonl",
+      "trace_tenantA_sha256": "0b8cceecc9fef82c5a857e0ec8c9ffef9e5523568790a32d5af697025ae035a0",
+      "trace_tenantB": "trace_tenantB_train.jsonl",
+      "trace_tenantB_sha256": "e5f4160154d633841aa5f94563e93f6a0a634e5c6c53d0de59ebc14090dd9870",
+      "predictions_artifact_sha256": "5980ac97fc4009c9ede3f4a95a174aeca3fd133b6a1c45f4db6598448bb96bed",
+      "max_wall_ms": null,
+      "max_decides": null,
+      "replays_per_tenant": 2,
+      "python": "3.10.9",
+      "host": "Apple M2, 8 cores, macOS 15.6.1, arm64",
+      "constructed": "zero-arg, fresh instance per replay; PYTHONPATH=<run>/synthesis/impl"
+    },
+    "metrics": {
+      "U_tenantA": 0.5695,
+      "mean_quality_tenantA": 0.6212,
+      "cost_usd_per_request_tenantA": 0.004362,
+      "slo_violation_rate_tenantA": 0.0386,
+      "cost_usd_tenantA": 12.6458,
+      "requests_tenantA": 2899,
+      "completed_tenantA": 2899,
+      "shed_tenantA": 0,
+      "throttles_429_tenantA": 0,
+      "violation_count_tenantA": 0,
+      "decides_tenantA": 2939,
+      "U_tenantB": 0.3855,
+      "mean_quality_tenantB": 0.3907,
+      "cost_usd_per_request_tenantB": 0.001746,
+      "slo_violation_rate_tenantB": 0.0,
+      "cost_usd_tenantB": 3.3881,
+      "requests_tenantB": 1940,
+      "completed_tenantB": 1940,
+      "shed_tenantB": 0,
+      "throttles_429_tenantB": 0,
+      "violation_count_tenantB": 0,
+      "decides_tenantB": 4708,
+      "U_mean": 0.4775,
+      "U_min": 0.3855,
+      "violation_count_total": 0
+    },
+    "objective": "U_mean",
+    "direction": "max",
+    "tenants": {
+      "A": {
+        "violation_count": 0,
+        "violation_kinds": {},
+        "requests": 2899,
+        "completed": 2899,
+        "shed": 0,
+        "lost_or_dead": 0,
+        "accounted_exactly_once": true,
+        "mean_quality": 0.6212,
+        "cost_usd": 12.6458,
+        "cost_usd_per_request": 0.004362,
+        "slo_violation_rate": 0.0386,
+        "throttles_429": 0,
+        "outage_rejects": 0,
+        "p95_latency_ms": 1733.0,
+        "decides": 2939,
+        "U": 0.5695
+      },
+      "B": {
+        "violation_count": 0,
+        "violation_kinds": {},
+        "requests": 1940,
+        "completed": 1940,
+        "shed": 0,
+        "lost_or_dead": 0,
+        "accounted_exactly_once": true,
+        "mean_quality": 0.3907,
+        "cost_usd": 3.3881,
+        "cost_usd_per_request": 0.001746,
+        "slo_violation_rate": 0.0,
+        "throttles_429": 0,
+        "outage_rejects": 0,
+        "p95_latency_ms": 172202,
+        "decides": 4708,
+        "U": 0.3855
+      }
+    },
+    "notes": [
+      "both tenants in one row so the objective U_mean has a comparable baseline value"
+    ]
+  }
+]

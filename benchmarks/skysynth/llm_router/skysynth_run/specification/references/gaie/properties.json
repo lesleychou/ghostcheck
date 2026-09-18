@@ -1,0 +1,333 @@
+{
+  "axes": [
+    {
+      "axis": "model_selection",
+      "properties": [
+        {
+          "property": "model selection",
+          "value": "The model named in the body is served unchanged unless an operator-declared rewrite rule matches its name, in which case one target is drawn at random in proportion to declared integer weights and written back into the body.",
+          "evidence": [
+            "pkg/epp/requestcontrol/director.go:248",
+            "pkg/epp/requestcontrol/director.go:276",
+            "pkg/epp/requestcontrol/director.go:285"
+          ],
+          "tradeoff": "Guarantees the served model is either the requested one or a declared rewrite target; refuses any quality- or price-based substitution, and with equal weights (or a total weight of zero) the draw is uniform and not reproducible."
+        }
+      ]
+    },
+    {
+      "axis": "placement",
+      "properties": [
+        {
+          "property": "placement",
+          "value": "Every candidate endpoint passes a filter chain, then accumulates a weighted sum of scorer outputs each clamped into the unit interval, and the picker returns the highest-scoring endpoint with random tie-breaking.",
+          "evidence": [
+            "pkg/epp/scheduling/scheduler_profile.go:117",
+            "pkg/epp/scheduling/scheduler_profile.go:167",
+            "pkg/epp/scheduling/scheduler_profile.go:194",
+            "pkg/epp/config/loader/defaults.go:47",
+            "pkg/epp/config/loader/defaults.go:42",
+            "pkg/epp/framework/plugins/scheduling/picker/common.go:36",
+            "pkg/epp/framework/plugins/scheduling/picker/maxscore/picker.go:91"
+          ],
+          "tradeoff": "Guarantees exactly one endpoint by default, drawn from the surviving candidates; refuses to guarantee determinism, because ties are broken by a wall-clock-seeded shuffle. Shipped weights: queue depth 2.0, memory pressure 2.0, prefix locality 3.0, unweighted scorers 1.0."
+        },
+        {
+          "property": "cache affinity outranks load",
+          "value": "prefix locality carries half again the pull of queue depth or memory pressure in the shipped weights",
+          "evidence": [
+            "pkg/epp/config/loader/defaults.go:47"
+          ],
+          "tradeoff": "large throughput win from cache reuse, at the risk of piling repeat traffic onto an already busy endpoint"
+        },
+        {
+          "property": "bounded per-scorer influence",
+          "value": "each signal contributes at most its own weight because every score is clamped into the unit interval before weighting",
+          "evidence": [
+            "pkg/epp/scheduling/scheduler_profile.go:194"
+          ],
+          "tradeoff": "a misbehaving signal cannot hijack the decision, but a genuinely extreme signal is flattened to the same value as a merely bad one"
+        }
+      ]
+    },
+    {
+      "axis": "admission_and_overload",
+      "properties": [
+        {
+          "property": "admission and overload",
+          "value": "Admission is decided BEFORE endpoints are located. The legacy controller refuses a request only if its priority is negative and mean pool saturation is at least 1.0; the flow-control controller instead blocks the caller in a per-workload bounded queue and returns a typed outcome.",
+          "evidence": [
+            "pkg/epp/requestcontrol/director.go:186",
+            "pkg/epp/util/request/sheddable.go:20",
+            "pkg/epp/requestcontrol/admission.go:73",
+            "pkg/epp/framework/plugins/flowcontrol/saturationdetector/utilization/detector.go:115",
+            "pkg/epp/framework/plugins/flowcontrol/saturationdetector/utilization/config.go:31",
+            "pkg/epp/framework/plugins/flowcontrol/saturationdetector/utilization/config.go:33",
+            "pkg/epp/flowcontrol/controller/internal/processor.go:288",
+            "pkg/epp/flowcontrol/registry/config.go:51",
+            "pkg/epp/flowcontrol/registry/config.go:571",
+            "pkg/epp/requestcontrol/admission.go:216"
+          ],
+          "tradeoff": "Guarantees that a request with non-negative priority is never refused for load on the legacy path, and that every queued request ends in exactly one terminal outcome visible to the caller: dispatched, capacity-rejected (429), deadline-expired (503) or client-cancelled (503). Saturation is the mean over candidates of max(waiting/5, memory/0.8); a stale or metric-less endpoint contributes a full 1.0. Per-band queue capacity is 1 GB; the global byte and request caps default to unlimited, and the documented 5000-request per-band cap is never applied."
+        },
+        {
+          "property": "unobservable counts as full",
+          "value": "an endpoint whose telemetry has gone quiet is treated as completely saturated when deciding whether to refuse",
+          "evidence": [
+            "pkg/epp/framework/plugins/flowcontrol/saturationdetector/utilization/detector.go:124"
+          ],
+          "tradeoff": "fails safe against routing into a blind spot, but a telemetry outage alone can trigger refusals"
+        },
+        {
+          "property": "admission decided before targets are known",
+          "value": "the wait-or-refuse decision happens before the router works out which endpoints could serve the request",
+          "evidence": [
+            "pkg/epp/requestcontrol/director.go:186",
+            "pkg/epp/requestcontrol/director.go:190"
+          ],
+          "tradeoff": "keeps queueing ahead of all scheduling cost, but the decision cannot use request-specific candidate information"
+        },
+        {
+          "property": "exactly one terminal outcome",
+          "value": "every queued request is finalised exactly once and the caller always learns which of dispatched, capacity-rejected, deadline-expired or cancelled happened",
+          "evidence": [
+            "pkg/epp/flowcontrol/controller/internal/processor.go:116",
+            "pkg/epp/requestcontrol/admission.go:216"
+          ],
+          "tradeoff": "requests are never silently lost, at the cost of an intricate ownership protocol and a periodic sweeper"
+        }
+      ]
+    },
+    {
+      "axis": "rate_limit_pacing",
+      "properties": [
+        {
+          "property": "rate limit pacing",
+          "value": "not decided: there is no request or token quota accounting of any kind. The only headroom signal is live endpoint utilisation, converted into a dispatch ceiling per priority band.",
+          "evidence": [
+            "pkg/epp/framework/plugins/flowcontrol/saturationdetector/concurrency/config.go:89",
+            "pkg/epp/framework/plugins/flowcontrol/usagelimits/usagelimitpolicy.go:39",
+            "pkg/epp/flowcontrol/controller/internal/processor.go:335"
+          ],
+          "tradeoff": "Refuses to guarantee anything about an upstream's published allowance. The nearest analogue is a per-endpoint ideal-capacity figure and a static usage ceiling that defaults to 1.0, meaning dispatch stops only at complete saturation, leaving no reserve."
+        }
+      ]
+    },
+    {
+      "axis": "retry_and_fallback",
+      "properties": [
+        {
+          "property": "retry and fallback",
+          "value": "not decided at the request level. A scheduling or admission failure is returned to the caller immediately; there is no second attempt, no fallback endpoint and no back-off schedule anywhere.",
+          "evidence": [
+            "pkg/epp/requestcontrol/director.go:211",
+            "pkg/epp/requestcontrol/director.go:361",
+            "pkg/epp/flowcontrol/controller/controller.go:280"
+          ],
+          "tradeoff": "Guarantees a single placement attempt per request and an explicit typed error on failure; refuses any retry or fallback, with the source carrying an open note acknowledging the gap. The only loop in the system re-places a request whose chosen shard began draining, after a short randomised pause."
+        }
+      ]
+    },
+    {
+      "axis": "outage_and_health",
+      "properties": [
+        {
+          "property": "outage and health",
+          "value": "Endpoint health is inferred purely from telemetry freshness. The candidate set is every pod in the datastore; no error counting, quarantine or timed re-probe exists.",
+          "evidence": [
+            "pkg/epp/datastore/datastore.go:46",
+            "pkg/epp/requestcontrol/candidates.go:104",
+            "pkg/epp/framework/plugins/flowcontrol/saturationdetector/utilization/config.go:36",
+            "pkg/epp/framework/plugins/flowcontrol/saturationdetector/utilization/detector.go:156",
+            "pkg/epp/framework/plugins/flowcontrol/saturationdetector/utilization/detector.go:164",
+            "pkg/epp/server/options.go:102",
+            "pkg/epp/server/runserver.go:139"
+          ],
+          "tradeoff": "Guarantees that an endpoint whose state is older than 200 ms is scored as fully saturated and dropped from routing; refuses to guarantee exclusion when EVERY endpoint is stale, because the filter then returns the unfiltered list and knowingly routes into the dark. State refreshes every 50 ms; a separate 2 s staleness flag affects only the metric logger, not placement."
+        },
+        {
+          "property": "never route nowhere",
+          "value": "if the freshness check would eliminate every endpoint, the unfiltered list is used instead",
+          "evidence": [
+            "pkg/epp/framework/plugins/flowcontrol/saturationdetector/utilization/detector.go:164"
+          ],
+          "tradeoff": "keeps serving during a fleet-wide telemetry outage at the cost of knowingly sending traffic into the dark; note the per-profile filter chain does the opposite and fails closed"
+        },
+        {
+          "property": "no recovery protocol",
+          "value": "there is no probe, cooldown or re-admission step, because nothing was ever taken out of rotation",
+          "evidence": [
+            "pkg/epp/requestcontrol/candidates.go:104"
+          ],
+          "tradeoff": "no state to get wrong and no flapping, but no protection against a persistently failing target"
+        }
+      ]
+    },
+    {
+      "axis": "deadline_and_priority",
+      "properties": [
+        {
+          "property": "deadline and priority",
+          "value": "Each request carries one integer priority from its workload objective (default 0, negative means expendable). Priority bands are dispatched strictly highest-first; within a workload the ordering policy decides, defaulting to arrival order, with an optional deadline ordering keyed on the request's declared time-to-first-token budget.",
+          "evidence": [
+            "pkg/epp/requestcontrol/director.go:133",
+            "pkg/epp/util/request/sheddable.go:20",
+            "pkg/epp/flowcontrol/controller/internal/processor.go:334",
+            "pkg/epp/framework/plugins/flowcontrol/ordering/fcfs/fcfs.go:79",
+            "pkg/epp/framework/plugins/flowcontrol/ordering/slodeadline/slo_deadline.go:86",
+            "pkg/epp/flowcontrol/controller/controller.go:383",
+            "pkg/epp/flowcontrol/controller/config.go:28",
+            "pkg/epp/flowcontrol/controller/config.go:37"
+          ],
+          "tradeoff": "Guarantees strict priority-band ordering and head-of-line blocking: if the selected band is saturated the whole dispatch cycle stops rather than letting lower-priority work proceed. Under the deadline policy a request with no or malformed declared budget is assigned a far-future deadline and sorts last. A request's remaining deadline becomes its queue time to live, whose default is 0 meaning no limit, swept every 1 s."
+        },
+        {
+          "property": "negative means expendable",
+          "value": "the sign of the priority, not its magnitude, decides whether the request may be discarded under load",
+          "evidence": [
+            "pkg/epp/util/request/sheddable.go:20"
+          ],
+          "tradeoff": "one crisp system-wide rule, but a cliff edge between one priority level and the next, and a fleet of all-default traffic has no valve at all"
+        },
+        {
+          "property": "important work blocks the line",
+          "value": "if the most important pending work cannot be served right now, nothing less important is served either",
+          "evidence": [
+            "pkg/epp/flowcontrol/controller/internal/processor.go:334"
+          ],
+          "tradeoff": "eliminates priority inversion, at the cost of idling capacity that lower-priority work could have used"
+        },
+        {
+          "property": "the deadline is also the patience",
+          "value": "how long a request waits in the queue is taken from its own remaining deadline, and with none it waits until the caller gives up",
+          "evidence": [
+            "pkg/epp/flowcontrol/controller/controller.go:383",
+            "pkg/epp/flowcontrol/controller/config.go:37"
+          ],
+          "tradeoff": "no arbitrary cap to tune, but an unbounded default wait when the caller sets no deadline"
+        }
+      ]
+    },
+    {
+      "axis": "tenant_isolation",
+      "properties": [
+        {
+          "property": "tenant isolation",
+          "value": "Work is partitioned into flows keyed by caller identity and priority; each flow gets its own queue inside its priority band, and a fairness policy chooses which flow's queue to serve next.",
+          "evidence": [
+            "pkg/epp/requestcontrol/admission.go:210",
+            "pkg/epp/flowcontrol/registry/config.go:43",
+            "pkg/epp/framework/plugins/flowcontrol/fairness/globalstrict/global_strict.go:73",
+            "pkg/epp/framework/plugins/flowcontrol/fairness/roundrobin/roundrobin.go:78",
+            "pkg/epp/flowcontrol/registry/config.go:51",
+            "pkg/epp/flowcontrol/controller/controller.go:434",
+            "pkg/epp/flowcontrol/controller/controller.go:456",
+            "pkg/epp/flowcontrol/registry/config.go:58",
+            "pkg/epp/flowcontrol/registry/config.go:61"
+          ],
+          "tradeoff": "Guarantees only a shared byte budget per band (1 GB) and load spreading across shards by shortest-queue-by-bytes; refuses starvation-freedom by default, because the SHIPPED fairness policy ignores flow boundaries entirely and always takes the globally best pending item, so one workload can monopolise a band. Starvation-freedom requires explicitly selecting the rotating policy. Idle flows are reclaimed after 5 minutes, bands after 10."
+        },
+        {
+          "property": "fairness is opt-in",
+          "value": "guaranteed turn-taking between workloads exists but must be switched on deliberately; the shipped policy takes whichever pending request ranks best overall",
+          "evidence": [
+            "pkg/epp/flowcontrol/registry/config.go:43",
+            "pkg/epp/framework/plugins/flowcontrol/fairness/roundrobin/roundrobin.go:78"
+          ],
+          "tradeoff": "the default gives globally optimal ordering and no bookkeeping, but one heavy workload can hold the line indefinitely"
+        },
+        {
+          "property": "load spread by backlog, not by hash",
+          "value": "an arriving request joins whichever parallel worker currently holds the least of that workload's backlog",
+          "evidence": [
+            "pkg/epp/flowcontrol/controller/controller.go:434"
+          ],
+          "tradeoff": "balances work without a coordination point, but gives up any per-workload affinity"
+        }
+      ]
+    },
+    {
+      "axis": "policy_state_and_determinism",
+      "properties": [
+        {
+          "property": "policy state and determinism",
+          "value": "The policy carries substantial cross-request state (a prefix-locality table per server, per-band rotation cursors, live endpoint telemetry, per-workload queues) and draws on a process-wide random source seeded from the wall clock.",
+          "evidence": [
+            "pkg/epp/framework/plugins/scheduling/picker/common.go:49",
+            "pkg/epp/framework/plugins/scheduling/picker/maxscore/picker.go:91",
+            "pkg/epp/framework/plugins/requestcontrol/dataproducer/approximateprefix/types.go:88",
+            "pkg/epp/framework/plugins/requestcontrol/dataproducer/approximateprefix/types.go:98",
+            "pkg/epp/framework/plugins/requestcontrol/dataproducer/approximateprefix/types.go:109",
+            "pkg/epp/flowcontrol/registry/config.go:58",
+            "pkg/epp/requestcontrol/director.go:417"
+          ],
+          "tradeoff": "Refuses reproducibility: identical inputs can yield different endpoints, because the source is seeded from the current time and the picker shuffles before a stable sort. Bounds memory explicitly: the prefix table is capped at 31250 blocks per server with at most 256 blocks matched at 16 tokens each, inactive pods are swept every 2 minutes, idle flows reclaimed after 5 minutes, and the per-request response queue is capped at 100 chunks."
+        },
+        {
+          "property": "replay is not reproducible",
+          "value": "running the same request against the same fleet twice can legitimately land on a different endpoint",
+          "evidence": [
+            "pkg/epp/framework/plugins/scheduling/picker/common.go:49",
+            "pkg/epp/framework/plugins/scheduling/picker/maxscore/picker.go:91"
+          ],
+          "tradeoff": "spreads tied traffic evenly and resists adversarial patterning, at the cost of being untestable by exact replay and unexplainable after the fact"
+        },
+        {
+          "property": "every accumulator is capped",
+          "value": "each piece of remembered state has an explicit size or age limit rather than growing with traffic",
+          "evidence": [
+            "pkg/epp/framework/plugins/requestcontrol/dataproducer/approximateprefix/types.go:109",
+            "pkg/epp/flowcontrol/registry/config.go:58",
+            "pkg/epp/requestcontrol/director.go:417"
+          ],
+          "tradeoff": "memory is bounded under any traffic shape, but the caps are guesses that silently degrade accuracy once exceeded"
+        },
+        {
+          "property": "enrichment is best-effort and time-boxed",
+          "value": "the step that gathers extra per-request signals is abandoned after a fixed budget and its failure never blocks the request",
+          "evidence": [
+            "pkg/epp/requestcontrol/director.go:55",
+            "pkg/epp/requestcontrol/director.go:200"
+          ],
+          "tradeoff": "bounds added latency and keeps the router available, but placement can silently proceed on degraded information"
+        }
+      ]
+    },
+    {
+      "axis": "cost_control",
+      "properties": [
+        {
+          "property": "cost control",
+          "value": "not decided: spend is bounded by nothing. There is no price table, per-request cost estimate, budget or spend counter anywhere.",
+          "evidence": [
+            "pkg/epp/config/loader/defaults.go:46",
+            "pkg/epp/flowcontrol/registry/config.go:51",
+            "pkg/epp/scheduling/scheduler_profile.go:151"
+          ],
+          "tradeoff": "Refuses any spend guarantee. The only bounded resources are queued bytes per priority band and per-endpoint utilisation thresholds; price never enters a scoring or admission decision."
+        }
+      ]
+    },
+    {
+      "axis": "decision_observability",
+      "properties": [
+        {
+          "property": "decision observability",
+          "value": "Every request opens a trace span tagged with target model and priority, logs the chosen endpoint and each plugin's verdict, and increments per-stage metrics; every refusal is returned to the caller as a typed error with a status and a human-readable cause.",
+          "evidence": [
+            "pkg/epp/requestcontrol/director.go:152",
+            "pkg/epp/requestcontrol/director.go:332",
+            "pkg/epp/requestcontrol/director.go:200",
+            "pkg/epp/requestcontrol/admission.go:216",
+            "pkg/common/error/error.go:62",
+            "pkg/epp/metrics/metrics.go:319",
+            "pkg/epp/metrics/metrics.go:340",
+            "pkg/epp/metrics/metrics.go:431",
+            "pkg/epp/metrics/metrics.go:449"
+          ],
+          "tradeoff": "Guarantees that a refusal is visible to the caller WITH its cause (resource exhausted, timed out in queue, client disconnected, internal error) and that per-plugin latency, scheduling attempts, queue size, queued bytes and pool saturation are all exported. Refuses to surface enrichment failures: they are logged and the request proceeds on degraded information, indistinguishable to the caller from a fully informed decision."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "system": "routellm",
+  "checked_at": "2026-09-13T19:04:18",
+  "method": "Every file:line in this system's spec.json, properties.json, design_principles.json and decisions.json was re-read from the pinned source. The asserted line number was ignored: the most distinctive identifier or numeric literal on that line was extracted and the whole file grepped for it. CONFIRMED = the symbol really is on that line; OFF_BY = it is elsewhere in the file (corrected line given); WRONG = it is not in the file at all; UNVERIFIABLE = the file or line does not exist, or the line carries no distinctive symbol (a brace, a comment marker).",
+  "source_pin": "read at cloned HEAD",
+  "counts": {
+    "CONFIRMED": 18
+  },
+  "total": 18,
+  "rows": [
+    {
+      "path": "routellm/calibrate_threshold.py",
+      "line": 55,
+      "verdict": "CONFIRMED",
+      "symbol": "strong_model_pct",
+      "matched_within_lines": 1,
+      "text": "threshold = thresholds_df[router].quantile(q=1 - args.strong_model_pct)"
+    },
+    {
+      "path": "routellm/controller.py",
+      "line": 93,
+      "verdict": "CONFIRMED",
+      "symbol": "_parse_model_name",
+      "matched_within_lines": 1,
+      "text": "def _parse_model_name(self, model: str):"
+    },
+    {
+      "path": "routellm/controller.py",
+      "line": 110,
+      "verdict": "CONFIRMED",
+      "symbol": "messages",
+      "matched_within_lines": 1,
+      "text": "prompt = messages[-1][\"content\"]"
+    },
+    {
+      "path": "routellm/controller.py",
+      "line": 113,
+      "verdict": "CONFIRMED",
+      "symbol": "model_counts",
+      "matched_within_lines": 1,
+      "text": "self.model_counts[router][routed_model] += 1"
+    },
+    {
+      "path": "routellm/controller.py",
+      "line": 153,
+      "verdict": "CONFIRMED",
+      "symbol": "completion",
+      "matched_within_lines": 1,
+      "text": "return completion(api_base=self.api_base, api_key=self.api_key, **kwargs)"
+    },
+    {
+      "path": "routellm/controller.py",
+      "line": 170,
+      "verdict": "CONFIRMED",
+      "symbol": "acompletion",
+      "matched_within_lines": 1,
+      "text": "return await acompletion(api_base=self.api_base, api_key=self.api_key, **kwargs)"
+    },
+    {
+      "path": "routellm/evals/evaluate.py",
+      "line": 83,
+      "verdict": "CONFIRMED",
+      "symbol": "0.2",
+      "matched_within_lines": 1,
+      "text": "for pct in [0.2, 0.5, 0.8]:"
+    },
+    {
+      "path": "routellm/evals/evaluate.py",
+      "line": 97,
+      "verdict": "CONFIRMED",
+      "symbol": "trapz",
+      "matched_within_lines": 1,
+      "text": "return np.trapz("
+    },
+    {
+      "path": "routellm/evals/evaluate.py",
+      "line": 221,
+      "verdict": "CONFIRMED",
+      "symbol": "random",
+      "matched_within_lines": 1,
+      "text": "random.seed(0)"
+    },
+    {
+      "path": "routellm/evals/evaluate.py",
+      "line": 236,
+      "verdict": "CONFIRMED",
+      "symbol": "100",
+      "matched_within_lines": 1,
+      "text": "* 100,"
+    },
+    {
+      "path": "routellm/openai_server.py",
+      "line": 26,
+      "verdict": "CONFIRMED",
+      "symbol": "CONTROLLER",
+      "matched_within_lines": 1,
+      "text": "CONTROLLER = None"
+    },
+    {
+      "path": "routellm/openai_server.py",
+      "line": 63,
+      "verdict": "CONFIRMED",
+      "symbol": "ChatCompletionRequest",
+      "matched_within_lines": 1,
+      "text": "class ChatCompletionRequest(BaseModel):"
+    },
+    {
+      "path": "routellm/openai_server.py",
+      "line": 127,
+      "verdict": "CONFIRMED",
+      "symbol": "RoutingError",
+      "matched_within_lines": 1,
+      "text": "except RoutingError as e:"
+    },
+    {
+      "path": "routellm/openai_server.py",
+      "line": 133,
+      "verdict": "CONFIRMED",
+      "symbol": "model_counts",
+      "matched_within_lines": 1,
+      "text": "logging.info(CONTROLLER.model_counts)"
+    },
+    {
+      "path": "routellm/openai_server.py",
+      "line": 143,
+      "verdict": "CONFIRMED",
+      "symbol": "health",
+      "matched_within_lines": 1,
+      "text": "@app.get(\"/health\")"
+    },
+    {
+      "path": "routellm/routers/routers.py",
+      "line": 41,
+      "verdict": "CONFIRMED",
+      "symbol": "routed_pair",
+      "matched_within_lines": 1,
+      "text": "def route(self, prompt, threshold, routed_pair):"
+    },
+    {
+      "path": "routellm/routers/routers.py",
+      "line": 98,
+      "verdict": "CONFIRMED",
+      "symbol": "output",
+      "matched_within_lines": 1,
+      "text": "if output is None:"
+    },
+    {
+      "path": "routellm/routers/routers.py",
+      "line": 181,
+      "verdict": "CONFIRMED",
+      "symbol": "prompt_emb",
+      "matched_within_lines": 1,
+      "text": "prompt_emb = ("
+    }
+  ]
+}

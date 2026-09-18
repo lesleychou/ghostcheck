@@ -1,0 +1,5 @@
+{
+  "A": "common.TenantARouter",
+  "B": "common.TenantBRouter",
+  "_note": "Delivery convention (decision log row `routers-json`): module paths are resolved with $SKYDISCOVER_IMPL on sys.path. Both classes are zero-arg constructible and subclass the evaluator's Router. The TENANT class attribute carries the same mapping as a fallback."
+}

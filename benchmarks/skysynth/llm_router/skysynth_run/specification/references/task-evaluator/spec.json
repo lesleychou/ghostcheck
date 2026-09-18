@@ -1,0 +1,145 @@
+{
+  "title": "The shipped task contract: Router interface + two-tenant replay harness",
+  "source": "skydiscover/synthesize/examples/llm-router/evaluator (shipped with the task; content-hashed, not a git clone)",
+  "purpose": "Replay a per-tenant arrival trace through a Router policy against a frozen 3-provider x 12-model fleet, scoring quality, billed cost and SLO violations from the harness's own books while typing every correctness violation.",
+  "interface": {
+    "entry": "Router.decide(req, now_ms, fleet_view) -> Action (skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:79); optional hooks on_error (skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:82) and on_complete (skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:85)",
+    "request": "Request dataclass, a frozen trace row: equiv_class (skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:18), slo (skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:23), downgrade_ok (skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:24), retry_safe (skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:25), ground-truth per-model quality (skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:31), quality_floor (skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:32), observable features (skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:35)",
+    "response": "Action(kind in dispatch|defer|shed, provider, model, until_ms) (skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:63, kinds skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:67)",
+    "config": "fleet_view per provider: models/inflight/rpm_left/tpm_left/error_rate/has_prefix, plus outage_until while down (skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:74, built skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:140); frozen fleet skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml:67"
+  },
+  "axes": {
+    "model_selection": {
+      "property": "A router may serve any model in the request's equiv_class, but only when the request carries downgrade_ok; anything else is a typed substitution violation. Quality is booked from the model actually served, not the one requested.",
+      "guarantee": "Substituting outside {model_requested} u (equiv_class if downgrade_ok) is a hard fail; both tenants ship downgrade_ok: true, so all 12 models are legally reachable. The served model's ground-truth score is what counts toward mean_quality.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:312",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:315",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:412",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/data/cards/tenantA.card.yaml:7",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/data/cards/tenantB.card.yaml:7"
+      ]
+    },
+    "placement": {
+      "property": "Placement is free among the providers that stock the chosen model; price, latency and quota headroom differ by provider and the fleet view publishes all three live, by value.",
+      "guarantee": "Dispatching to an unknown provider or to a provider that does not stock the model is a typed violation and the request is NOT retried automatically: the harness returns without rescheduling, so the request is lost unless the router acts again.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:316",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:320",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:156",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml:110"
+      ]
+    },
+    "admission_and_overload": {
+      "property": "Refusing a request is legal only under real overload: no non-down provider stocking a legally substitutable model may have rpm, tpm AND concurrency headroom at that instant.",
+      "guarantee": "An illegal shed is a typed illegal_shed violation; a legal shed still books zero quality, a quality-floor miss, and counts as an SLO-violated request in the tenant's rate. Shedding is therefore never a cheap way to improve any scored axis.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:265",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:266",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:274",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:277",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:283",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:466",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:492"
+      ]
+    },
+    "rate_limit_pacing": {
+      "property": "Each provider enforces a 60 s sliding request window, a 60 s token window and a standing concurrency cap; exceeding any of them returns 429 with a fixed 2000 ms retry-after, and the token window is charged prompt_tokens + expected_output_tokens.",
+      "guarantee": "The fleet view publishes rpm_left and tpm_left but NOT the concurrency cap; inflight is published and the cap is public static spec in the env card. prime is sized so bursts genuinely saturate it: rpm 132, tpm 3.5M, concurrency 32, against value's rpm 420 / concurrency 96.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:79",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:78",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py:78",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml:133",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:156",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml:101",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml:103",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml:78"
+      ]
+    },
+    "retry_and_fallback": {
+      "property": "The harness itself reschedules a rejected request: on 429/503 it calls on_error and pushes a wake event at now + retry_after, so decide() is re-invoked and the router chooses again from scratch.",
+      "guarantee": "A rejected attempt is never billed (the bill is charged only inside a successful admit), and a request may be attempted any number of times, but exactly one completion is ever booked; a second completion is a typed double_bill.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:325",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:347",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:349",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:110",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:409"
+      ]
+    },
+    "outage_and_health": {
+      "property": "An outage is ANNOUNCED, not inferred: a down provider publishes an empty model catalogue plus an outage_until ETA in the fleet view, and admits nothing.",
+      "guarantee": "Dispatching into an announced outage more than retry_grace = 8 times loses the request with a typed outage_lost violation. Validation outage windows are literal in the card (300-420 s and 780-930 s on prime); test windows are derived from test_seed at replay time and must not be inspected.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:145",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:72",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:330",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:333",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:124",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml:137",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml:138",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:36"
+      ]
+    },
+    "deadline_and_priority": {
+      "property": "Each request carries exactly one SLO field and the harness measures the matching quantity: slo.latency_ms is checked against whole-response time from arrival, slo.ttft_ms against arrival-to-first-token measured directly at dispatch.",
+      "guarantee": "Tenant A is ttft_ms = 2500 and Tenant B is latency_ms = 600000, so the same fleet must be treated as two different scheduling problems. A request that never completes (shed, lost or dead) is counted as SLO-violated in the tenant rate.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:422",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:426",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/data/cards/tenantA.card.yaml:6",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/data/cards/tenantB.card.yaml:6",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:492"
+      ]
+    },
+    "tenant_isolation": {
+      "property": "The harness tags each trace row with its tenant and keeps a separate book per tenant (requests, completed, shed, quality, cost, SLO violations, throttles, outage rejects). The tenant is not a Router.decide() argument, but every trace row's observable features map carries a tenant key, so a router CAN read it from the request it is handed.",
+      "guarantee": "Each tenant is scored separately against the same generic baseline, so the specialist must win on ITS tenant's book; the merged-traffic contention is real because both tenants replay against one shared set of provider counters.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:172",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:202",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:479",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:175",
+        "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:35"
+      ]
+    },
+    "cost_control": {
+      "property": "Cost is billed by the harness from its own private price table as (fresh*in + cached*cached + expected_output*out)/1e6, tallied independently, and cross-checked at end of run.",
+      "guarantee": "The bill can never be below the all-cached floor (typed bad_bill), the fleet's price tables are published by value so a router editing them edits only its own copy (typed env_mutation / meter_mutation tripwires), and cost carries weight 3.0 in the declared utility.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:110",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:354",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:359",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:453",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:455",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:156"
+      ]
+    },
+    "policy_state_and_determinism": {
+      "property": "The router keeps whatever state it likes on self, but the harness hands it a COPY of each request with stable identity across decide/on_error/on_complete, diffs that copy against truth after every callback, and rolls back any edit.",
+      "guarantee": "Editing a trace field is a typed req_mutation; any exception out of a callback is a typed router_exception and the replay still closes its books. Liveness is bounded at 512 decide() calls per request and 600 s wall clock, and deferring a structurally unservable request more than 32 times is a typed unserviceable loss.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:229",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:235",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:247",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py:35",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py:34",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py:40",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:290",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:306"
+      ]
+    },
+    "decision_observability": {
+      "property": "The router reports nothing: every scored number (billing, token counts, SLO accounting, quality) is read from harness truth, and the replay emits per-tenant books, typed violation kinds and per-provider leading indicators.",
+      "guarantee": "Nothing a router returns or logs can move the score, so self-reported metrics are for the operator only; the first 20 violations plus a full violation-kind histogram are the operator-visible failure signal.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:503",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:522",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:524",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:527",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:220"
+      ]
+    }
+  }
+}

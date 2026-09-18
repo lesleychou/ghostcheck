@@ -1,0 +1,147 @@
+{
+  "source": "The two frozen tenant traces the task ships, replayed in simulated time by evaluator/benchmark/replay_tenants.py: skydiscover/synthesize/examples/llm-router/evaluator/benchmark/.data/traces/trace_tenant{A,B}_{train,val}.jsonl, with the per-model ground-truth score/cost matrices matrix_tenant{A,B}_{train,val}.jsonl beside them and the frozen prompt-id manifests in evaluator/benchmark/data/manifests/. Built deterministically from the LLMRouterBench release by evaluator/benchmark/data/make_tenant_traces.py (SEED='round4-v1'); prompt ids are assigned to train/val/test 60/20/20 by sha256 of the prompt id (make_tenant_traces.py:64), so the splits are prompt-disjoint (measured: 0 shared prompt ids on either tenant). Fleet capacity, prices, latency model and the val outage schedule are evaluator/benchmark/env_card.yaml.",
+
+  "split_protocol": "MEASURED ON TRAIN AND VAL ONLY. No file whose name contains 'test' was opened, listed, replayed or characterised by any script in specification/profiling/; each script refuses such a path before opening it. Test row counts quoted anywhere below are copied from the shipped workload cards, never measured here. Decision-log row 'split-protocol'.",
+
+  "size": "Measured in full, every row read to the end, no sampling. Tenant A: 2,899 rows on train (span 3,083.5 s) and 972 rows on val (span 1,351.9 s). Tenant B: 1,940 rows on train (span 2,528.5 s of arrivals, last arrival at 2,846.8 s) and 693 rows on val (span 756.4 s of arrivals, last arrival at 1,104.5 s). Merged: 4,839 train / 1,665 val. 6,504 tenant rows plus 6,504 matrix rows characterised. Scripts and raw dumps: specification/profiling/{characterize_traces,headroom,quality_cost,observable_signal,outage_and_drain}.py and the four .json beside them.",
+
+  "dimensions": {
+    "arrival_shape_tenant_A": "Inhomogeneous Poisson, continuous, never idle: base 0.5 rps x a diurnal envelope (1 + 0.5*sin(2*pi*t/1200 s), one compressed 'day' every 20 min) x a 10x burst factor during bursts that start on an exponential gap of mean 420 s and last 15-30 s (make_tenant_traces.py:50-56, :118-138). MEASURED train: mean 0.940 rps, peak 8.2 rps over 10 s, 16 rps over 1 s, 240 requests in the busiest 60 s; Fano index 18.0 at 10 s and 48.5 at 60 s; median inter-arrival 0.353 s, p99 7.7 s, longest gap 25.9 s (no idle period over 30 s); 46.1% of all requests fall in the busiest 10% of 10 s bins. MEASURED val: mean 0.719 rps, peak 7.3 rps over 10 s, 13 rps over 1 s, 181 in the busiest 60 s; Fano 12.2 / 21.6; median inter-arrival 0.638 s, longest gap 21.6 s; 38.0% in the busiest 10% of bins. Realised spike factor (busiest 10 s bin over the median 10 s bin) is 12.8x on BOTH splits: 77 vs 6 per 10 s on train, 64 vs 5 on val. Diurnal peak-to-trough in measured rps by phase bin: 1.74 vs 0.30 on train (5.7x), 2.27 vs 0.21 on val (10.7x), i.e. the declared 3x envelope amplified by burst clustering.",
+
+    "arrival_shape_tenant_B": "Discrete batch waves, not a continuous stream: one wave every ~600 s (jitter +/-45 s), each wave's submissions landing uniformly across a 90 s ramp (make_tenant_traces.py:58-61, :140-156); the number of waves is round(tenant-A span / 600 s). MEASURED train: 5 waves, each exactly 388 requests over 89.2-89.9 s at 4.32-4.35 rps, separated by 543-703 s of complete silence (longest gap 613.7 s; only 4 gaps over 5 s in the whole trace). MEASURED val: 2 waves, 347 requests at 348.0-437.7 s and 346 requests at 1,015.2-1,104.5 s, each at ~3.87 rps over ~89.5 s, separated by 577.5 s of silence. Within a wave the arrival process is near-uniform, not bursty: Fano 29.5 at 10 s comes entirely from the on/off structure, and inside a wave the busiest 10 s bin is 47 against a median of 39 (1.21x on val, 1.73x on train). 60.2% (train) / 44.3% (val) of all requests fall in the busiest 10% of 10 s bins.",
+
+    "request_counts": "Tenant A: 2,899 train / 972 val (shipped card also records 931 test rows, not measured here). Tenant B: 1,940 train / 693 val (shipped card records 701 test). Train:val ratio 2.98 for A and 2.80 for B. Prompt ids are disjoint across splits on both tenants (measured: A 2,899 train ids, 972 val ids, 0 shared; B 1,940 / 693 / 0 shared), and every row in a split carries a distinct prompt id, so there is no repeated prompt to memorise within a replay.",
+
+    "prompt_tokens": "Tenant A is BIMODAL and the tail is the whole story. Train: min 10, p50 28, p90 81, p99 190,648, max 328,050, mean 6,664. Val: min 12, p50 28, p90 62, p99 179,538, max 279,837, mean 6,655. The split is exactly by class: simpleqa p50 28 / p90 40 / max 109 (val), gpqa p50 232 / p90 315 / max 562 (val), tau2 p50 75,061 / p90 199,644 / max 279,837 (val). Every prompt over 6,000 tokens is a tau2 row and every tau2 row is over 6,000 tokens (train 162/162, val 61/61). Tenant B is unimodal and small: train p50 285 / p90 745 / p99 1,482 / max 12,244 / mean 385; val p50 292 / p90 765 / p99 1,746 / max 9,008 / mean 409.",
+
+    "output_tokens": "expected_output_tokens is the field the harness bills and paces with (admission charges prompt_tokens + expected_output_tokens against tpm; replay_tenants.py:75). Tenant A train: p50 370, p90 934, p99 5,632, max 15,680, mean 635; val: p50 365, p90 845, p99 4,892, max 11,907, mean 603. By class on val: simpleqa p50 350, gpqa p50 3,060, tau2 p50 1,914. Tenant B train: p50 2,648, p90 8,072, p99 13,097, max 16,710, mean 3,618; val: p50 2,682, p90 8,370, p99 13,084, max 15,418, mean 3,726. max_tokens is always 4x expected_output_tokens and is never the billed quantity. Admission tokens (prompt + expected output) per request: A p50 393-400, p99 182k-193k; B p50 3,088-3,089, p99 ~13,940.",
+
+    "cls_mix": "Tenant A: simpleqa 0.9007 train / 0.9043 val, tau2 0.0559 / 0.0628, gpqa 0.0435 / 0.0329. Tenant B: hle 0.6557 / 0.6450, livecodebench 0.3062 / 0.3304, livemathbench 0.0381 / 0.0245. cls is echoed by features['task'], by prefix_id and by session_id (one session id per tenant-class pair: A-simpleqa/A-gpqa/A-tau2, B-hle/B-livecodebench/B-livemathbench), so session_id carries no per-user identity, only the class.",
+
+    "equiv_class": "Identical on every one of the 6,504 rows measured: exactly ONE distinct equivalence set, all 12 fleet models, with downgrade_ok true on every row. There is no per-request restriction to trade off. What actually limits reach is the fleet, not the request: value stocks 8 of the 12 (missing claude-sonnet-4, gemini-2.5-flash, gemini-2.5-pro, gpt-5), prime and courier stock all 12, so each request has 32 legal (provider, model) placements out of a nominal 36 (env_card.yaml providers). Tenant A's requested model gpt-5 is stocked only by prime and courier; tenant B's requested model deepseek-r1-0528 is stocked by all three.",
+
+    "model_requested": "Constant per tenant: gpt-5 on 100% of tenant A rows, deepseek-r1-0528 on 100% of tenant B rows (train and val). It is a single fixed default, not a distribution, and on the measured score/cost matrices it is DOMINATED for tenant A: qwen3-235b-a22b-2507 scores higher (0.5350 vs 0.5113 on val, 0.5254 vs 0.4950 on train) at about one eleventh of the dollars ($0.002418 vs $0.025722 per request on val). For tenant B the requested model is competitive but not dominant (see quality_cost_landscape).",
+
+    "slo_fields": "One SLO shape per tenant, on every row, no variation. Tenant A: {'ttft_ms': 2500} on all 3,871 rows measured, scored as (dispatch time + provider ttft) - arrival time (replay_tenants.py:426). Tenant B: {'latency_ms': 600000} on all 2,633 rows, scored as completion time - arrival time (replay_tenants.py:422). Deadlines differ by 240x. quality_floor is 0.0 on every row and retry_safe is true on every row, both splits, both tenants; prefix_tokens is 0 on every row (prefix caching is switched off, env_card.yaml:31); temperature is 0.0 everywhere.",
+
+    "stream_mix": "stream is true on 100% of tenant A rows and false on 100% of tenant B rows, both splits. It is perfectly aligned with the SLO shape (streamed request -> TTFT deadline, non-streamed -> end-to-end deadline) and carries no extra information.",
+
+    "observable_signal": "The only request fields a deployable router may read (decision 'quality_information_source': req.quality is the harness's grading key and is off limits) are features = {difficulty_hint, prompt_id, task, tenant}, plus cls, prompt_tokens, expected_output_tokens, slo. MEASURED separability: for tenant A a per-class model map fitted on train earns 0.5301 utility on val against 0.5277 for one fixed model, a gain of only +0.0024, and every difficulty_hint quartile picks the SAME model (qwen3-235b-a22b-2507) on both splits, so difficulty_hint is a length signal for A (Q4 mean output 1,308-1,402 tokens against ~375 elsewhere), not a quality signal. For tenant B the same per-class map earns 0.3133 on val against 0.2813 for one fixed model, a gain of +0.0321 that transfers intact from train, and difficulty_hint quartiles separate strongly and consistently in BOTH splits (Q1/Q2 best-achievable utility 0.13-0.18, Q3/Q4 0.47-0.50, with the winner flipping from a cheap non-reasoning model to qwen3-235b-a22b-thinking-2507). difficulty_hint has 164/77 distinct values on A (train/val) and 696/417 on B.",
+
+    "quality_cost_landscape": "Per-request-mean score and dollars over the 12 models, measured separately on train and val (specification/profiling/quality_cost.json). Cost spread across the fleet is 15.3x-20.8x on tenant A traffic and 112.7x-123.4x on tenant B traffic, so the -3.0*cost term of the objective is the widest lever. TENANT A, static utility (score - 3*cost), val: qwen3-235b-a22b-2507 0.5277 (q 0.5350, $0.002418), qwen3-235b-a22b-thinking-2507 0.4724, gemini-2.5-pro 0.4672, gpt-5 0.4342, claude-sonnet-4 0.1104. The winner is the same on train (0.5185) and it wins by 0.055 over second place, so tenant A's model choice is stable across the split. TENANT B, val: gpt-5 0.2944, deepseek-v3.1-terminus 0.2934, qwen3-235b-a22b-2507 0.2890, qwen3-235b-a22b-thinking-2507 0.2871, deepseek-r1-0528 0.2813; train: deepseek-r1-0528 0.2910, gpt-5 0.2900, deepseek-v3.1-terminus 0.2861, qwen3-235b-a22b-thinking-2507 0.2826, qwen3-235b-a22b-2507 0.2799. The top five are inside 0.011 of each other on each split and they REORDER completely between splits (deepseek-r1-0528 is 1st on train and 5th on val), so for tenant B a static model choice is inside the split noise. Unreachable reference (the router may not read req.quality): best-per-request utility 0.8374 on A val and 0.6167 on B val; best-per-request quality 0.8508 and 0.6595. 145/972 A val rows and 236/693 B val rows score 0.0 on all twelve models, so no policy can extract quality from them.",
+
+    "fleet_headroom_at_peak": "Offered load in the 60 s sliding window the harness's rpm/tpm windows actually see, against env_card.yaml. TENANT A val: peak 181 requests/60 s and 1,577,019 admission tokens/60 s, against prime rpm 132 (137% of prime's whole per-minute request allowance), courier rpm 150 (121%), value rpm 420 (43%), whole fleet rpm 702 (26%); tpm use at that peak is 45% of prime, 32% of courier, 13% of value. TENANT A train: peak 240/60 s = 182% of prime, 160% of courier, 57% of value, 34% of fleet. TENANT B val: peak 252 requests/60 s = 191% of prime, 168% of courier, 60% of value, 36% of fleet; 1,088,779 tokens/60 s = 31% of prime tpm, 9% of value tpm. TENANT B train: peak 278/60 s = 211% of prime. Mean load is nowhere near any limit (A val 33% of prime rpm, B val 42%), so rate limits bind only inside bursts and waves. TOKEN allowances never bind: the worst measured 60 s token demand is 45% of the tightest tpm. CONCURRENCY, not rpm, is what binds tenant B: Little's law on the requested model at the val peak needs 394 concurrent slots on value (limit 96), 286 on prime (limit 32) and 633 on courier (limit 48), because deepseek-r1-0528 decodes at 40/55/25 tok/s and a mean 3,726-token answer occupies a slot for 94/68/151 s. The whole fleet's aggregate decode capacity is 6,800 tok/s on the reasoning-class models (deepseek-r1-0528, gemini-2.5-pro, gpt-5, qwen3-235b-a22b-thinking-2507, which carry per-model decode overrides) and 11,840 tok/s on the other eight. Env card records the same saturation measured from the other side: 19.4% of tenant-A requests took at least one prime 429 under the reference router on merged val, prime throttles 1,689.",
+
+    "deadline_feasibility_headroom": "TENANT A has almost no slack: the SLO is 2,500 ms to first token and a single 429 costs a fixed 2,000 ms wake (env_card retry_after_ms; replay_tenants.py:349), leaving 500 ms. Of the three providers only prime (ttft_base 400 ms) can still land inside the budget after one 429, and only for prompts under 6,000 tokens; value (700 ms) and courier (1,700 ms) cannot meet the SLO after any 429 at all, for any prompt. MEASURED consequence: 6.28% of A val rows (61/972, every tau2 row) can never meet 2,500 ms once they have been throttled once, and 1.95% (19/972, 2.17% on train) exceed 126,000 prompt tokens and so cannot meet 2,500 ms on a FIRST-try dispatch to the fastest provider either, which is a hard floor of about 2% on tenant A's SLO-violation rate before any policy choice. First-try TTFT feasibility on val: prime 98.05% of rows, value 94.44%, courier 93.72%. TENANT B has enormous slack per request and none in aggregate: end-to-end service of a single request finishes inside 600,000 ms on 99.6-100% of rows at every provider, and the median request can sit in a queue for 532 s and still make its deadline; but a 347-request wave carries 1.29M output tokens, which needs 190 s to drain on the whole fleet at reasoning-model decode rates and 109 s at the fast models, and admitting the wave inside its own 90 s ramp would need 232 rpm. Tenant B is therefore a scheduling problem (spread the wave across ~500 s of slack, prefer fast-decoding models to free concurrency), never a latency problem.",
+
+    "outage_exposure": "prime is the only provider with scheduled outages, retry_grace 8 (a ninth dispatch into an announced outage loses the request with a typed outage_lost). The val schedule is literal and absolute: 300,000-420,000 ms and 780,000-930,000 ms. MEASURED arrivals inside those windows, applying the same schedule to each timeline (which is exactly what replay_tenants.py --split val does on either trace): tenant A 148/972 = 15.2% on val (97 then 51) against 312/2,899 = 10.8% on train (275 then 37); tenant B 286/693 = 41.3% on val, ALL of it in the first window because val wave 1 (348.0-437.7 s) lands inside 300-420 s and wave 2 (1,015-1,104 s) misses the second window entirely, against 388/1,940 = 20.0% on train, again all in the first window. Tenant B's val outage exposure is therefore twice its train exposure and is concentrated in a single window, and the second declared window is dead air for tenant B on val."
+  },
+
+  "train_vs_val_shift": {
+    "why_it_matters": "Fitting happens on train and selection happens on val inside a five-evaluation budget, so anything that differs between the two splits decides whether a tuned candidate generalises. Measured differences, in descending order of how much they can move a selection:",
+    "1_tenant_B_model_ranking_reorders": "The five best models for tenant B lie inside 0.011 utility of each other on each split, and the train->val reordering is larger than the gaps: deepseek-r1-0528 goes from 1st (0.2910) to 5th (0.2813), gpt-5 from 2nd to 1st, qwen3-235b-a22b-2507 from 5th to 3rd. Largest single-model train->val utility shift is 0.0309 (gemini-2.5-flash). Any tenant-B result that rests on choosing one static model is selecting noise; the per-class map is the part that actually transfers (+0.0321 on val, fitted on train).",
+    "2_tenant_A_model_ranking_is_stable": "qwen3-235b-a22b-2507 is the best static choice on both splits, by 0.055 on val and 0.030 on train, and every difficulty quartile agrees on both splits. Largest train->val utility shift is 0.0214 (gemini-2.5-pro), which only swaps 2nd and 3rd place. A tenant-A model decision fitted on train should survive val.",
+    "3_outage_exposure_roughly_doubles_for_B": "20.0% of tenant-B train arrivals against 41.3% of val arrivals fall inside the fixed val outage windows, and on val the exposure is a single window swallowing an entire wave. A policy tuned on train sees a mild outage and on val sees its first wave almost wholly inside one.",
+    "4_val_is_shorter_so_fixed_windows_cover_more_of_it": "The val outage windows are fixed absolute times (300-420 s, 780-930 s) while tenant A's val span is 1,351.9 s against 3,083.5 s on train, so the same 270 s of outage is 20% of the val timeline and 9% of the train timeline. Tenant B's val trace has only 2 waves against 5 on train (waves = round(span/600 s)), so a single unlucky wave is half of tenant B's val book and a fifth of its train book: tenant B's val result has roughly sqrt(2/5) of the train trace's averaging, and one mishandled wave moves the val number about 2.5x as much as it moves the train number.",
+    "5_arrival_intensity_differs_mildly": "Tenant A is slower on val (0.719 rps against 0.940) with a lower absolute peak (7.3 against 8.2 rps over 10 s) but a HIGHER burstiness ratio (10.2x against 8.7x of its own mean); the realised spike factor is 12.8x on both. Tenant B is faster on val within its span (0.916 rps against 0.767) but each wave is slightly smaller (347 against 388 requests, 3.87 against 4.34 rps). Rate-limit pressure is therefore somewhat lower on val for A and comparable for B; a pacing constant tuned to train's peak is conservative on val, which is the safe direction.",
+    "6_content_distributions_barely_move": "Token distributions, class mix, equivalence class, requested model, SLO fields, stream, retry_safe, quality_floor and prefix_tokens are effectively identical across splits (A p50 prompt 28 on both; B p50 output 2,648 against 2,682; class shares within 0.6 points except tenant A gpqa 4.35% -> 3.29% and tau2 5.59% -> 6.28%). The shift is in the arrival/outage geometry and in the tenant-B quality landscape, not in the requests themselves.",
+    "7_a_caution_about_the_val_outage_geometry": "The val windows are absolute times fixed in the env card; the sealed test windows are DERIVED at replay time as fractions of the trace span (two windows, each 90-210 s long, placed in 0.10-0.35 and 0.55-0.80 of the span; replay_tenants.py:derive_test_outage_windows, not executed here). Because val's second window happens to land in tenant B's inter-wave silence, val cannot reward handling a second outage. A router must handle an announced outage wherever it falls, and must not be tuned to the two specific val windows."
+  },
+
+  "scored_configuration": {
+    "note": "Two scored configurations, one per specialist router, each replayed alone on its own tenant trace (replay_tenants.py takes exactly one trace file, so a specialist never contends with the other tenant inside its own scored replay). Selection happens on the val configuration below, within a budget of five logged evaluations; the test split is replayed once by the harness owner after the win criteria are registered.",
+    "objective": "U = mean_quality - 1.0 * slo_violation_rate - 3.0 * cost_usd_per_request, fixed before the first evaluation. slo_violation_rate counts a shed, lost or dead request as violated (replay_tenants.py:486). Correctness is pass/fail and outside U.",
+    "tenant_A": {
+      "command": "python3 evaluator/benchmark/replay_tenants.py evaluator/benchmark/.data/traces/trace_tenantA_val.jsonl <RouterClassPath> --env evaluator/benchmark/env_card.yaml --split val",
+      "requests": 972,
+      "span_sec": 1351.9,
+      "mean_rps": 0.719,
+      "peak_rps_10s": 7.3,
+      "peak_requests_per_60s": 181,
+      "peak_admission_tokens_per_60s": 1577019,
+      "slo": {"ttft_ms": 2500},
+      "model_requested": "gpt-5",
+      "equiv_class_size": 12,
+      "stream": true,
+      "cls_mix": {"simpleqa": 0.9043, "tau2": 0.0628, "gpqa": 0.0329},
+      "outage_windows_ms": [[300000, 420000], [780000, 930000]],
+      "requests_arriving_during_outage": 148,
+      "baseline_to_beat": {
+        "policy": "evaluator.generic_policy.GenericPolicy(lam=40, placement='latency'), fitted on the merged traffic",
+        "source": "evaluator/benchmark/baseline/generic_baseline_results.json, val.per_tenant.A (measured in the MERGED val replay, where tenant B is contending)",
+        "mean_quality": 0.5195,
+        "cost_usd": 4.0194,
+        "cost_usd_per_request": 0.004135,
+        "slo_violation_rate": 0.071,
+        "p95_latency_ms": 2832.7,
+        "utility": 0.4361
+      },
+      "measured_floors_and_ceilings": {
+        "slo_violation_rate_floor": 0.0195,
+        "slo_violation_rate_floor_reason": "19 of 972 val rows are tau2 prompts over 126,000 tokens; prefill alone exceeds 2,500 ms at every provider even on a first-try dispatch, so they are structurally unmeetable",
+        "best_static_model_quality": 0.5350,
+        "best_static_model_cost_per_request": 0.002418,
+        "best_static_model": "qwen3-235b-a22b-2507",
+        "best_static_model_utility_before_slo": 0.5277,
+        "unreachable_oracle_utility": 0.8374
+      }
+    },
+    "tenant_B": {
+      "command": "python3 evaluator/benchmark/replay_tenants.py evaluator/benchmark/.data/traces/trace_tenantB_val.jsonl <RouterClassPath> --env evaluator/benchmark/env_card.yaml --split val",
+      "requests": 693,
+      "span_sec": 756.4,
+      "mean_rps_within_span": 0.916,
+      "waves": 2,
+      "requests_per_wave": [347, 346],
+      "wave_ramp_sec": 89.5,
+      "wave_rps": 3.87,
+      "peak_requests_per_60s": 252,
+      "peak_admission_tokens_per_60s": 1088779,
+      "slo": {"latency_ms": 600000},
+      "model_requested": "deepseek-r1-0528",
+      "equiv_class_size": 12,
+      "stream": false,
+      "cls_mix": {"hle": 0.645, "livecodebench": 0.3304, "livemathbench": 0.0245},
+      "outage_windows_ms": [[300000, 420000], [780000, 930000]],
+      "requests_arriving_during_outage": 286,
+      "baseline_to_beat": {
+        "policy": "evaluator.generic_policy.GenericPolicy(lam=40, placement='latency'), fitted on the merged traffic",
+        "source": "evaluator/benchmark/baseline/generic_baseline_results.json, val.per_tenant.B (measured in the MERGED val replay)",
+        "mean_quality": 0.2756,
+        "cost_usd": 1.254,
+        "cost_usd_per_request": 0.001809,
+        "slo_violation_rate": 0.0,
+        "p95_latency_ms": 185046,
+        "utility": 0.2702
+      },
+      "measured_floors_and_ceilings": {
+        "slo_violation_rate_floor": 0.0,
+        "slo_violation_rate_floor_reason": "every request finishes inside 600,000 ms solo at every provider (99.6-100%), and the published baseline already books 0 violations, so the 'SLO-violation rate < baseline' clause is unsatisfiable for this tenant and the win must come from quality and cost",
+        "peak_concurrency_demand_on_requested_model": {"value": 394, "prime": 286, "courier": 633},
+        "provider_concurrency_limits": {"value": 96, "prime": 32, "courier": 48},
+        "queue_slack_sec_p50": 532.0,
+        "wave_drain_sec_whole_fleet": {"reasoning_class_models": 190.1, "fast_models": 109.2},
+        "best_static_model_train_fit": "deepseek-r1-0528",
+        "best_static_model_train_fit_utility_on_val": 0.2813,
+        "per_class_policy_fitted_on_train_utility_on_val": 0.3133,
+        "unreachable_oracle_utility": 0.6167
+      }
+    },
+    "fit_configuration": {
+      "note": "Fitting is done on the train traces; they are not scored.",
+      "tenant_A": "trace_tenantA_train.jsonl, 2,899 requests, span 3,083.5 s, mean 0.940 rps, peak 240/60 s",
+      "tenant_B": "trace_tenantB_train.jsonl, 1,940 requests, 5 waves of 388 at 4.34 rps, last arrival 2,846.8 s",
+      "caveat": "replay_tenants.py defaults to --split val, so replaying a TRAIN trace without --split none applies the val outage windows to the train timeline: that is the configuration whose exposure is measured above (10.8% of A train arrivals, 20.0% of B train arrivals)."
+    }
+  },
+
+  "properties_a_trace_cannot_reveal": [
+    "What the router must do when an announced outage falls somewhere the val schedule never puts one (the sealed test windows are span-proportional, the val windows are absolute).",
+    "Whether decisions are reproducible across two replays of the same trace: determinism is a property of the router's code, not of the workload.",
+    "Whether anything the router remembers between requests is bounded in size or age: 512 decides per request over thousands of requests is where an unbounded accumulator would show, and no trace reveals it.",
+    "Whether the router mutates its copy of a request or the published fleet view, whether it can double-complete, and whether it ever sheds a request some provider could have served: these are correctness properties the harness types, not workload statistics.",
+    "Liveness under a structurally unservable request, and behaviour at the 8-dispatch outage grace and the 32-defer unserviceable grace.",
+    "What an operator can see after a request goes wrong (nothing the router reports moves the score).",
+    "Behaviour under cross-tenant contention: the scored replay runs one tenant at a time, so no measurement on these traces exercises the shared-fleet interference the deployment is named for."
+  ]
+}

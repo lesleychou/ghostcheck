@@ -1,0 +1,17 @@
+{
+  "domain_knowledge_base": "~/.skydiscover/llm-router",
+  "kb_status": "COLD: the domain knowledge base did not exist at the start of this run, so there was no wiki page to reuse and no decisions.json to honour. Everything below was acquired fresh.",
+  "reused_from_wiki": [],
+  "freshly_cloned": [
+    {"name": "litellm", "url": "https://github.com/BerriAI/litellm", "sha": "30f33a949b8a2bb890a2baee18e2ab7ab015a4f7", "tracked_files": 10707, "language": "Python", "history": "full", "why": "the closest production analogue: a real LLM gateway whose Router decides placement, quota pacing, retries, fallbacks, quarantine and per-caller budgets"},
+    {"name": "routellm", "url": "https://github.com/lm-sys/RouteLLM", "sha": "0b64fdafe049e596a3f5657c219329f24af24198", "tracked_files": 108, "language": "Python", "history": "full", "why": "the reference for quality-versus-price model selection and for how a selection threshold is calibrated"},
+    {"name": "portkey-gateway", "url": "https://github.com/Portkey-AI/gateway", "sha": "669825cbe89ee51569918b8f78a9db486fd69dd4", "tracked_files": 766, "language": "TypeScript", "history": "full", "why": "a second production gateway, config-driven: the contrasting design point on cross-request health memory, fallback chains and per-request timeouts"},
+    {"name": "gaie", "url": "https://github.com/kubernetes-sigs/gateway-api-inference-extension", "sha": "2711ff86a50ae23c5d32387779df8d3db9ca28e4", "tracked_files": 315, "language": "Go", "history": "full", "why": "the strongest reference for placement under live load, saturation-driven admission control, request priority and cross-workload fairness on a shared fleet"},
+    {"name": "llmrouterbench", "url": "https://github.com/ynulihao/LLMRouterBench", "sha": "c77cb0506949d8f959e97967d2fefca0e8ff1b05", "tracked_files": 2331, "language": "Python", "history": "full", "why": "the source of the measured per-prompt per-model quality scores and per-request dollars this task's ground truth is built from, and of its train/test protocol"}
+  ],
+  "shipped_contract": [
+    {"name": "task-evaluator", "path": "skydiscover/synthesize/examples/llm-router/evaluator", "kind": "shipped with the task, not a git clone", "why": "the task ships the interface, the trusted-correct reference router, the baseline to beat and the scoring harness. It is the only authority on what a legal action is, so it is analysed and cited as a reference source in its own right; it does not substitute for the five clones above, which ground the design space around it."}
+  ],
+  "clone_cache": "/path/to/.skydiscover/.cache/sources/<owner>-<repo>, symlinked into specification/sources/<name>",
+  "network": "available; every repository above was cloned during this run and pinned to the commit shown"
+}

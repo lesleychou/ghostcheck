@@ -1,0 +1,132 @@
+{
+  "decisions": [
+    {
+      "id": "quality_information_source",
+      "axis": "model_selection",
+      "q": "What may the router use to judge how well each candidate model would answer a given request?",
+      "chosen": "only signals a deployed router could observe at request time",
+      "answered_by": "ai",
+      "rationale": "Determined by the shipped baseline, not a free choice: evaluator/generic_policy.py:60 scores with a precomputed prediction head keyed by req.features['prompt_id'] (evaluator/benchmark/artifacts/generic_predictions.json), never req.quality. Reading the ground-truth req.quality dict the harness grades with would make the specialist an unreachable oracle and beat the baseline on information, not policy: a reward hack. Router code may read req.features and req.slo only."
+    },
+    {
+      "id": "model_substitution_appetite",
+      "axis": "model_selection",
+      "q": "How freely may the router serve a different model from the one the request named, given that the request permits it?",
+      "chosen": "serve whichever model in the permitted set looks best on quality against price for this request",
+      "answered_by": "ai",
+      "rationale": "SETTLED BY THE MEASURED TRACE, not a default. All 6,504 train+val rows carry downgrade_ok:true and one identical equiv_class of all 12 models, so the permitted set is the whole fleet on every request. On the measured score/cost matrices the requested model is dominated for tenant A: qwen3-235b-a22b-2507 scores 0.5350 vs gpt-5's 0.5113 on val (0.5254 vs 0.4950 on train) at $0.002418 vs $0.025722 per request, a static utility of 0.5277 vs 0.4342. Fleet cost spread is 15.3-20.8x on A traffic and 112.7-123.4x on B traffic, so with the objective's -3.0*cost weight substitution is the widest single lever. cards/workload.json dimensions.quality_cost_landscape."
+    },
+    {
+      "id": "placement_signal",
+      "axis": "placement",
+      "q": "Among the providers that stock the chosen model, what decides which one gets the request?",
+      "chosen": "remaining allowance and expected time-to-answer weighed together",
+      "answered_by": "ai",
+      "rationale": "declared default"
+    },
+    {
+      "id": "behaviour_when_nothing_has_room",
+      "axis": "admission_and_overload",
+      "q": "When no provider can serve a request right now, does the router wait for capacity or refuse the request?",
+      "chosen": "wait for capacity, with an explicit point at which the router gives up",
+      "answered_by": "ai",
+      "rationale": "declared default"
+    },
+    {
+      "id": "give_up_point",
+      "axis": "admission_and_overload",
+      "q": "How long may a request that cannot be served yet keep waiting before the router stops waiting on it?",
+      "chosen": "until its own deadline runs out, and no longer",
+      "answered_by": "ai",
+      "rationale": "SETTLED BY THE MEASURED TRACE. A single fixed patience is provably wrong for one of the two tenants: A's whole budget is 2,500 ms from arrival while B's median queue slack is 532 s and its p90 is 391 s, and B's waves need 109-190 s of whole-fleet drain time that only deadline-length patience makes room for. Both tenants carry a deadline on every row (measured: 100% coverage, no row without an slo field), so tying patience to the request's own deadline is always defined. cards/workload.json dimensions.deadline_feasibility_headroom."
+    },
+    {
+      "id": "allowance_respect",
+      "axis": "rate_limit_pacing",
+      "q": "How should the router stay inside a provider's published request and token allowance?",
+      "chosen": "subtract the request's own expected consumption from the published remaining allowance before dispatching",
+      "answered_by": "ai",
+      "rationale": "SETTLED BY THE MEASURED TRACE. Learning from a rejection is unaffordable for tenant A: a 429 costs a fixed 2,000 ms of a 2,500 ms budget, after which only prime can still land and only for prompts under 6,000 tokens, so 6.28% of A val rows (61/972, every tau2 row) can never recover from one throttle. The rejections are real, not hypothetical: A's val peak offers 181 requests per 60 s against prime's rpm 132 (137%) and courier's 150 (121%), and the env card records 19.4% of tenant-A requests taking at least one prime 429 under the reference router. Token allowances never bind (worst measured 60 s demand is 45% of the tightest tpm), so the subtraction that matters is against rpm and concurrency. cards/workload.json dimensions.fleet_headroom_at_peak."
+    },
+    {
+      "id": "after_a_rejected_attempt",
+      "axis": "retry_and_fallback",
+      "q": "After an attempt is rejected, should the next attempt go to a different provider or wait and try the same one again?",
+      "chosen": "try a different provider first, waiting only when no alternative has room",
+      "answered_by": "ai",
+      "rationale": "declared default"
+    },
+    {
+      "id": "when_a_provider_may_be_used_again",
+      "axis": "outage_and_health",
+      "q": "Once a provider is known to be unavailable, when may the router send it real traffic again?",
+      "chosen": "not before the announced end of its unavailability",
+      "answered_by": "ai",
+      "rationale": "SETTLED BY THE MEASURED TRACE. Outage exposure is not a corner case in this workload: measured against the val schedule, 41.3% of tenant B's val arrivals (286/693, an entire wave: 348.0-437.7 s inside the 300-420 s window) and 15.2% of tenant A's (148/972) land inside an announced prime outage, against 20.0% and 10.8% on train. With retry_grace 8, a policy that re-probes with real traffic burns the loss allowance nine dispatches into a window that lasts 120-150 s. The fleet publishes outage_until, so nothing needs to be inferred. cards/workload.json dimensions.outage_exposure."
+    },
+    {
+      "id": "avoiding_a_provider_that_is_merely_struggling",
+      "axis": "outage_and_health",
+      "q": "Should a provider that is not formally unavailable, but has just been refusing or failing requests, be avoided for a while?",
+      "chosen": "yes: a provider that has just been refusing or failing is passed over for a bounded period",
+      "answered_by": "ai",
+      "rationale": "declared default"
+    },
+    {
+      "id": "deadline_awareness",
+      "axis": "deadline_and_priority",
+      "q": "Does the time left before a request's deadline change what the router does with it?",
+      "chosen": "the deadline changes both the choice of provider and model and how long the request is willing to wait",
+      "answered_by": "ai",
+      "rationale": "SETTLED BY THE MEASURED TRACE. The two tenants' deadlines are 2,500 ms TTFT (A, 100% of 3,871 rows) and 600,000 ms end-to-end (B, 100% of 2,633 rows), a factor of 240, and the feasible action sets differ in kind, not degree: after one 429 A has 500 ms left, so only prime (ttft_base 400 ms) can still meet the SLO and only under 6,000 prompt tokens, while B's median request can queue 532 s and still finish. Measured: A first-try TTFT feasibility prime 98.05% / value 94.44% / courier 93.72% on val; B solo end-to-end feasibility 99.6-100% at every provider. cards/workload.json dimensions.deadline_feasibility_headroom."
+    },
+    {
+      "id": "request_whose_deadline_is_already_gone",
+      "axis": "deadline_and_priority",
+      "q": "What should the router do with a request that can no longer meet its deadline?",
+      "chosen": "serve it anyway, as cheaply as the permitted set allows",
+      "answered_by": "ai",
+      "rationale": "declared default"
+    },
+    {
+      "id": "taking_capacity_from_the_other_tenant",
+      "axis": "tenant_isolation",
+      "q": "May a tenant's router take capacity on the shared fleet that the other tenant would otherwise have used?",
+      "chosen": "yes, up to whatever the provider's published limits allow",
+      "answered_by": "ai",
+      "rationale": "Default taken, and the harness makes it non-adversarial: evaluator/benchmark/replay_tenants.py replays ONE tenant trace at a time (trace_tenantA_val.jsonl / trace_tenantB_val.jsonl), so no specialist can observe or starve the other tenant inside a scored replay. Self-imposed headroom would only handicap; published provider limits remain the binding constraint."
+    },
+    {
+      "id": "spend_bound",
+      "axis": "cost_control",
+      "q": "Is what the router spends bounded by anything other than the traffic itself?",
+      "chosen": "price is weighed against quality on every request, with no hard ceiling",
+      "answered_by": "ai",
+      "rationale": "declared default"
+    },
+    {
+      "id": "replay_reproducibility",
+      "axis": "policy_state_and_determinism",
+      "q": "Must two replays of the same trace produce the same decisions?",
+      "chosen": "identical decisions on identical input",
+      "answered_by": "ai",
+      "rationale": "declared default"
+    },
+    {
+      "id": "memory_the_router_keeps",
+      "axis": "policy_state_and_determinism",
+      "q": "What bounds anything the router remembers between requests?",
+      "chosen": "an explicit size or age limit on everything remembered",
+      "answered_by": "ai",
+      "rationale": "declared default"
+    },
+    {
+      "id": "what_an_operator_can_see",
+      "axis": "decision_observability",
+      "q": "What must an operator be able to see after a request goes wrong?",
+      "chosen": "which provider and model served it, how many attempts it took, and why each earlier attempt failed",
+      "answered_by": "ai",
+      "rationale": "declared default"
+    }
+  ]
+}

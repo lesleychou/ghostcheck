@@ -1,0 +1,247 @@
+{
+  "machine": {
+    "note": "The scored resource is NOT the host: replay_tenants.py is a discrete-event simulation in simulated time on a frozen fleet. Host facts are recorded only because the harness enforces a real wall-clock liveness budget (replay.py:36 DEFAULT_MAX_WALL_MS = 600000 ms) and a decide() budget (512/request).",
+    "host_cpu": "Apple M2, 8 cores",
+    "host_memory_bytes": 25769803776,
+    "host_os": "macOS 15.6.1",
+    "python": "3.10.9 (pure Python + PyYAML; no network, no GPU)",
+    "host_wall_clock_per_train_replay_s": "4-40 s per tenant trace, far inside the 600 s budget; the host is not a bound",
+    "fleet": {
+      "source": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml (frozen, sha256 14b1d5b1ac020b7e1b8d8d5d331fae948cd125f13da598b263f586ff9e447b16)",
+      "providers": 3,
+      "models": 12,
+      "value": {
+        "rpm": 420,
+        "tpm": 12000000,
+        "concurrency": 96,
+        "ttft_base_ms": 700,
+        "prefill_tps": 25000,
+        "decode_tps": 70,
+        "error_rate": 0.008,
+        "price": "derived base rates, 8 open-weight models only"
+      },
+      "prime": {
+        "rpm": 132,
+        "tpm": 3500000,
+        "concurrency": 32,
+        "ttft_base_ms": 400,
+        "prefill_tps": 60000,
+        "decode_tps": 100,
+        "error_rate": 0.002,
+        "price": "derived base rates, all 12; the only provider with scheduled outages"
+      },
+      "courier": {
+        "rpm": 150,
+        "tpm": 5000000,
+        "concurrency": 48,
+        "ttft_base_ms": 1700,
+        "prefill_tps": 12000,
+        "decode_tps": 40,
+        "error_rate": 0.02,
+        "price": "0.80x base rates, all 12"
+      },
+      "fleet_totals": {
+        "rpm": 702,
+        "tpm": 20500000,
+        "concurrency": 176
+      },
+      "outage_windows_val_ms": [
+        [
+          300000,
+          420000
+        ],
+        [
+          780000,
+          930000
+        ]
+      ],
+      "retry_after_ms": 2000,
+      "retry_grace": 8,
+      "quality": "frozen ground-truth per-prompt per-model score matrix (matrix_tenant{A,B}_train.jsonl); the harness grades from req.quality, the router may not read it"
+    }
+  },
+  "scored_configuration": {
+    "objective": "U = mean_quality - 1.0*slo_violation_rate - 3.0*cost_usd_per_request, per tenant",
+    "harness": "evaluator/benchmark/replay_tenants.py, one tenant trace at a time",
+    "split_measured_here": "train only (trace_tenantA_train.jsonl n=2899, 51.4 min; trace_tenantB_train.jsonl n=1940, 47.4 min)",
+    "outages": "measured both with --split val (the two literal prime windows, 270 s total) and --split none; the val windows are the only outage schedule this run may see",
+    "tenant_A": {
+      "n": 2899,
+      "slo": "ttft_ms 2500",
+      "mean_arrivals_per_min": 56.4,
+      "peak_60s_arrivals": 240,
+      "model_requested": "gpt-5",
+      "equiv_class": "all 12, downgrade_ok"
+    },
+    "tenant_B": {
+      "n": 1940,
+      "slo": "latency_ms 600000",
+      "mean_arrivals_per_min": 40.9,
+      "peak_60s_arrivals": 278,
+      "model_requested": "deepseek-r1-0528",
+      "equiv_class": "all 12, downgrade_ok"
+    },
+    "baseline": "evaluator.generic_policy.GenericPolicy(lam=40, placement='latency'), zero-arg construction"
+  },
+  "bound": {
+    "resource": "the fleet's quality-versus-price frontier, read through an observable-feature quality estimator; secondarily prime's prefill throughput against tenant A's prompt-size tail, and the scheduled prime outages. Provider rate limits (RPM/TPM/concurrency) are NOT the binding resource in the scored per-tenant replay.",
+    "evidence": [
+      "Where U goes, measured on train with outages (profiling/replays/): tenant A baseline U 0.5695 = quality 0.6212 - slo 0.0386 - 3*$0.004362. The cost term is worth only 0.0131 U at the baseline's spend and 0.0029 U at the absolute cost floor, so >95% of the achievable movement in U is quality selection and, for tenant A, the SLO term.",
+      "Information, not capacity, is the largest single term: with the SAME policy shape, an oracle that reads req.quality reaches U_A 0.8016 / U_B 0.5718, while the identical policy reading only the observable ridge head (req.features['prompt_id']) reaches U_A 0.6687 / U_B 0.4631. The 0.13 (A) and 0.11 (B) difference is pure quality information and is off limits (decision_log 'quality_information_source').",
+      "Rate limits barely bind when one tenant is replayed alone: ProbeOracleU on tenant A train issued 2937 decide() calls for 2899 requests, with 0 throttles_429 on all three providers; tenant A's 60 s peak of 240 arrivals is 34.2% of fleet RPM (42.1% with prime removed) and its peak token rate is 11.4% of fleet TPM. The env card's measured 19.4%-of-A-requests-throttled figure was taken on the MERGED trace; the scored replay is per tenant, so that contention is not in the score.",
+      "Tenant A carries a hard SLO floor from prefill throughput alone: prime (ttft_base 400 ms, prefill 60000 tok/s) can serve at most 126000 prompt tokens inside 2.5 s; 63 of 2899 train requests (2.17%) exceed that on EVERY provider at zero queue, so slo_violation_rate >= 0.0217 for tenant A no matter what the router does. The zero-queue optimum and both measured probes all land exactly on 0.0217 without outages.",
+      "The outage windows tighten that floor: without prime, the 2.5 s budget admits only 45000 prompt tokens (value) / 9600 (courier); 312 of 2899 tenant-A train requests (10.8%) arrive inside the 270 s of val windows and 20 of them (0.69% of the trace) become unservable-in-SLO for the duration. Measured cost of the windows: A 0.0217 -> 0.0259 slo rate and -0.008 U; B -0.003 U.",
+      "Tenant B has no SLO floor: its 600 s budget is met on every provider/model pair at zero queue (0 violations measured in every train replay, p95 169-210 s)."
+    ]
+  },
+  "limit": {
+    "spec_sheet": {
+      "value": 702,
+      "unit": "fleet requests/min (420 value + 132 prime + 150 courier), 20.5M tokens/min, 176 concurrent",
+      "note": "published provider tiers from env_card.yaml; not the binding limit here"
+    },
+    "achieved": {
+      "value": 0.0,
+      "unit": "throttles_429 per tenant on the full train trace, all three providers, for the baseline and both ceiling probes",
+      "detail": {
+        "tenant_A_peak_60s_arrivals_vs_fleet_rpm": "240 / 702 = 34.2%",
+        "tenant_A_peak_60s_tokens_vs_fleet_tpm": "2344727 / 20500000 = 11.4%",
+        "tenant_B_peak_60s_arrivals_vs_fleet_rpm": "278 / 702 = 39.6%",
+        "tenant_B_peak_60s_tokens_vs_fleet_tpm": "1140625 / 20500000 = 5.6%",
+        "single_provider_pressure": "each tenant's 60 s peak is 160% (A) and 185% (B) of courier's RPM alone, so a cheapest-provider-only policy queues; spilling to value/prime removes the queue entirely"
+      }
+    },
+    "quality_and_price_limit": {
+      "oracle_quality_ceiling_mean": {
+        "A": 0.843,
+        "B": 0.65,
+        "method": "per request, max over permitted models of the frozen req.quality dict, train split"
+      },
+      "cost_floor_usd_per_request": {
+        "A": 0.000953,
+        "B": 0.000688,
+        "method": "per request, min over (provider, permitted model) of (prompt_tokens*in + expected_output_tokens*out)/1e6 with the harness's own billing formula (replay_tenants.py TenantProvider.admit); prefix_tokens are 0 everywhere so no cache credit exists"
+      },
+      "cost_floor_worth_in_U": {
+        "A": 0.00286,
+        "B": 0.00206,
+        "note": "3 * cost floor: driving cost to its floor is worth less than 0.003 U, so cost is a guard rail, not a lever"
+      }
+    },
+    "method": "All numbers from the train split only; no *_test.* file was opened and no val evaluation was spent. Analytic bounds: .skydiscover/llm-router/specification/profiling/fleet_bounds.py (single deterministic pass over both train traces against the frozen card). Reachable bounds: .skydiscover/llm-router/specification/profiling/probe_routers.py driven through the real harness, `python3 evaluator/benchmark/replay_tenants.py .data/traces/trace_tenant{A,B}_train.jsonl {evaluator.generic_policy.GenericPolicy|probe_routers.ProbeHeadU|probe_routers.ProbeOracleU} --split {val|none} --json`, 12 runs, all outputs in profiling/replays/. The replay is deterministic (sim_seed 11), so one sample per configuration is the measurement; every run reported violation_count 0 and aborted null."
+  },
+  "ceiling": {
+    "value": {
+      "tenant_A": 0.669,
+      "tenant_B": 0.462
+    },
+    "unit": "U = mean_quality - 1.0*slo_violation_rate - 3.0*cost_usd_per_request, per tenant, train split, prime outage windows applied",
+    "derivation": "ACHIEVABLE ceiling, observable features only (the one that matters). Zero-queue per-request optimum under the shipped ridge head, argmax over (provider, permitted model) of qhat(m) - 3*cost(p,m,req) - 1[ttft/latency misses the SLO]: A 0.6795 (q 0.7237, $0.007499, slo 0.0217), B 0.4902 (q 0.5356, $0.015129, slo 0.0). Subtract the measured cost of rate limits, queueing and the prime outage windows, obtained by driving exactly that rule through the real harness (ProbeHeadU): A 0.6687 measured, B 0.4631 measured, i.e. the queue+outage tax is 0.011 U (A) and 0.027 U (B). Ceiling = the measured reachable value, rounded up to the zero-queue bound: A 0.669, B 0.462.",
+    "oracle_ceiling_unreachable": {
+      "value": {
+        "tenant_A": 0.802,
+        "tenant_B": 0.572
+      },
+      "derivation": "Same construction reading the ground-truth req.quality dict: zero-queue optimum A 0.8104 / B 0.6206, measured through the harness (ProbeOracleU, --split val) A 0.8016 (q 0.8382, $0.003573, slo 0.0259) / B 0.5718 (q 0.5938, $0.007331, slo 0.0). FORBIDDEN by decision_log 'quality_information_source'; recorded only as context. A candidate scoring above the achievable ceiling is reading req.quality and is a reward hack.",
+      "information_gap_U": {
+        "tenant_A": 0.133,
+        "tenant_B": 0.109
+      }
+    },
+    "no_learning_floor": {
+      "value": {
+        "tenant_A": 0.507,
+        "tenant_B": 0.362
+      },
+      "derivation": "Best FIXED (provider, model) per observable cell (task x difficulty_hint decile), zero queue. A router with no per-prompt quality estimator cannot beat this; both values are BELOW the baseline, so the shipped ridge head is doing real work and a specialist must keep a per-prompt quality estimate."
+    },
+    "irreducible_slo_floor": {
+      "tenant_A": {
+        "no_outage": 0.0217,
+        "with_val_outage_windows": 0.0259,
+        "derivation": "63/2899 train requests have prompt_tokens > 126000 = (2500 ms - 400 ms) * 60000 tok/s, prime's best case, so no provider can start their first token inside 2.5 s; +20 more arrive inside a prime outage window with prompt_tokens > 45000, value's best case. Worth 0.0259 U that no router can recover."
+      },
+      "tenant_B": {
+        "no_outage": 0.0,
+        "with_val_outage_windows": 0.0,
+        "derivation": "the 600 s budget is met by every provider/model pair at zero queue; measured 0 violations in all six tenant-B train replays"
+      }
+    },
+    "unknowable": "How much of the train ceiling transfers. The ridge head is fit IN-SAMPLE on the train matrices (baseline/train_generic.py:81-84), so train quality is optimistic. Measured shrink for the SAME policy at the SAME config, from the shipped baseline record (generic_baseline_results.json, read, not re-run, so no val evaluation was spent): tenant A U 0.5695 train -> 0.4361 val (-0.133), tenant B 0.3855 train -> 0.2702 val (-0.115). Expect the val-equivalent ceilings to be about A 0.54 and B 0.35. The transferable quantity is the GAP over the baseline, not the absolute level."
+  },
+  "baseline_reference_point": {
+    "source": "re-measured here with evaluator/benchmark/replay_tenants.py on the train traces; the shipped evaluator/benchmark/baseline/generic_baseline_results.json reports VAL per-tenant numbers only, so it does not cover the train split and its val figures are quoted only for the train->val shrink estimate above",
+    "train_with_val_outage_windows": {
+      "A": {
+        "U": 0.5695,
+        "mean_quality": 0.6212,
+        "cost_usd_per_request": 0.004362,
+        "slo_violation_rate": 0.0386,
+        "throttles_429": 0,
+        "p95_ttft_ms": 1733.0,
+        "violation_count": 0
+      },
+      "B": {
+        "U": 0.3855,
+        "mean_quality": 0.3907,
+        "cost_usd_per_request": 0.001746,
+        "slo_violation_rate": 0.0,
+        "throttles_429": 0,
+        "p95_latency_ms": 172202,
+        "violation_count": 0
+      }
+    },
+    "train_without_outages": {
+      "A": {
+        "U": 0.5736,
+        "mean_quality": 0.6212,
+        "cost_usd_per_request": 0.004362,
+        "slo_violation_rate": 0.0345
+      },
+      "B": {
+        "U": 0.3855,
+        "mean_quality": 0.3907,
+        "cost_usd_per_request": 0.001749,
+        "slo_violation_rate": 0.0
+      }
+    },
+    "shipped_val_record_for_reference": {
+      "A": {
+        "U": 0.4361,
+        "mean_quality": 0.5195,
+        "cost_usd_per_request": 0.004135,
+        "slo_violation_rate": 0.071
+      },
+      "B": {
+        "U": 0.2702,
+        "mean_quality": 0.2756,
+        "cost_usd_per_request": 0.00181,
+        "slo_violation_rate": 0.0
+      }
+    }
+  },
+  "closable_gap": {
+    "tenant_A": {
+      "U": 0.099,
+      "from": 0.5695,
+      "to": 0.669
+    },
+    "tenant_B": {
+      "U": 0.078,
+      "from": 0.3855,
+      "to": 0.462
+    },
+    "why_it_is_real": "ProbeHeadU uses the SAME ridge head as the baseline, so none of this gap is extra information. It comes from three policy defects the probe fixes: (1) the baseline scores models with a per-model TRAIN-MEAN cost (generic_policy.py:59 self.mean_cost[m]) instead of this request's actual prompt_tokens/expected_output_tokens at this provider's price; (2) it picks the model first and the provider second, so it never trades a model against courier's 0.80x rates; (3) its lam=40 was tuned on merged traffic and is 13x the true cost weight of 3.0 in U, which buys cheapness the objective does not pay for. Tenant A must additionally keep its 2.5 s TTFT term (worth up to 0.017 U above the 0.0217 floor), tenant B has no SLO term at all and is a pure quality-per-dollar problem.",
+    "levers_ranked": [
+      "A and B: score (provider, model) jointly with the request's own token counts at the true weight 3.0 USD^-1, not lam=40 against a per-model mean.",
+      "B: spend more, not less. The tenant-B ceiling costs $0.0151/request against the baseline's $0.0017; at 3 USD^-1 a cent of extra spend is worth 0.03 U and buys 0.145 mean quality.",
+      "A: prefer courier for the small-prompt bulk (median prompt_tokens 28, courier ttft 1702 ms fits 2.5 s) and reserve prime for the prompt-size tail; 5.59% of A's requests exceed courier's 9600-token TTFT budget and must not go there.",
+      "A: honour the announced outage (empty catalogue + outage_until) instead of retrying into it; the grace is 8 dispatches before outage_lost, and the 2000 ms retry_after alone exceeds 80% of the 2.5 s budget."
+    ]
+  },
+  "protocol": {
+    "test_split": "no *_test.* trace, matrix or manifest was read, opened, replayed or inspected",
+    "val_split": "no val replay was run; generic_baseline_results.json was read as a shipped artifact, which is not one of the five logged val evaluations"
+  },
+  "measured_at": "2026-09-13T23:16:42Z"
+}

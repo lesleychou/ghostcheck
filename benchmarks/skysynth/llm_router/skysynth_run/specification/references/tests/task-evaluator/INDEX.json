@@ -1,0 +1,122 @@
+[
+  {
+    "axis": "model_selection",
+    "kind": "assert",
+    "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+    "line": 312,
+    "copied_as": null,
+    "what_it_checks": "that a served model outside the request's declared equivalence set, or any substitution on a request that forbids downgrading, is a typed failure"
+  },
+  {
+    "axis": "admission_and_overload",
+    "kind": "assert",
+    "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+    "line": 277,
+    "copied_as": null,
+    "what_it_checks": "that refusing a request while some non-down provider still had request, token and concurrency headroom for a legally substitutable model is a typed failure"
+  },
+  {
+    "axis": "outage_and_health",
+    "kind": "assert",
+    "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+    "line": 333,
+    "copied_as": null,
+    "what_it_checks": "that dispatching into an announced outage more than the grace of 8 attempts loses the request"
+  },
+  {
+    "axis": "retry_and_fallback",
+    "kind": "assert",
+    "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+    "line": 409,
+    "copied_as": null,
+    "what_it_checks": "that a request is completed and billed exactly once"
+  },
+  {
+    "axis": "admission_and_overload",
+    "kind": "assert",
+    "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+    "line": 451,
+    "copied_as": null,
+    "what_it_checks": "that every request ends either completed or refused: one left in neither state is a typed loss"
+  },
+  {
+    "axis": "policy_state_and_determinism",
+    "kind": "assert",
+    "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+    "line": 292,
+    "copied_as": null,
+    "what_it_checks": "that waiting more than 32 times on a request no provider could ever serve is treated as losing it, not as patience"
+  },
+  {
+    "axis": "policy_state_and_determinism",
+    "kind": "assert",
+    "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+    "line": 238,
+    "copied_as": null,
+    "what_it_checks": "that the router's copy of a request still matches harness truth after every callback"
+  },
+  {
+    "axis": "policy_state_and_determinism",
+    "kind": "assert",
+    "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+    "line": 382,
+    "copied_as": null,
+    "what_it_checks": "that a non-progressing policy aborts loudly against a 512-decision-per-request budget instead of grinding"
+  },
+  {
+    "axis": "cost_control",
+    "kind": "assert",
+    "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+    "line": 359,
+    "copied_as": null,
+    "what_it_checks": "that a bill is never negative and never below the all-cached price floor"
+  },
+  {
+    "axis": "cost_control",
+    "kind": "assert",
+    "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+    "line": 455,
+    "copied_as": null,
+    "what_it_checks": "that the provider's own meter and the harness's independent ledger agree at end of run"
+  },
+  {
+    "axis": "cost_control",
+    "kind": "assert",
+    "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+    "line": 453,
+    "copied_as": null,
+    "what_it_checks": "that the frozen fleet configuration is byte-identical at end of run: nothing the router touched aliased the fleet's own tables"
+  },
+  {
+    "axis": "placement",
+    "kind": "assert",
+    "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+    "line": 320,
+    "copied_as": null,
+    "what_it_checks": "that dispatching to an unknown provider or to a provider that does not stock the model is a typed failure and does NOT reschedule the request"
+  },
+  {
+    "axis": "deadline_and_priority",
+    "kind": "assert",
+    "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+    "line": 492,
+    "copied_as": null,
+    "what_it_checks": "that a refused, lost or dead request counts as SLO-violated in its tenant's rate, so dropping hard traffic cannot improve the rate"
+  },
+  {
+    "axis": "model_selection",
+    "kind": "assert",
+    "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+    "line": 466,
+    "copied_as": null,
+    "what_it_checks": "that a refused request books zero quality and a quality-floor miss"
+  },
+  {
+    "axis": "policy_state_and_determinism",
+    "kind": "test",
+    "path": "skydiscover/synthesize/examples/llm-router/evaluator/reference_router.py",
+    "line": 9,
+    "copied_as": null,
+    "what_it_checks": "the trusted-correct oracle every kept test must pass: requested model, first provider that stocks it, wait otherwise"
+  }
+]

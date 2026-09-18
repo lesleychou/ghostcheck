@@ -1,0 +1,32 @@
+# Extra tag words this domain needs, beyond the shipped tags.yaml. Same shape.
+tags:
+  - routing
+  - placement
+  - model-selection
+  - quality
+  - cost
+  - budget
+  - metering
+  - rate-limit
+  - quota
+  - retry
+  - fallback
+  - outage
+  - health
+  - deadline
+  - slo
+  - multi-tenancy
+  - fairness
+  - admission
+  - queueing
+  - overload
+  - observability
+  - calibration
+  - benchmark-integrity
+  - data-leakage
+  - reproducibility
+  - simulation
+  - streaming
+  - caching
+  - load-balancing
+  - provider-api

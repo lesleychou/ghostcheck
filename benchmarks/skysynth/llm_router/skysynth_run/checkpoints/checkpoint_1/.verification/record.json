@@ -1,0 +1,33 @@
+{
+  "entry": ".",
+  "inputs": {
+    "implementation": "sha256:67f35d577eb9e295c913d3f721a22c6651e447521b7115e9da56780ecc2c54b1",
+    "task": "sha256:ca3a2d09cb16f890c1b7735c459b0bdc9d8318c4028957eb938b00597f2ee750",
+    "specification": "sha256:558d0191b7842175df31c8bf12b3c25c6c522b4547d5d5711254714fea0bc214",
+    "tests": "sha256:3d268f7a682c88d85ce25c52d7f6e1a23a4fbc9d5f143839195a4205d08825b1",
+    "evaluator": "sha256:5a873eda14a7219adadb739b9f393e43685772d49f82a515ca6033472921405f"
+  },
+  "config": {
+    "operating_point": "cards/requirements.json operating_point: TRAIN trace per tenant, --split val outage schedule, full trace, no truncation",
+    "harness": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+    "harness_sha256": "fea8979ca81c61a28c7821c96d1a94fa688ddd1a72afbd8e0307aa7f64535bc2",
+    "replay_sha256": "bc44239aace17032cb541d3b0ed2c686b931b395ff3fe499ed6b5704fcf84a87",
+    "env_card": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml",
+    "env_card_sha256": "04a63812f54082abdd2dc4b4d4c865d0bb27cb0719315325cdfbb917ec0135c4",
+    "env_card_sha256_note": "the cards label this file 14b1d5b1...; that label is stale (decision log finding on provenance digests). 04a63812 is the file the harness actually read, git-clean at commit c30ca19.",
+    "trace_split": "train",
+    "outage_schedule": "val (prime down 300000-420000 ms and 780000-930000 ms, retry_grace 8)",
+    "trace_tenantA": "trace_tenantA_train.jsonl",
+    "trace_tenantA_sha256": "0b8cceecc9fef82c5a857e0ec8c9ffef9e5523568790a32d5af697025ae035a0",
+    "trace_tenantB": "trace_tenantB_train.jsonl",
+    "trace_tenantB_sha256": "e5f4160154d633841aa5f94563e93f6a0a634e5c6c53d0de59ebc14090dd9870",
+    "predictions_artifact_sha256": "5980ac97fc4009c9ede3f4a95a174aeca3fd133b6a1c45f4db6598448bb96bed",
+    "max_wall_ms": null,
+    "max_decides": null,
+    "replays_per_tenant": 2,
+    "python": "3.10.9",
+    "host": "Apple M2, 8 cores, macOS 15.6.1, arm64",
+    "constructed": "zero-arg, fresh instance per replay; PYTHONPATH=<run>/synthesis/impl"
+  },
+  "direction": "max"
+}

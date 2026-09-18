@@ -1,0 +1,540 @@
+{
+  "system": "portkey-gateway",
+  "checked_at": "2026-09-13T19:04:18",
+  "method": "Every file:line in this system's spec.json, properties.json, design_principles.json and decisions.json was re-read from the pinned source. The asserted line number was ignored: the most distinctive identifier or numeric literal on that line was extracted and the whole file grepped for it. CONFIRMED = the symbol really is on that line; OFF_BY = it is elsewhere in the file (corrected line given); WRONG = it is not in the file at all; UNVERIFIABLE = the file or line does not exist, or the line carries no distinctive symbol (a brace, a comment marker).",
+  "source_pin": "read at cloned HEAD",
+  "counts": {
+    "CONFIRMED": 66
+  },
+  "total": 66,
+  "rows": [
+    {
+      "path": "src/globals.ts",
+      "line": 5,
+      "verdict": "CONFIRMED",
+      "symbol": "MAX_RETRY_LIMIT_MS",
+      "matched_within_lines": 1,
+      "text": "export const MAX_RETRY_LIMIT_MS = 60 * 1000; // 60 seconds"
+    },
+    {
+      "path": "src/globals.ts",
+      "line": 13,
+      "verdict": "CONFIRMED",
+      "symbol": "HEADER_KEYS",
+      "matched_within_lines": 1,
+      "text": "export const HEADER_KEYS: Record<string, string> = {"
+    },
+    {
+      "path": "src/globals.ts",
+      "line": 38,
+      "verdict": "CONFIRMED",
+      "symbol": "RETRY_STATUS_CODES",
+      "matched_within_lines": 1,
+      "text": "export const RETRY_STATUS_CODES = [429, 500, 502, 503, 504];"
+    },
+    {
+      "path": "src/globals.ts",
+      "line": 39,
+      "verdict": "CONFIRMED",
+      "symbol": "MAX_RETRIES",
+      "matched_within_lines": 1,
+      "text": "export const MAX_RETRIES = 5;"
+    },
+    {
+      "path": "src/globals.ts",
+      "line": 40,
+      "verdict": "CONFIRMED",
+      "symbol": "REQUEST_TIMEOUT_STATUS_CODE",
+      "matched_within_lines": 1,
+      "text": "export const REQUEST_TIMEOUT_STATUS_CODE = 408;"
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 321,
+      "verdict": "CONFIRMED",
+      "symbol": "brhResponse",
+      "matched_within_lines": 1,
+      "text": "response: brhResponse,"
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 407,
+      "verdict": "CONFIRMED",
+      "symbol": "preRequestValidatorService",
+      "matched_within_lines": 1,
+      "text": "const preRequestValidatorService = new PreRequestValidatorService("
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 476,
+      "verdict": "CONFIRMED",
+      "symbol": "tryTargetsRecursively",
+      "matched_within_lines": 1,
+      "text": "export async function tryTargetsRecursively("
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 491,
+      "verdict": "CONFIRMED",
+      "symbol": "currentInheritedConfig",
+      "matched_within_lines": 1,
+      "text": "const currentInheritedConfig: Record<string, any> = {"
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 493,
+      "verdict": "CONFIRMED",
+      "symbol": "overrideParams",
+      "matched_within_lines": 1,
+      "text": "overrideParams: {"
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 553,
+      "verdict": "CONFIRMED",
+      "symbol": "requestTimeout",
+      "matched_within_lines": 1,
+      "text": "if (currentTarget.requestTimeout) {"
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 626,
+      "verdict": "CONFIRMED",
+      "symbol": "overrideParams",
+      "matched_within_lines": 1,
+      "text": "currentTarget.overrideParams = {"
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 646,
+      "verdict": "CONFIRMED",
+      "symbol": "isHandlingCircuitBreaker",
+      "matched_within_lines": 1,
+      "text": "const isHandlingCircuitBreaker = currentInheritedConfig.id;"
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 653,
+      "verdict": "CONFIRMED",
+      "symbol": "filter",
+      "matched_within_lines": 1,
+      "text": ".filter((t: any) => !t.isOpen);"
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 662,
+      "verdict": "CONFIRMED",
+      "symbol": "strategyMode",
+      "matched_within_lines": 1,
+      "text": "switch (strategyMode) {"
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 664,
+      "verdict": "CONFIRMED",
+      "symbol": "currentTarget",
+      "matched_within_lines": 1,
+      "text": "for (const [index, target] of currentTarget.targets.entries()) {"
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 673,
+      "verdict": "CONFIRMED",
+      "symbol": "currentJsonPath",
+      "matched_within_lines": 1,
+      "text": "`${currentJsonPath}.targets[${originalIndex}]`,"
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 676,
+      "verdict": "CONFIRMED",
+      "symbol": "currentTarget",
+      "matched_within_lines": 1,
+      "text": "const codes = currentTarget.strategy?.onStatusCodes;"
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 677,
+      "verdict": "CONFIRMED",
+      "symbol": "gatewayException",
+      "matched_within_lines": 1,
+      "text": "const gatewayException ="
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 694,
+      "verdict": "CONFIRMED",
+      "symbol": "currentTarget",
+      "matched_within_lines": 1,
+      "text": "currentTarget.targets.forEach((t: Options) => {"
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 704,
+      "verdict": "CONFIRMED",
+      "symbol": "randomWeight",
+      "matched_within_lines": 1,
+      "text": "let randomWeight = Math.random() * totalWeight;"
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 705,
+      "verdict": "CONFIRMED",
+      "symbol": "currentTarget",
+      "matched_within_lines": 1,
+      "text": "for (const [index, provider] of currentTarget.targets.entries()) {"
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 749,
+      "verdict": "CONFIRMED",
+      "symbol": "conditionalRouter",
+      "matched_within_lines": 1,
+      "text": "} catch (conditionalRouter: any) {"
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 768,
+      "verdict": "CONFIRMED",
+      "symbol": "originalIndex",
+      "matched_within_lines": 1,
+      "text": "const originalIndex = currentTarget.targets[0].originalIndex || 0;"
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 781,
+      "verdict": "CONFIRMED",
+      "symbol": "default",
+      "matched_within_lines": 1,
+      "text": "default:"
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 793,
+      "verdict": "CONFIRMED",
+      "symbol": "handleCircuitBreakerResponse",
+      "matched_within_lines": 1,
+      "text": "await c.get('handleCircuitBreakerResponse')?.("
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 805,
+      "verdict": "CONFIRMED",
+      "symbol": "console",
+      "matched_within_lines": 1,
+      "text": "console.error("
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 815,
+      "verdict": "CONFIRMED",
+      "symbol": "response",
+      "matched_within_lines": 1,
+      "text": "response = new Response("
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 1250,
+      "verdict": "CONFIRMED",
+      "symbol": "afterRequestHookHandler",
+      "matched_within_lines": 1,
+      "text": "const arhResponse = await afterRequestHookHandler("
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 1258,
+      "verdict": "CONFIRMED",
+      "symbol": "remainingRetryCount",
+      "matched_within_lines": 1,
+      "text": "const remainingRetryCount ="
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 1266,
+      "verdict": "CONFIRMED",
+      "symbol": "request",
+      "matched_within_lines": 1,
+      "text": "// Log the request here since we're about to retry"
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 1273,
+      "verdict": "CONFIRMED",
+      "symbol": "recursiveAfterRequestHookHandler",
+      "matched_within_lines": 1,
+      "text": "return recursiveAfterRequestHookHandler("
+    },
+    {
+      "path": "src/handlers/handlerUtils.ts",
+      "line": 1284,
+      "verdict": "CONFIRMED",
+      "symbol": "retryAttemptsMade",
+      "matched_within_lines": 1,
+      "text": "let lastAttempt = (retryCount || 0) + retryAttemptsMade;"
+    },
+    {
+      "path": "src/handlers/retryHandler.ts",
+      "line": 10,
+      "verdict": "CONFIRMED",
+      "symbol": "AbortController",
+      "matched_within_lines": 1,
+      "text": "const controller = new AbortController();"
+    },
+    {
+      "path": "src/handlers/retryHandler.ts",
+      "line": 25,
+      "verdict": "CONFIRMED",
+      "symbol": "clearTimeout",
+      "matched_within_lines": 1,
+      "text": "clearTimeout(timeoutId);"
+    },
+    {
+      "path": "src/handlers/retryHandler.ts",
+      "line": 27,
+      "verdict": "CONFIRMED",
+      "symbol": "AbortError",
+      "matched_within_lines": 1,
+      "text": "if (err.name === 'AbortError') {"
+    },
+    {
+      "path": "src/handlers/retryHandler.ts",
+      "line": 91,
+      "verdict": "CONFIRMED",
+      "symbol": "timeout",
+      "matched_within_lines": 1,
+      "text": "if (timeout) {"
+    },
+    {
+      "path": "src/handlers/retryHandler.ts",
+      "line": 103,
+      "verdict": "CONFIRMED",
+      "symbol": "statusCodesToRetry",
+      "matched_within_lines": 1,
+      "text": "if (statusCodesToRetry.includes(response.status)) {"
+    },
+    {
+      "path": "src/handlers/retryHandler.ts",
+      "line": 108,
+      "verdict": "CONFIRMED",
+      "symbol": "followProviderRetry",
+      "matched_within_lines": 1,
+      "text": "if (response.status === 429 && followProviderRetry) {"
+    },
+    {
+      "path": "src/handlers/retryHandler.ts",
+      "line": 129,
+      "verdict": "CONFIRMED",
+      "symbol": "retryAfter",
+      "matched_within_lines": 1,
+      "text": "// break the loop if the retryAfter is greater than the max retry limit"
+    },
+    {
+      "path": "src/handlers/retryHandler.ts",
+      "line": 155,
+      "verdict": "CONFIRMED",
+      "symbol": "response",
+      "matched_within_lines": 1,
+      "text": "} else if (response.status >= 200 && response.status <= 204) {"
+    },
+    {
+      "path": "src/handlers/retryHandler.ts",
+      "line": 174,
+      "verdict": "CONFIRMED",
+      "symbol": "retryCount",
+      "matched_within_lines": 2,
+      "text": "{ ... retries: retryCount,"
+    },
+    {
+      "path": "src/handlers/services/cacheService.ts",
+      "line": 93,
+      "verdict": "CONFIRMED",
+      "symbol": "cacheResponse",
+      "matched_within_lines": 1,
+      "text": "const [cacheResponse, cacheStatus, cacheKey] ="
+    },
+    {
+      "path": "src/handlers/services/hooksService.ts",
+      "line": 10,
+      "verdict": "CONFIRMED",
+      "symbol": "requestContext",
+      "matched_within_lines": 1,
+      "text": "constructor(private requestContext: RequestContext) {"
+    },
+    {
+      "path": "src/handlers/services/logsService.ts",
+      "line": 206,
+      "verdict": "CONFIRMED",
+      "symbol": "requestLogs",
+      "matched_within_lines": 1,
+      "text": "get requestLogs(): any[] {"
+    },
+    {
+      "path": "src/handlers/services/logsService.ts",
+      "line": 289,
+      "verdict": "CONFIRMED",
+      "symbol": "modelPricingConfig",
+      "matched_within_lines": 1,
+      "text": "requestContext.providerOption.modelPricingConfig &&"
+    },
+    {
+      "path": "src/handlers/services/preRequestValidatorService.ts",
+      "line": 19,
+      "verdict": "CONFIRMED",
+      "symbol": "preRequestValidator",
+      "matched_within_lines": 1,
+      "text": "if (!this.preRequestValidator) {"
+    },
+    {
+      "path": "src/handlers/services/requestContext.ts",
+      "line": 47,
+      "verdict": "CONFIRMED",
+      "symbol": "overrideParams",
+      "matched_within_lines": 1,
+      "text": "get overrideParams(): Params {"
+    },
+    {
+      "path": "src/handlers/services/requestContext.ts",
+      "line": 51,
+      "verdict": "CONFIRMED",
+      "symbol": "params",
+      "matched_within_lines": 1,
+      "text": "get params(): Params {"
+    },
+    {
+      "path": "src/handlers/services/requestContext.ts",
+      "line": 59,
+      "verdict": "CONFIRMED",
+      "symbol": "overrideParams",
+      "matched_within_lines": 1,
+      "text": ": { ...this.requestBody, ...this.overrideParams };"
+    },
+    {
+      "path": "src/handlers/services/requestContext.ts",
+      "line": 135,
+      "verdict": "CONFIRMED",
+      "symbol": "requestTimeout",
+      "matched_within_lines": 1,
+      "text": "get requestTimeout(): number | null {"
+    },
+    {
+      "path": "src/handlers/services/requestContext.ts",
+      "line": 148,
+      "verdict": "CONFIRMED",
+      "symbol": "normalizeRetryConfig",
+      "matched_within_lines": 1,
+      "text": "private normalizeRetryConfig(retry?: RetrySettings): RetrySettings {"
+    },
+    {
+      "path": "src/handlers/services/responseService.ts",
+      "line": 99,
+      "verdict": "CONFIRMED",
+      "symbol": "updateHeaders",
+      "matched_within_lines": 1,
+      "text": "updateHeaders("
+    },
+    {
+      "path": "src/handlers/services/responseService.ts",
+      "line": 105,
+      "verdict": "CONFIRMED",
+      "symbol": "response",
+      "matched_within_lines": 1,
+      "text": "response.headers.append("
+    },
+    {
+      "path": "src/index.ts",
+      "line": 135,
+      "verdict": "CONFIRMED",
+      "symbol": "requestValidator",
+      "matched_within_lines": 1,
+      "text": "app.post('/v1/messages', requestValidator, messagesHandler);"
+    },
+    {
+      "path": "src/middlewares/cache/index.ts",
+      "line": 3,
+      "verdict": "CONFIRMED",
+      "symbol": "inMemoryCache",
+      "matched_within_lines": 1,
+      "text": "const inMemoryCache: any = {};"
+    },
+    {
+      "path": "src/middlewares/cache/index.ts",
+      "line": 14,
+      "verdict": "CONFIRMED",
+      "symbol": "getCacheKey",
+      "matched_within_lines": 1,
+      "text": "const getCacheKey = async (requestBody: any, url: string) => {"
+    },
+    {
+      "path": "src/middlewares/cache/index.ts",
+      "line": 29,
+      "verdict": "CONFIRMED",
+      "symbol": "getFromCache",
+      "matched_within_lines": 1,
+      "text": "export const getFromCache = async ("
+    },
+    {
+      "path": "src/middlewares/hooks/index.ts",
+      "line": 551,
+      "verdict": "CONFIRMED",
+      "symbol": "Context",
+      "matched_within_lines": 1,
+      "text": "export const hooks = (c: Context, next: any) => {"
+    },
+    {
+      "path": "src/middlewares/log/index.ts",
+      "line": 112,
+      "verdict": "CONFIRMED",
+      "symbol": "processLog",
+      "matched_within_lines": 1,
+      "text": "async function processLog(c: Context, start: number) {"
+    },
+    {
+      "path": "src/middlewares/requestValidator/index.ts",
+      "line": 111,
+      "verdict": "CONFIRMED",
+      "symbol": "requestHeaders",
+      "matched_within_lines": 3,
+      "text": "if ( ... requestHeaders[`x-${POWERED_BY}-config`] ||"
+    },
+    {
+      "path": "src/middlewares/requestValidator/schema/config.ts",
+      "line": 14,
+      "verdict": "CONFIRMED",
+      "symbol": "strategy",
+      "matched_within_lines": 1,
+      "text": "strategy: z"
+    },
+    {
+      "path": "src/services/conditionalRouter.ts",
+      "line": 44,
+      "verdict": "CONFIRMED",
+      "symbol": "resolveTarget",
+      "matched_within_lines": 1,
+      "text": "resolveTarget(): Targets {"
+    },
+    {
+      "path": "src/services/conditionalRouter.ts",
+      "line": 64,
+      "verdict": "CONFIRMED",
+      "symbol": "evaluateQuery",
+      "matched_within_lines": 1,
+      "text": "private evaluateQuery(query: Query): boolean {"
+    },
+    {
+      "path": "src/services/conditionalRouter.ts",
+      "line": 137,
+      "verdict": "CONFIRMED",
+      "symbol": "findTarget",
+      "matched_within_lines": 1,
+      "text": "private findTarget(name: string): Targets {"
+    },
+    {
+      "path": "src/shared/services/cache/utils/rateLimiter.ts",
+      "line": 84,
+      "verdict": "CONFIRMED",
+      "symbol": "RedisRateLimiter",
+      "matched_within_lines": 1,
+      "text": "class RedisRateLimiter {"
+    }
+  ]
+}

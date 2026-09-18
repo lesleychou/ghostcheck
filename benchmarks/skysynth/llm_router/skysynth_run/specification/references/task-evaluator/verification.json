@@ -1,0 +1,652 @@
+{
+  "system": "task-evaluator",
+  "checked_at": "2026-09-13T19:04:18",
+  "method": "Every file:line in this system's spec.json, properties.json, design_principles.json and decisions.json was re-read from the pinned source. The asserted line number was ignored: the most distinctive identifier or numeric literal on that line was extracted and the whole file grepped for it. CONFIRMED = the symbol really is on that line; OFF_BY = it is elsewhere in the file (corrected line given); WRONG = it is not in the file at all; UNVERIFIABLE = the file or line does not exist, or the line carries no distinctive symbol (a brace, a comment marker).",
+  "source_pin": "shipped with the task, read from the working tree",
+  "counts": {
+    "CONFIRMED": 80
+  },
+  "total": 80,
+  "rows": [
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/data/cards/tenantA.card.yaml",
+      "line": 6,
+      "verdict": "CONFIRMED",
+      "symbol": "ttft_ms",
+      "matched_within_lines": 1,
+      "text": "slo: {\"ttft_ms\": 2500}"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/data/cards/tenantA.card.yaml",
+      "line": 7,
+      "verdict": "CONFIRMED",
+      "symbol": "downgrade_ok",
+      "matched_within_lines": 1,
+      "text": "downgrade_ok: true"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/data/cards/tenantB.card.yaml",
+      "line": 6,
+      "verdict": "CONFIRMED",
+      "symbol": "latency_ms",
+      "matched_within_lines": 1,
+      "text": "slo: {\"latency_ms\": 600000}"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/data/cards/tenantB.card.yaml",
+      "line": 7,
+      "verdict": "CONFIRMED",
+      "symbol": "downgrade_ok",
+      "matched_within_lines": 1,
+      "text": "downgrade_ok: true"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml",
+      "line": 67,
+      "verdict": "CONFIRMED",
+      "symbol": "providers",
+      "matched_within_lines": 1,
+      "text": "providers:"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml",
+      "line": 78,
+      "verdict": "CONFIRMED",
+      "symbol": "420",
+      "matched_within_lines": 1,
+      "text": "rpm: 420"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml",
+      "line": 101,
+      "verdict": "CONFIRMED",
+      "symbol": "132",
+      "matched_within_lines": 1,
+      "text": "rpm: 132"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml",
+      "line": 103,
+      "verdict": "CONFIRMED",
+      "symbol": "concurrency",
+      "matched_within_lines": 1,
+      "text": "concurrency: 32"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml",
+      "line": 110,
+      "verdict": "CONFIRMED",
+      "symbol": "discount",
+      "matched_within_lines": 1,
+      "text": "courier:     # discount reseller: all 12 at 80% of base, slow, flaky"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml",
+      "line": 133,
+      "verdict": "CONFIRMED",
+      "symbol": "retry_after_ms",
+      "matched_within_lines": 1,
+      "text": "retry_after_ms: 2000        # providers ask this much back-off on 429"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml",
+      "line": 137,
+      "verdict": "CONFIRMED",
+      "symbol": "retry_grace",
+      "matched_within_lines": 1,
+      "text": "retry_grace: 8          # outage-blind dispatches before the request is lost"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml",
+      "line": 138,
+      "verdict": "CONFIRMED",
+      "symbol": "300000",
+      "matched_within_lines": 2,
+      "text": "val: ... - [300000, 420000]"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py",
+      "line": 34,
+      "verdict": "CONFIRMED",
+      "symbol": "DEFAULT_MAX_WALL_MS",
+      "matched_within_lines": 1,
+      "text": "DEFAULT_MAX_WALL_MS = 600_000  # real seconds, not simulated ones"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py",
+      "line": 35,
+      "verdict": "CONFIRMED",
+      "symbol": "DEFAULT_DECIDES_PER_REQ",
+      "matched_within_lines": 1,
+      "text": "DEFAULT_DECIDES_PER_REQ = 512  # global budget = this x len(trace)"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py",
+      "line": 40,
+      "verdict": "CONFIRMED",
+      "symbol": "UNSERVICEABLE_DEFER_GRACE",
+      "matched_within_lines": 1,
+      "text": "UNSERVICEABLE_DEFER_GRACE = 32"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py",
+      "line": 78,
+      "verdict": "CONFIRMED",
+      "symbol": "_prune",
+      "matched_within_lines": 1,
+      "text": "def _prune(self, now):"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 36,
+      "verdict": "CONFIRMED",
+      "symbol": "derive_test_outage_windows",
+      "matched_within_lines": 1,
+      "text": "def derive_test_outage_windows(seed, span_ms):"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 72,
+      "verdict": "CONFIRMED",
+      "symbol": "separately",
+      "matched_within_lines": 1,
+      "text": "# ADDED: a down provider admits nothing; typed separately from a rate 429 so the"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 78,
+      "verdict": "CONFIRMED",
+      "symbol": "expected_output_tokens",
+      "matched_within_lines": 1,
+      "text": "tokens = req.prompt_tokens + req.expected_output_tokens"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 79,
+      "verdict": "CONFIRMED",
+      "symbol": "models",
+      "matched_within_lines": 2,
+      "text": "if ( ... model not in self.cfg[\"models\"]"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 110,
+      "verdict": "CONFIRMED",
+      "symbol": "models",
+      "matched_within_lines": 1,
+      "text": "p = self.cfg[\"models\"][model]"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 124,
+      "verdict": "CONFIRMED",
+      "symbol": "outage_grace",
+      "matched_within_lines": 1,
+      "text": "self.outage_grace = int(oc.get(\"retry_grace\", 8))"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 140,
+      "verdict": "CONFIRMED",
+      "symbol": "fleet_view",
+      "matched_within_lines": 1,
+      "text": "def fleet_view(self):"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 145,
+      "verdict": "CONFIRMED",
+      "symbol": "announced",
+      "matched_within_lines": 1,
+      "text": "if p.down(now):  # ADDED: announced outage, empty catalogue, ETA published"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 156,
+      "verdict": "CONFIRMED",
+      "symbol": "view",
+      "matched_within_lines": 1,
+      "text": "view[name] = {"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 172,
+      "verdict": "CONFIRMED",
+      "symbol": "tenants",
+      "matched_within_lines": 1,
+      "text": "tenants = [d.get(\"tenant\", \"-\") for d in raw]  # ADDED: harness-side tenant tag"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 175,
+      "verdict": "CONFIRMED",
+      "symbol": "providers",
+      "matched_within_lines": 1,
+      "text": "for p in self.providers.values():"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 202,
+      "verdict": "CONFIRMED",
+      "symbol": "requests",
+      "matched_within_lines": 3,
+      "text": "ten = { ... \"requests\": 0,"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 220,
+      "verdict": "CONFIRMED",
+      "symbol": "billed_own",
+      "matched_within_lines": 1,
+      "text": "billed_own = {name: 0.0 for name in self.providers}"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 229,
+      "verdict": "CONFIRMED",
+      "symbol": "facing",
+      "matched_within_lines": 1,
+      "text": "def facing(i):"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 235,
+      "verdict": "CONFIRMED",
+      "symbol": "guard",
+      "matched_within_lines": 1,
+      "text": "def guard(i):"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 247,
+      "verdict": "CONFIRMED",
+      "symbol": "call_router",
+      "matched_within_lines": 1,
+      "text": "def call_router(what, i, fn, *args):"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 265,
+      "verdict": "CONFIRMED",
+      "symbol": "action",
+      "matched_within_lines": 1,
+      "text": "if action.kind == \"shed\":"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 266,
+      "verdict": "CONFIRMED",
+      "symbol": "servable",
+      "matched_within_lines": 1,
+      "text": "servable = ("
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 274,
+      "verdict": "CONFIRMED",
+      "symbol": "admission",
+      "matched_within_lines": 1,
+      "text": "if prov.down(now):  # ADDED: a down provider is not admission headroom"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 277,
+      "verdict": "CONFIRMED",
+      "symbol": "concurrency",
+      "matched_within_lines": 2,
+      "text": "if ( ... prov.inflight < prov.cfg[\"concurrency\"]"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 283,
+      "verdict": "CONFIRMED",
+      "symbol": "illegal_shed",
+      "matched_within_lines": 1,
+      "text": "violations.append((\"illegal_shed\", req.req_id, pname))"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 290,
+      "verdict": "CONFIRMED",
+      "symbol": "_ever_servable",
+      "matched_within_lines": 1,
+      "text": "if not self._ever_servable(req):"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 306,
+      "verdict": "CONFIRMED",
+      "symbol": "3_600_000",
+      "matched_within_lines": 1,
+      "text": "if until <= (reqs[-1].t_ms + 3_600_000):"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 312,
+      "verdict": "CONFIRMED",
+      "symbol": "model_requested",
+      "matched_within_lines": 1,
+      "text": "if model != req.model_requested and ("
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 315,
+      "verdict": "CONFIRMED",
+      "symbol": "substitution",
+      "matched_within_lines": 1,
+      "text": "violations.append((\"substitution\", req.req_id, model))"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 316,
+      "verdict": "CONFIRMED",
+      "symbol": "providers",
+      "matched_within_lines": 1,
+      "text": "prov = self.providers.get(action.provider)"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 320,
+      "verdict": "CONFIRMED",
+      "symbol": "models",
+      "matched_within_lines": 1,
+      "text": "if model not in prov.cfg[\"models\"]:"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 325,
+      "verdict": "CONFIRMED",
+      "symbol": "429",
+      "matched_within_lines": 1,
+      "text": "if res[0] in (\"429\", \"503\"):"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 330,
+      "verdict": "CONFIRMED",
+      "symbol": "was_down",
+      "matched_within_lines": 1,
+      "text": "if was_down:"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 333,
+      "verdict": "CONFIRMED",
+      "symbol": "outage_rejects",
+      "matched_within_lines": 1,
+      "text": "if state[i][\"outage_rejects\"] > self.outage_grace:"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 347,
+      "verdict": "CONFIRMED",
+      "symbol": "call_router",
+      "matched_within_lines": 1,
+      "text": "call_router(\"on_error\", i, router.on_error, now, res[0], res[1])"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 349,
+      "verdict": "CONFIRMED",
+      "symbol": "heappush",
+      "matched_within_lines": 1,
+      "text": "heapq.heappush(events, (now + res[1], 1, seq, \"wake\", i))"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 354,
+      "verdict": "CONFIRMED",
+      "symbol": "models",
+      "matched_within_lines": 1,
+      "text": "price = prov.cfg[\"models\"][model]"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 359,
+      "verdict": "CONFIRMED",
+      "symbol": "floor",
+      "matched_within_lines": 1,
+      "text": "if cost < 0 or cost + 1e-12 < floor:"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 382,
+      "verdict": "CONFIRMED",
+      "symbol": "max_decides",
+      "matched_within_lines": 1,
+      "text": "if decides >= max_decides:"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 409,
+      "verdict": "CONFIRMED",
+      "symbol": "bills",
+      "matched_within_lines": 1,
+      "text": "if st[\"bills\"] > 1:"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 412,
+      "verdict": "CONFIRMED",
+      "symbol": "model_requested",
+      "matched_within_lines": 2,
+      "text": "q = ( ... req.quality.get(model, req.quality.get(req.model_requested, 1.0))"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 422,
+      "verdict": "CONFIRMED",
+      "symbol": "latency_ms",
+      "matched_within_lines": 1,
+      "text": "if \"latency_ms\" in req.slo:"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 426,
+      "verdict": "CONFIRMED",
+      "symbol": "t_dispatch",
+      "matched_within_lines": 1,
+      "text": "measured = (t_dispatch + ttft) - req.t_ms  # ADDED: direct TTFT"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 446,
+      "verdict": "CONFIRMED",
+      "symbol": "aborted",
+      "matched_within_lines": 1,
+      "text": "if aborted:"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 453,
+      "verdict": "CONFIRMED",
+      "symbol": "_env_fingerprint",
+      "matched_within_lines": 1,
+      "text": "if self._env_fingerprint() != self._env_fp0:"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 455,
+      "verdict": "CONFIRMED",
+      "symbol": "providers",
+      "matched_within_lines": 1,
+      "text": "for name, prov in self.providers.items():"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 466,
+      "verdict": "CONFIRMED",
+      "symbol": "quality",
+      "matched_within_lines": 1,
+      "text": "# shed scores zero quality and misses its floor (replay.py rule)"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 479,
+      "verdict": "CONFIRMED",
+      "symbol": "tenants_out",
+      "matched_within_lines": 1,
+      "text": "tenants_out = {}"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 492,
+      "verdict": "CONFIRMED",
+      "symbol": "slo_violation_rate",
+      "matched_within_lines": 1,
+      "text": "\"slo_violation_rate\": ("
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 503,
+      "verdict": "CONFIRMED",
+      "symbol": "trace_path",
+      "matched_within_lines": 2,
+      "text": "return { ... \"trace\": os.path.basename(trace_path),"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 522,
+      "verdict": "CONFIRMED",
+      "symbol": "violations",
+      "matched_within_lines": 1,
+      "text": "\"violations\": violations[:20],"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 524,
+      "verdict": "CONFIRMED",
+      "symbol": "violation_kinds",
+      "matched_within_lines": 1,
+      "text": "\"violation_kinds\": dict("
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 527,
+      "verdict": "CONFIRMED",
+      "symbol": "leading_indicators",
+      "matched_within_lines": 1,
+      "text": "\"leading_indicators\": {"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/generic_policy.py",
+      "line": 60,
+      "verdict": "CONFIRMED",
+      "symbol": "prompt_id",
+      "matched_within_lines": 1,
+      "text": "preds = self.pred.get((req.features or {}).get(\"prompt_id\"))"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py",
+      "line": 18,
+      "verdict": "CONFIRMED",
+      "symbol": "prompt_tokens",
+      "matched_within_lines": 1,
+      "text": "prompt_tokens: int"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py",
+      "line": 23,
+      "verdict": "CONFIRMED",
+      "symbol": "stream",
+      "matched_within_lines": 1,
+      "text": "stream: bool"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py",
+      "line": 24,
+      "verdict": "CONFIRMED",
+      "symbol": "dict",
+      "matched_within_lines": 1,
+      "text": "slo: dict"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py",
+      "line": 25,
+      "verdict": "CONFIRMED",
+      "symbol": "downgrade_ok",
+      "matched_within_lines": 1,
+      "text": "downgrade_ok: bool"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py",
+      "line": 28,
+      "verdict": "CONFIRMED",
+      "symbol": "equiv_class",
+      "matched_within_lines": 1,
+      "text": "# ground-truth per-model quality in [0,1] for models in equiv_class, and the floor the"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py",
+      "line": 31,
+      "verdict": "CONFIRMED",
+      "symbol": "assignment",
+      "matched_within_lines": 1,
+      "text": "quality: dict = None  # type: ignore[assignment]"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py",
+      "line": 32,
+      "verdict": "CONFIRMED",
+      "symbol": "quality_floor",
+      "matched_within_lines": 1,
+      "text": "quality_floor: float = 0.0"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py",
+      "line": 35,
+      "verdict": "CONFIRMED",
+      "symbol": "assignment",
+      "matched_within_lines": 1,
+      "text": "features: dict = None  # type: ignore[assignment]"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py",
+      "line": 63,
+      "verdict": "CONFIRMED",
+      "symbol": "Action",
+      "matched_within_lines": 1,
+      "text": "class Action:"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py",
+      "line": 67,
+      "verdict": "CONFIRMED",
+      "symbol": "dispatch",
+      "matched_within_lines": 1,
+      "text": "kind: str  # \"dispatch\" | \"defer\" | \"shed\""
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py",
+      "line": 74,
+      "verdict": "CONFIRMED",
+      "symbol": "fleet_view",
+      "matched_within_lines": 1,
+      "text": "\"\"\"Subclass and implement decide(). The fleet_view is read-only truth about the fleet:"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py",
+      "line": 79,
+      "verdict": "CONFIRMED",
+      "symbol": "fleet_view",
+      "matched_within_lines": 1,
+      "text": "def decide(self, req: Request, now_ms: int, fleet_view: dict) -> Action:"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py",
+      "line": 82,
+      "verdict": "CONFIRMED",
+      "symbol": "retry_after_ms",
+      "matched_within_lines": 1,
+      "text": "def on_error(self, req: Request, now_ms: int, kind: str, retry_after_ms: int) -> None:"
+    },
+    {
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py",
+      "line": 85,
+      "verdict": "CONFIRMED",
+      "symbol": "on_complete",
+      "matched_within_lines": 1,
+      "text": "def on_complete(self, req: Request, now_ms: int) -> Optional[Action]:"
+    }
+  ]
+}

@@ -1,0 +1,497 @@
+{
+  "_schema": "axis -> the real tests and invariants in the reference systems that check it; 'copied_as' is the file copied into references/tests/. Paths without copied_as are cited in place (the shipped task harness).",
+  "_uncovered": [],
+  "_uncovered_note": "An axis listed here has no reference test at all: the evaluator (correctness mode) must write one from scratch.",
+  "_counts": {
+    "model_selection": 8,
+    "placement": 3,
+    "admission_and_overload": 5,
+    "rate_limit_pacing": 2,
+    "retry_and_fallback": 6,
+    "outage_and_health": 5,
+    "deadline_and_priority": 4,
+    "tenant_isolation": 2,
+    "cost_control": 11,
+    "policy_state_and_determinism": 10,
+    "decision_observability": 2
+  },
+  "model_selection": [
+    {
+      "system": "litellm",
+      "kind": "test",
+      "path": "tests/test_litellm/router_strategy/adaptive_router/test_bandit.py",
+      "line": 107,
+      "what_it_checks": "that an online selection policy converges onto the better-performing model rather than oscillating",
+      "copied_as": "tests/litellm/test_bandit.py"
+    },
+    {
+      "system": "llmrouterbench",
+      "kind": "spec",
+      "path": "baselines/AvengersPro/simple_cluster_router.py",
+      "line": 530,
+      "what_it_checks": "the simplest shipped decision rule: exactly one model per prompt, argmax of a learned per-prompt quality score",
+      "copied_as": "tests/llmrouterbench/simple_cluster_router.py"
+    },
+    {
+      "system": "llmrouterbench",
+      "kind": "spec",
+      "path": "baselines/schema.py",
+      "line": 42,
+      "what_it_checks": "the per-record schema a router may read: score, prompt_tokens, completion_tokens, cost, and no time field at all",
+      "copied_as": "tests/llmrouterbench/schema.py"
+    },
+    {
+      "system": "portkey-gateway",
+      "kind": "test",
+      "path": "tests/unit/src/handlers/services/hooksService.test.ts",
+      "line": 1,
+      "what_it_checks": "that a quality-check span is created per provider attempt and that its verdicts drive the deny and check-failed outcomes",
+      "copied_as": "tests/portkey-gateway/hooksService.test.ts"
+    },
+    {
+      "system": "routellm",
+      "kind": "spec",
+      "path": "routellm/routers/routers.py",
+      "line": 41,
+      "what_it_checks": "the threshold comparison that decides strong vs weak; the executable definition of the selection rule",
+      "copied_as": "tests/routellm/routers.py"
+    },
+    {
+      "system": "routellm",
+      "kind": "spec",
+      "path": "routellm/evals/benchmarks.py",
+      "line": 92,
+      "what_it_checks": "the equal-mass binning of predicted win rates used to sweep the trade-off curve",
+      "copied_as": "tests/routellm/benchmarks.py"
+    },
+    {
+      "system": "task-evaluator",
+      "kind": "assert",
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 312,
+      "what_it_checks": "that a served model outside the request's declared equivalence set, or any substitution on a request that forbids downgrading, is a typed failure"
+    },
+    {
+      "system": "task-evaluator",
+      "kind": "assert",
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 466,
+      "what_it_checks": "that a refused request books zero quality and a quality-floor miss"
+    }
+  ],
+  "placement": [
+    {
+      "system": "gaie",
+      "kind": "test",
+      "path": "pkg/epp/scheduling/scheduler_profile_test.go",
+      "line": 33,
+      "what_it_checks": "that placement runs exclusion then ranking then selection in order, that exclusion short-circuits and errors when it eliminates every target, that each stage receives the previous stage's output, and that out-of-range scores are clamped before weighting",
+      "copied_as": "tests/gaie/scheduler_profile_test.go",
+      "commit": "1748e829d1161147aaf35e76699ec86fd88406d2"
+    },
+    {
+      "system": "litellm",
+      "kind": "test",
+      "path": "tests/local_testing/test_lowest_cost_routing.py",
+      "line": 156,
+      "what_it_checks": "that price ranking is applied only to targets that still have request and token headroom",
+      "copied_as": "tests/litellm/test_lowest_cost_routing.py"
+    },
+    {
+      "system": "task-evaluator",
+      "kind": "assert",
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 320,
+      "what_it_checks": "that dispatching to an unknown provider or to a provider that does not stock the model is a typed failure and does NOT reschedule the request"
+    }
+  ],
+  "admission_and_overload": [
+    {
+      "system": "gaie",
+      "kind": "test",
+      "path": "pkg/epp/requestcontrol/admission_test.go",
+      "line": 68,
+      "what_it_checks": "that a request is refused for load only when its priority is negative AND the fleet reports itself fully saturated, and that each queue outcome is translated into the correct caller-visible error",
+      "copied_as": "tests/gaie/admission_test.go",
+      "commit": "1748e829d1161147aaf35e76699ec86fd88406d2"
+    },
+    {
+      "system": "litellm",
+      "kind": "test",
+      "path": "tests/local_testing/test_scheduler.py",
+      "line": 70,
+      "what_it_checks": "that when capacity frees up the more urgent waiting request is served before the less urgent one",
+      "copied_as": "tests/litellm/test_scheduler.py"
+    },
+    {
+      "system": "litellm",
+      "kind": "test",
+      "path": "tests/local_testing/test_scheduler.py",
+      "line": 118,
+      "what_it_checks": "that a waiting request that gives up is removed from the wait set and does not leak: the bounded-resource property of queueing",
+      "copied_as": "tests/litellm/test_scheduler.py"
+    },
+    {
+      "system": "task-evaluator",
+      "kind": "assert",
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 277,
+      "what_it_checks": "that refusing a request while some non-down provider still had request, token and concurrency headroom for a legally substitutable model is a typed failure"
+    },
+    {
+      "system": "task-evaluator",
+      "kind": "assert",
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 451,
+      "what_it_checks": "that every request ends either completed or refused: one left in neither state is a typed loss"
+    }
+  ],
+  "rate_limit_pacing": [
+    {
+      "system": "litellm",
+      "kind": "test",
+      "path": "tests/local_testing/test_tpm_rpm_routing_v2.py",
+      "line": 274,
+      "what_it_checks": "that a target whose request quota is exhausted is excluded from the candidate set before dispatch, not dispatched to and rejected",
+      "copied_as": "tests/litellm/test_tpm_rpm_routing_v2.py"
+    },
+    {
+      "system": "litellm",
+      "kind": "test",
+      "path": "tests/local_testing/test_tpm_rpm_routing_v2.py",
+      "line": 661,
+      "what_it_checks": "which targets are still eligible given the current request and token counters",
+      "copied_as": "tests/litellm/test_tpm_rpm_routing_v2.py"
+    }
+  ],
+  "retry_and_fallback": [
+    {
+      "system": "litellm",
+      "kind": "test",
+      "path": "tests/local_testing/test_router_retries.py",
+      "line": 378,
+      "what_it_checks": "that a rate-limit rejection is retried immediately against a healthy sibling target rather than waited out",
+      "copied_as": "tests/litellm/test_router_retries.py"
+    },
+    {
+      "system": "litellm",
+      "kind": "test",
+      "path": "tests/local_testing/test_router_retries.py",
+      "line": 539,
+      "what_it_checks": "that the retry loop still honours the overall timeout when every sibling is also rate-limited",
+      "copied_as": "tests/litellm/test_router_retries.py"
+    },
+    {
+      "system": "litellm",
+      "kind": "test",
+      "path": "tests/local_testing/test_router_fallbacks.py",
+      "line": 147,
+      "what_it_checks": "that a request whose primary target fails is served by the declared fallback target and the caller still gets an answer",
+      "copied_as": "tests/litellm/test_router_fallbacks.py"
+    },
+    {
+      "system": "portkey-gateway",
+      "kind": "test",
+      "path": "tests/integration/src/handlers/tryPost.test.ts",
+      "line": 214,
+      "what_it_checks": "that a configured retry budget really re-issues the upstream call on the listed status, and that exhausting the budget without success is reported as the sentinel attempt count rather than the real number of tries",
+      "copied_as": "tests/portkey-gateway/tryPost.test.ts"
+    },
+    {
+      "system": "portkey-gateway",
+      "kind": "test",
+      "path": "tests/unit/src/handlers/services/requestContext.test.ts",
+      "line": 83,
+      "what_it_checks": "that an explicit retry budget and status list are preserved, and that with no retry block the default is zero attempts with an empty status list: retries are off unless asked for",
+      "copied_as": "tests/portkey-gateway/requestContext.test.ts"
+    },
+    {
+      "system": "task-evaluator",
+      "kind": "assert",
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 409,
+      "what_it_checks": "that a request is completed and billed exactly once"
+    }
+  ],
+  "outage_and_health": [
+    {
+      "system": "gaie",
+      "kind": "test",
+      "path": "pkg/epp/framework/plugins/flowcontrol/saturationdetector/utilization/detector_test.go",
+      "line": 145,
+      "what_it_checks": "that saturation is the mean of the worse of queue occupancy and memory pressure per target, that a target with missing or stale state scores as fully saturated, that an empty candidate list scores as fully saturated, and that the routing filter fails OPEN by returning the unfiltered list when every target is stale",
+      "copied_as": "tests/gaie/detector_test.go",
+      "commit": "1748e829d1161147aaf35e76699ec86fd88406d2"
+    },
+    {
+      "system": "litellm",
+      "kind": "test",
+      "path": "tests/local_testing/test_router_cooldown_handlers.py",
+      "line": 249,
+      "what_it_checks": "that a group with only one target is NOT quarantined on a single failure, so a lone provider is never taken out of service by a transient error",
+      "copied_as": "tests/litellm/test_router_cooldown_handlers.py"
+    },
+    {
+      "system": "litellm",
+      "kind": "test",
+      "path": "tests/local_testing/test_router_cooldown_handlers.py",
+      "line": 500,
+      "what_it_checks": "that under high traffic with every target healthy, none is quarantined: the failure-rate rule does not fire on volume alone",
+      "copied_as": "tests/litellm/test_router_cooldown_handlers.py"
+    },
+    {
+      "system": "litellm",
+      "kind": "test",
+      "path": "tests/local_testing/test_router_fallbacks.py",
+      "line": 853,
+      "what_it_checks": "that a per-target quarantine duration is honoured for exactly as long as configured",
+      "copied_as": "tests/litellm/test_router_fallbacks.py"
+    },
+    {
+      "system": "task-evaluator",
+      "kind": "assert",
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 333,
+      "what_it_checks": "that dispatching into an announced outage more than the grace of 8 attempts loses the request"
+    }
+  ],
+  "deadline_and_priority": [
+    {
+      "system": "gaie",
+      "kind": "test",
+      "path": "pkg/epp/flowcontrol/controller/controller_test.go",
+      "line": 339,
+      "what_it_checks": "that waiting for capacity blocks for exactly the request's own time to live and then returns a distinct deadline-expired outcome, returns capacity-rejected when nowhere can accept it, and otherwise goes to the least-loaded worker",
+      "copied_as": "tests/gaie/controller_test.go",
+      "commit": "1748e829d1161147aaf35e76699ec86fd88406d2"
+    },
+    {
+      "system": "portkey-gateway",
+      "kind": "test",
+      "path": "tests/integration/src/handlers/tryPost.test.ts",
+      "line": 230,
+      "what_it_checks": "that exceeding the per-attempt timeout produces a synthesised timeout response instead of waiting for the provider",
+      "copied_as": "tests/portkey-gateway/tryPost.test.ts"
+    },
+    {
+      "system": "portkey-gateway",
+      "kind": "test",
+      "path": "tests/unit/src/handlers/services/requestContext.test.ts",
+      "line": 481,
+      "what_it_checks": "the precedence order for the per-attempt timeout: the request header beats the target's own setting, and it is absent when neither supplies one",
+      "copied_as": "tests/portkey-gateway/requestContext.test.ts"
+    },
+    {
+      "system": "task-evaluator",
+      "kind": "assert",
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 492,
+      "what_it_checks": "that a refused, lost or dead request counts as SLO-violated in its tenant's rate, so dropping hard traffic cannot improve the rate"
+    }
+  ],
+  "tenant_isolation": [
+    {
+      "system": "gaie",
+      "kind": "test",
+      "path": "pkg/epp/flowcontrol/controller/internal/processor_test.go",
+      "line": 292,
+      "what_it_checks": "that the capacity check and the enqueue are atomic, that an over-capacity item is refused rather than queued, that a saturated high band blocks the whole dispatch cycle, and that every item is finalised exactly once including on shutdown",
+      "copied_as": "tests/gaie/processor_test.go",
+      "commit": "1748e829d1161147aaf35e76699ec86fd88406d2"
+    },
+    {
+      "system": "gaie",
+      "kind": "test",
+      "path": "pkg/epp/framework/plugins/flowcontrol/fairness/functional_test.go",
+      "line": 37,
+      "what_it_checks": "that every fairness policy honours one shared contract for which workload's queue is served next, distinguishing the shipped boundary-ignoring greedy pick from the starvation-free rotation",
+      "copied_as": "tests/gaie/functional_test.go",
+      "commit": "1748e829d1161147aaf35e76699ec86fd88406d2"
+    }
+  ],
+  "cost_control": [
+    {
+      "system": "litellm",
+      "kind": "test",
+      "path": "tests/local_testing/test_lowest_cost_routing.py",
+      "line": 100,
+      "what_it_checks": "that a price-ranking placement really selects the cheapest eligible target",
+      "copied_as": "tests/litellm/test_lowest_cost_routing.py"
+    },
+    {
+      "system": "litellm",
+      "kind": "test",
+      "path": "tests/local_testing/test_router_budget_limiter.py",
+      "line": 54,
+      "what_it_checks": "end to end, that once a provider's spend cap is reached its targets stop being selected",
+      "copied_as": "tests/litellm/test_router_budget_limiter.py"
+    },
+    {
+      "system": "litellm",
+      "kind": "test",
+      "path": "tests/local_testing/test_router_budget_limiter.py",
+      "line": 503,
+      "what_it_checks": "end to end, that a per-target spend cap removes that target specifically while its siblings keep serving",
+      "copied_as": "tests/litellm/test_router_budget_limiter.py"
+    },
+    {
+      "system": "llmrouterbench",
+      "kind": "spec",
+      "path": "baselines/AvengersPro/balance_cluster_router.py",
+      "line": 198,
+      "what_it_checks": "the soft quality-versus-price objective, defaults 0.7 quality / 0.3 cost",
+      "copied_as": "tests/llmrouterbench/balance_cluster_router.py"
+    },
+    {
+      "system": "portkey-gateway",
+      "kind": "test",
+      "path": "tests/unit/src/handlers/services/preRequestValidatorService.test.ts",
+      "line": 36,
+      "what_it_checks": "that the spend-veto seam is a no-op when nothing is installed, and short-circuits the request with its own answer when something is: the executable statement that this gateway has no cost policy of its own",
+      "copied_as": "tests/portkey-gateway/preRequestValidatorService.test.ts"
+    },
+    {
+      "system": "routellm",
+      "kind": "spec",
+      "path": "routellm/evals/evaluate.py",
+      "line": 83,
+      "what_it_checks": "the call-performance-threshold metric: the expensive-call share needed to recover a given fraction of the strong/weak quality gap",
+      "copied_as": "tests/routellm/evaluate.py"
+    },
+    {
+      "system": "routellm",
+      "kind": "spec",
+      "path": "routellm/evals/evaluate.py",
+      "line": 97,
+      "what_it_checks": "the area-under-the-curve integration that turns a quality-vs-expensive-share sweep into one comparable number",
+      "copied_as": "tests/routellm/evaluate.py"
+    },
+    {
+      "system": "routellm",
+      "kind": "spec",
+      "path": "routellm/calibrate_threshold.py",
+      "line": 55,
+      "what_it_checks": "that a threshold is chosen as the quantile giving a target expensive-call share, never a target quality",
+      "copied_as": "tests/routellm/calibrate_threshold.py"
+    },
+    {
+      "system": "task-evaluator",
+      "kind": "assert",
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 359,
+      "what_it_checks": "that a bill is never negative and never below the all-cached price floor"
+    },
+    {
+      "system": "task-evaluator",
+      "kind": "assert",
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 455,
+      "what_it_checks": "that the provider's own meter and the harness's independent ledger agree at end of run"
+    },
+    {
+      "system": "task-evaluator",
+      "kind": "assert",
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 453,
+      "what_it_checks": "that the frozen fleet configuration is byte-identical at end of run: nothing the router touched aliased the fleet's own tables"
+    }
+  ],
+  "policy_state_and_determinism": [
+    {
+      "system": "gaie",
+      "kind": "test",
+      "path": "pkg/epp/framework/plugins/scheduling/picker/maxscore/picker_test.go",
+      "line": 31,
+      "what_it_checks": "that the highest-scoring targets are returned after a shuffle, so equal scores are resolved non-deterministically: the executable statement that replay is not reproducible",
+      "copied_as": "tests/gaie/picker_test.go",
+      "commit": "1748e829d1161147aaf35e76699ec86fd88406d2"
+    },
+    {
+      "system": "litellm",
+      "kind": "test",
+      "path": "tests/test_litellm/router_strategy/adaptive_router/test_bandit.py",
+      "line": 63,
+      "what_it_checks": "that the online policy's learned per-target state is capped, so memory does not grow with traffic",
+      "copied_as": "tests/litellm/test_bandit.py"
+    },
+    {
+      "system": "llmrouterbench",
+      "kind": "spec",
+      "path": "baselines/data_loader.py",
+      "line": 336,
+      "what_it_checks": "the leakage guard: the train/test boundary is drawn per prompt so no model's row for a test prompt is ever seen in training",
+      "copied_as": "tests/llmrouterbench/data_loader.py"
+    },
+    {
+      "system": "llmrouterbench",
+      "kind": "assert",
+      "path": "baselines/data_loader.py",
+      "line": 411,
+      "what_it_checks": "the fixed split ratio and seed that make an evaluation reproducible",
+      "copied_as": "tests/llmrouterbench/data_loader.py"
+    },
+    {
+      "system": "portkey-gateway",
+      "kind": "test",
+      "path": "tests/unit/src/handlers/services/cacheService.test.ts",
+      "line": 112,
+      "what_it_checks": "that a lookup against remembered state returns an explicit disabled result when the endpoint is not cacheable or no store is configured, rather than silently behaving as a miss",
+      "copied_as": "tests/portkey-gateway/cacheService.test.ts"
+    },
+    {
+      "system": "routellm",
+      "kind": "assert",
+      "path": "routellm/controller.py",
+      "line": 113,
+      "what_it_checks": "the per-router decision tally: the only cross-request state the policy keeps",
+      "copied_as": "tests/routellm/controller.py"
+    },
+    {
+      "system": "task-evaluator",
+      "kind": "assert",
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 292,
+      "what_it_checks": "that waiting more than 32 times on a request no provider could ever serve is treated as losing it, not as patience"
+    },
+    {
+      "system": "task-evaluator",
+      "kind": "assert",
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 238,
+      "what_it_checks": "that the router's copy of a request still matches harness truth after every callback"
+    },
+    {
+      "system": "task-evaluator",
+      "kind": "assert",
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py",
+      "line": 382,
+      "what_it_checks": "that a non-progressing policy aborts loudly against a 512-decision-per-request budget instead of grinding"
+    },
+    {
+      "system": "task-evaluator",
+      "kind": "test",
+      "path": "skydiscover/synthesize/examples/llm-router/evaluator/reference_router.py",
+      "line": 9,
+      "what_it_checks": "the trusted-correct oracle every kept test must pass: requested model, first provider that stocks it, wait otherwise"
+    }
+  ],
+  "decision_observability": [
+    {
+      "system": "gaie",
+      "kind": "test",
+      "path": "pkg/epp/requestcontrol/director_test.go",
+      "line": 215,
+      "what_it_checks": "that admission runs before the candidate targets are located, that an empty candidate set and a placement failure produce two DIFFERENT caller-visible statuses, that a failed optional enrichment step does not fail the request, and that the chosen target is recorded",
+      "copied_as": "tests/gaie/director_test.go",
+      "commit": "1748e829d1161147aaf35e76699ec86fd88406d2"
+    },
+    {
+      "system": "portkey-gateway",
+      "kind": "test",
+      "path": "tests/unit/src/handlers/services/responseService.test.ts",
+      "line": 382,
+      "what_it_checks": "that every response carries the address of the serving config node, the trace identifier, the attempt count, the cache status and the provider name",
+      "copied_as": "tests/portkey-gateway/responseService.test.ts"
+    }
+  ]
+}

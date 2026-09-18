@@ -1,0 +1,564 @@
+{
+  "title": "Two specialist LLM request routers for one shared, rate-limited, occasionally-unavailable fleet",
+  "optimization_objective": "Per tenant, maximize U = mean_quality - 1.0 * slo_violation_rate - 3.0 * cost_usd_per_request, fixed before the first evaluation, measured at the operating point below by the checker's own books. Correctness is pass/fail and outside U: the required correctness classes in spec_axes (the `correctness.*` entries) are not traded against the score. Win criterion against GenericPolicy(lam=40, placement='latency') fitted on merged traffic: quality >= baseline, cost <= baseline, SLO-violation rate < baseline (read as <= where the baseline rate is already 0.0, which is the case for tenant B; decision log row 27).",
+  "design_space": {
+    "note": "Open -- any architecture that satisfies the spec is acceptable.",
+    "from_spec": "Open: any policy that satisfies the guarantees above is acceptable, and no mechanism is mandated. Three measured defects in the generic baseline are where the closable gap of +0.099 U (tenant A) and +0.078 U (tenant B) lives, and they are levers for the planner to test, not requirements: (1) it scores models with a per-model TRAIN-MEAN cost (generic_policy.py:66) instead of this request's own tokens at this provider's price; (2) it picks the model first and the provider second, so it never trades a model against courier's 0.80x rates; (3) its lam=40 was tuned on merged traffic and is 13x the objective's true cost weight of 3.0. Two further measured facts shape the search without constraining it: rate limits are NOT the binding resource in the per-tenant replay (0 throttles_429 in all 12 probe runs; each tenant's 60 s peak is 34-40% of fleet RPM), so pacing matters only against a single provider chosen alone; and tenant B is a scheduling problem, not a latency one (median queue slack 532 s, a 388-request wave needs 109-190 s of whole-fleet drain, and peak concurrency demand on the requested model is 286-633 slots against caps of 32-96). For tenant B a static model choice is inside the train-to-val noise (top five models within 0.011 U, reordering completely between splits); the transferable signal is per-class and per-difficulty routing (+0.0321 on val, fitted on train). For tenant A the model choice is stable across splits. Two artifacts are delivered, and nothing forces them to share code."
+  },
+  "source": "Consolidated from .skydiscover/llm-router/specification/answers.json (16 answered property questions + 12 settled by the shipped contract), grounded in the five reference systems cloned for this run (specification/sources/{litellm,portkey-gateway,gaie,routellm,llmrouterbench}, every file:line re-verified: 292 CONFIRMED, 0 OFF_BY/WRONG across the six references/*/verification.json) and in the shipped task contract (references/task-evaluator/). Measurements from cards/workload.json and cards/environment.json.",
+  "purpose": "Place every inbound request of one tenant onto exactly one (provider, model) of a frozen 3-provider x 12-model fleet, handling queueing, retries, rate-limit pacing and announced outages, so that the tenant's book of mean quality, billed dollars per request and deadline-violation rate beats the generic baseline GenericPolicy(lam=40, placement='latency') fitted on merged traffic, while committing none of the harness's typed correctness violations. Two artifacts are delivered: one specialist router per tenant, each replayed alone on its own tenant trace.",
+  "operating_point": {
+    "note": "The load the headline score is measured at: the FULL scored replay, per tenant, on the TRAIN split, under the env card's outage windows and RPM/TPM/concurrency tiers. Taken from cards/workload.json scored_configuration (shape and objective) and scored_configuration.fit_configuration plus cards/environment.json scored_configuration (the train row counts and per-tenant load actually measured). Per decision log row 19 the per-iteration scored measurement runs on train; the val traces are reserved for at most five logged selection evaluations and the test split is never read. The evaluator must write at least one kept test that runs HERE, at full trace length, both tenants, outages active.",
+    "checker": "python3 skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py <trace> <RouterClassPath> --env skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml --split val --json -- the shipped replay harness, run once per tenant. It owns the clock, the fleet, the billing and all SLO accounting, and it types every correctness violation itself, so it is both the scorer and the correctness oracle. `--split val` selects the env card's two literal prime outage windows (300000-420000 ms and 780000-930000 ms) and applies them to the train timeline; `--split none` disables outages and is a diagnostic configuration, not the operating point. The trusted reference every kept test must also pass is skydiscover/synthesize/examples/llm-router/evaluator/reference_router.py, and each test's mutant is checked with `python3 skydiscover/synthesize/workflow/scripts/validate_test.py --mutant`.",
+    "commands": [
+      "python3 skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py skydiscover/synthesize/examples/llm-router/evaluator/benchmark/.data/traces/trace_tenantA_train.jsonl <TenantARouter> --env skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml --split val --json",
+      "python3 skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py skydiscover/synthesize/examples/llm-router/evaluator/benchmark/.data/traces/trace_tenantB_train.jsonl <TenantBRouter> --env skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml --split val --json"
+    ],
+    "params": {
+      "tenants_covered": {
+        "eq": 2,
+        "note": "both specialist routers are scored; each replays alone on its own tenant trace"
+      },
+      "split": {
+        "eq": "train",
+        "note": "trace_tenant{A,B}_train.jsonl; val is reserved for at most 5 logged selection evaluations, test is never read"
+      },
+      "tenantA_trace": {
+        "eq": "evaluator/benchmark/.data/traces/trace_tenantA_train.jsonl"
+      },
+      "tenantA_requests_replayed": {
+        "min": 2899,
+        "note": "the full train trace, every row, no truncation and no sampling; span 3083.5 s, mean 0.940 rps, peak 240 arrivals per 60 s"
+      },
+      "tenantA_slo_ttft_ms": {
+        "eq": 2500,
+        "note": "on 100% of rows; measured as (dispatch time + provider ttft) - arrival time"
+      },
+      "tenantA_model_requested": {
+        "eq": "gpt-5"
+      },
+      "tenantB_trace": {
+        "eq": "evaluator/benchmark/.data/traces/trace_tenantB_train.jsonl"
+      },
+      "tenantB_requests_replayed": {
+        "min": 1940,
+        "note": "the full train trace, every row; last arrival at 2846.8 s"
+      },
+      "tenantB_waves_replayed": {
+        "min": 5,
+        "note": "5 waves of exactly 388 requests each, 89.2-89.9 s per wave at 4.32-4.35 rps, separated by 543-703 s of silence"
+      },
+      "tenantB_slo_latency_ms": {
+        "eq": 600000,
+        "note": "end-to-end, on 100% of rows; measured as completion time - arrival time"
+      },
+      "tenantB_model_requested": {
+        "eq": "deepseek-r1-0528"
+      },
+      "equiv_class_size": {
+        "eq": 12,
+        "note": "one equivalence set of all 12 fleet models, downgrade_ok true, on every row of both tenants"
+      },
+      "outage_windows_active": {
+        "eq": true,
+        "note": "--split val: prime down over 300000-420000 ms and 780000-930000 ms, retry_grace 8. Measured exposure on the train timeline: 312 of 2899 tenant-A arrivals (10.8%) and 388 of 1940 tenant-B arrivals (20.0%) land inside a window."
+      },
+      "outage_windows_ms": {
+        "eq": [
+          [
+            300000,
+            420000
+          ],
+          [
+            780000,
+            930000
+          ]
+        ]
+      },
+      "providers": {
+        "eq": 3,
+        "note": "value / prime / courier, from env_card.yaml sha256 14b1d5b1ac020b7e1b8d8d5d331fae948cd125f13da598b263f586ff9e447b16"
+      },
+      "models": {
+        "eq": 12,
+        "note": "value stocks 8 of them, prime and courier all 12: 32 legal (provider, model) placements per request"
+      },
+      "rpm_tiers": {
+        "eq": {
+          "value": 420,
+          "prime": 132,
+          "courier": 150
+        },
+        "note": "60 s sliding request window per provider; fleet total 702"
+      },
+      "tpm_tiers": {
+        "eq": {
+          "value": 12000000,
+          "prime": 3500000,
+          "courier": 5000000
+        },
+        "note": "60 s sliding token window, charged prompt_tokens + expected_output_tokens; fleet total 20.5M"
+      },
+      "concurrency_caps": {
+        "eq": {
+          "value": 96,
+          "prime": 32,
+          "courier": 48
+        },
+        "note": "standing cap, NOT published in the fleet view; fleet total 176"
+      },
+      "retry_after_ms": {
+        "eq": 2000
+      },
+      "retry_grace": {
+        "eq": 8
+      },
+      "decides_per_request": {
+        "max": 512
+      },
+      "wall_clock_per_replay_s": {
+        "max": 600,
+        "note": "real seconds; measured 4-40 s per train trace on the run host, so this is slack, not a constraint"
+      },
+      "replays_per_configuration": {
+        "min": 2,
+        "note": "the determinism class requires the same trace replayed at least twice from a fresh router instance, with identical decisions and identical books"
+      }
+    },
+    "pass_condition": "Per tenant, at this operating point: violation_count == 0 with an empty violation_kinds histogram (no illegal_shed, substitution, unknown_provider, unknown_model, outage_lost, unserviceable, lost_request, double_bill, bad_bill, req_mutation, env_mutation, meter_mutation, router_exception or harness_hang), every request accounted exactly once (requests == completed + shed), and the tenant's book beating GenericPolicy(lam=40, placement='latency') on the same trace and split: quality >= baseline, cost <= baseline, SLO-violation rate <= baseline (strictly < where the baseline rate is above zero). Baseline reference on train with the val outage windows, re-measured in environment mode: tenant A U 0.5695 (q 0.6212, $0.004362/req, slo 0.0386), tenant B U 0.3855 (q 0.3907, $0.001746/req, slo 0.0).",
+    "measured_bounds_at_this_point": {
+      "objective": "U = mean_quality - 1.0 * slo_violation_rate - 3.0 * cost_usd_per_request, per tenant, fixed before the first evaluation; correctness is pass/fail and outside U.",
+      "achievable_ceiling_U": {
+        "tenant_A": 0.669,
+        "tenant_B": 0.462,
+        "note": "observable features only; a candidate above this on train is reading ground truth and violates correctness.observable_signals_only"
+      },
+      "forbidden_oracle_ceiling_U": {
+        "tenant_A": 0.802,
+        "tenant_B": 0.572
+      },
+      "irreducible_slo_violation_rate": {
+        "tenant_A": 0.0259,
+        "tenant_B": 0.0,
+        "note": "tenant A: 63 of 2899 train rows exceed prime's 126000-token prefill budget for 2.5 s, plus 20 more inside an outage window above value's 45000-token budget"
+      },
+      "train_is_optimistic": "The shipped ridge head is fit in-sample on the train matrices, so train U overstates val by about 0.12-0.13 for the same policy. Only the GAP over the baseline transfers; never quote a train U as a val expectation."
+    }
+  },
+  "api": {
+    "entry": "Router.decide(req, now_ms, fleet_view) -> Action (skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:79). Called once per request per attempt; the harness owns the clock, the fleet, the bill and all SLO accounting, the router owns only policy.",
+    "hooks": "on_error(req, now_ms, kind, retry_after_ms) -> None, informational after a 429/503, decide() is re-invoked afterwards (skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:82). on_complete(req, now_ms) -> Optional[Action], informational after completion; a correct router returns None, and returning an Action re-enters the harness (skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:85).",
+    "action": "Action(kind, provider, model, until_ms) with kind in {'dispatch','defer','shed'} (skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:63, kinds at :67). dispatch sends now, defer re-invokes decide() at until_ms, shed refuses explicitly.",
+    "request": "Request dataclass, one frozen trace row: req_id/t_ms/session_id/cls/model_requested (skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:12-16), equiv_class (:17), prompt_tokens (:18), prefix_id/prefix_tokens (:19-20), expected_output_tokens/max_tokens (:21-22), stream (:23), slo (:24), downgrade_ok (:25), retry_safe (:26), temperature (:27), ground-truth per-model quality (:31) and quality_floor (:32), observable features (:35).",
+    "fleet_view": "Read-only dict per provider: {'models': {model: {'in','out','cached'}}, 'inflight', 'rpm_left', 'tpm_left', 'error_rate', 'has_prefix'}, plus 'outage_until' while down (skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:74, built at skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:140, :145, :156). It is published by value, so mutating it mutates only the router's own copy and changes nothing the harness scores (replay_tenants.py:156, :453).",
+    "state": "Stateful routers keep state on self; the harness hands decide/on_error/on_complete a COPY of each request with stable identity across callbacks (replay_tenants.py:229) and diffs that copy against truth after every callback (:235).",
+    "delivery": "TWO artifacts, one specialist Router subclass per tenant: a tenant-A router (interactive analyst, 2500 ms TTFT) and a tenant-B router (batch reasoning, 600000 ms end-to-end). replay_tenants.py replays exactly one tenant trace against exactly one router class, so neither specialist ever observes the other tenant inside its own scored replay (cards/workload.json scored_configuration.note).",
+    "runtime": "Pure Python + PyYAML. No network, no GPU, no live API calls; quality and cost are read from frozen harness-side tables."
+  },
+  "spec_axes": {
+    "model_selection": {
+      "property": "The router serves whichever model in the request's permitted set looks best on estimated quality against this request's own price, judged only from signals a deployed router could observe at request time. Decisions quality_information_source, model_substitution_appetite.",
+      "guarantee": "The served model is the argmax over the permitted set of (estimated quality) - 3.0 * (this request's dollars at this provider's price), where the estimate is a function of req.features, req.cls, req.prompt_tokens, req.expected_output_tokens and req.slo only. Measured basis: all 6,504 train+val rows carry downgrade_ok true and one equiv_class of all 12 models, and for tenant A the requested model gpt-5 is dominated by qwen3-235b-a22b-2507 (val score 0.5350 vs 0.5113 at $0.002418 vs $0.025722), a fleet cost spread of 15.3-20.8x on A traffic and 112.7-123.4x on B traffic.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/generic_policy.py:60",
+        "skydiscover/synthesize/examples/llm-router/evaluator/generic_policy.py:66",
+        "skydiscover/synthesize/examples/llm-router/evaluator/generic_policy.py:69",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:312",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:412",
+        ".skydiscover/llm-router/specification/sources/llmrouterbench/baselines/AvengersPro/simple_cluster_router.py:530",
+        ".skydiscover/llm-router/specification/sources/routellm/routellm/routers/routers.py:41",
+        ".skydiscover/llm-router/specification/sources/litellm/litellm/router_strategy/adaptive_router/bandit.py:112",
+        ".skydiscover/llm-router/specification/sources/portkey-gateway/src/handlers/handlerUtils.ts:493"
+      ]
+    },
+    "placement": {
+      "property": "Among the providers that stock the chosen model, the one that gets the request is chosen by weighing remaining published allowance against expected time-to-answer. Decision placement_signal.",
+      "guarantee": "Placement reads fleet_view['rpm_left'], ['tpm_left'], ['inflight'] and the env card's per-provider ttft_base/prefill_tps/decode_tps together, never one alone. The three providers differ on every one of those axes (value rpm 420 / ttft 700 ms, prime rpm 132 / ttft 400 ms, courier rpm 150 / ttft 1700 ms at 0.80x price), and model and provider are scored JOINTLY, not model-first-then-provider, because the baseline's model-first order is one of the three measured defects worth +0.099 U (A) and +0.078 U (B).",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:156",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:316",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:320",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml:78",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml:101",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml:110",
+        ".skydiscover/llm-router/specification/sources/litellm/litellm/router_strategy/lowest_latency.py:27",
+        ".skydiscover/llm-router/specification/sources/litellm/litellm/router_strategy/lowest_cost.py:238",
+        ".skydiscover/llm-router/specification/sources/portkey-gateway/src/handlers/handlerUtils.ts:704",
+        ".skydiscover/llm-router/specification/sources/gaie/pkg/epp/scheduling/scheduler_profile.go:167 (read at 1748e829d1161147aaf35e76699ec86fd88406d2; pkg/epp was deleted at HEAD)"
+      ]
+    },
+    "admission_and_overload": {
+      "property": "When no provider can serve a request right now the router waits for capacity, and the point at which it stops waiting is the request's own deadline, never a fixed constant. Decisions behaviour_when_nothing_has_room, give_up_point.",
+      "guarantee": "The router defers (Action kind 'defer') rather than sheds while any provider could become able to serve the request before its deadline, and the wait is bounded by that deadline. A single fixed patience is provably wrong across the two tenants: tenant A's whole budget is 2,500 ms from arrival while tenant B's median queue slack is 532 s, its p90 is 391 s, and its waves need 109-190 s of whole-fleet drain. Every measured row carries an slo field (100% coverage, both tenants, both splits), so a deadline-derived bound is always defined.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:265",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:290",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:306",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py:40",
+        ".skydiscover/llm-router/specification/sources/litellm/litellm/router_utils/handle_error.py:91",
+        ".skydiscover/llm-router/specification/sources/litellm/litellm/scheduler.py:47",
+        ".skydiscover/llm-router/specification/sources/portkey-gateway/src/handlers/handlerUtils.ts:781",
+        ".skydiscover/llm-router/specification/sources/gaie/pkg/epp/requestcontrol/admission.go:73 (read at 1748e829d)"
+      ]
+    },
+    "rate_limit_pacing": {
+      "property": "The router subtracts the request's own expected consumption from the published remaining allowance before dispatching, rather than learning the limit from a rejection. Decision allowance_respect.",
+      "guarantee": "Before dispatch the router checks rpm_left >= 1 and tpm_left >= (prompt_tokens + expected_output_tokens) at the target provider, and tracks its own in-flight count against the env card's published concurrency cap (which the fleet view does NOT publish: value 96, prime 32, courier 48). Learning from a rejection is unaffordable for tenant A: a 429 costs a fixed 2,000 ms of a 2,500 ms budget, after which only prime can still land and only under 6,000 prompt tokens, so 6.28% of A val rows (61/972, every tau2 row) can never recover from one throttle. Token allowances never bind (worst measured 60 s demand is 45% of the tightest tpm); rpm and concurrency do.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:78",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:79",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:156",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py:78",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml:103",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml:133",
+        ".skydiscover/llm-router/specification/sources/litellm/litellm/router_strategy/lowest_tpm_rpm_v2.py:189",
+        ".skydiscover/llm-router/specification/sources/litellm/litellm/router_strategy/lowest_tpm_rpm_v2.py:430",
+        ".skydiscover/llm-router/specification/sources/portkey-gateway/src/globals.ts:38"
+      ]
+    },
+    "retry_and_fallback": {
+      "property": "After an attempt is rejected the next attempt goes to a DIFFERENT provider first; waiting on the same one happens only when no alternative has room. Decision after_a_rejected_attempt.",
+      "guarantee": "The harness itself reschedules: on 429/503 it calls on_error and pushes a wake event at now + retry_after_ms (2,000 ms), then re-invokes decide() from scratch (replay_tenants.py:325, :347, :349). On that re-entry the router excludes the provider that just rejected it while another provider has headroom. A rejected attempt is never billed; the bill is charged only inside a successful admit (:110).",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:110",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:325",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:347",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:349",
+        ".skydiscover/llm-router/specification/sources/litellm/litellm/router.py:1003",
+        ".skydiscover/llm-router/specification/sources/portkey-gateway/src/handlers/retryHandler.ts:103",
+        ".skydiscover/llm-router/specification/sources/portkey-gateway/src/globals.ts:38"
+      ]
+    },
+    "outage_and_health": {
+      "property": "A provider announced unavailable gets no real traffic before the announced end of its unavailability; a provider that is merely refusing or failing is passed over for a bounded period. Decisions when_a_provider_may_be_used_again, avoiding_a_provider_that_is_merely_struggling.",
+      "guarantee": "Avoidance is driven ONLY by the published fleet_view outage_until and by observed refusals, never by wall-clock position in the trace: the val outage windows are two absolute-time windows on prime (300-420 s, 780-930 s) while the sealed test windows are derived at replay time as span fractions, so a router tuned to the literal val times fails on test (decision log row 28). Outage exposure is not a corner case: 41.3% of tenant B's val arrivals (286/693, an entire wave) and 15.2% of tenant A's land inside an announced prime outage, against 20.0% and 10.8% on train. The struggling-provider cooldown is bounded in duration and re-armed only by fresh evidence.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:72",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:145",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:330",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:333",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml:137",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml:138",
+        ".skydiscover/llm-router/specification/sources/litellm/litellm/router_utils/cooldown_handlers.py:387",
+        ".skydiscover/llm-router/specification/sources/litellm/litellm/router_utils/cooldown_handlers.py:393",
+        ".skydiscover/llm-router/specification/sources/litellm/litellm/constants.py:76"
+      ]
+    },
+    "deadline_and_priority": {
+      "property": "The time left before a request's deadline changes BOTH the choice of provider and model AND how long the request is willing to wait; a request that can no longer meet its deadline is still served, as cheaply as the permitted set allows. Decisions deadline_awareness, request_whose_deadline_is_already_gone.",
+      "guarantee": "The router compares the remaining budget against the estimated time-to-first-token (tenant A: ttft_base + prompt_tokens/prefill_tps) or estimated end-to-end time (tenant B: ttft + expected_output_tokens/decode_tps) at each candidate, and excludes candidates that cannot make it while any feasible candidate remains. Measured: A first-try TTFT feasibility on val is prime 98.05% / value 94.44% / courier 93.72%, and after one 429 only prime can land; B solo end-to-end feasibility is 99.6-100% everywhere. A request whose deadline is already gone is dispatched to the cheapest permitted candidate, because a shed or a lost request books zero quality AND still counts as violated, so abandoning it is strictly worse than serving it.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:422",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:426",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:466",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:492",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/data/cards/tenantA.card.yaml:6",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/data/cards/tenantB.card.yaml:6",
+        ".skydiscover/llm-router/specification/sources/gaie/pkg/epp/requestcontrol/director.go:133 (read at 1748e829d)",
+        ".skydiscover/llm-router/specification/sources/portkey-gateway/src/handlers/services/requestContext.ts:135"
+      ]
+    },
+    "tenant_isolation": {
+      "property": "A tenant's router may take whatever capacity the provider's published limits allow; it imposes no self-limit on the other tenant's behalf. Decision taking_capacity_from_the_other_tenant.",
+      "guarantee": "The published rpm/tpm/concurrency tiers are the only binding constraint. This is safe here, not adversarial: replay_tenants.py replays ONE tenant trace at a time, so a specialist can neither observe nor starve the other tenant inside a scored replay, and self-imposed headroom would only handicap. Each tenant's book is closed and scored separately against the same generic baseline.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:172",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:202",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:479",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:486",
+        ".skydiscover/llm-router/specification/sources/litellm/litellm/proxy/hooks/parallel_request_limiter_v3.py:641",
+        ".skydiscover/llm-router/specification/sources/gaie/pkg/epp/flowcontrol/registry/config.go:43 (read at 1748e829d)"
+      ]
+    },
+    "cost_control": {
+      "property": "Price is weighed against quality on every request; there is no hard spend ceiling that changes behaviour once crossed. Decision spend_bound.",
+      "guarantee": "Cost enters the decision as the objective's own weight, 3.0 USD^-1, applied to THIS request's dollars at THIS provider's price ((prompt_tokens*in + expected_output_tokens*out)/1e6), never as a per-model train mean and never as a tuned surrogate weight. Measured: driving cost to its absolute floor is worth under 0.003 U, so cost is a guard rail, not the lever; for tenant B the achievable ceiling SPENDS about 6x the baseline ($0.0151 vs $0.0017 per request) and buys 0.145 mean quality. The bill is the harness's, from a private price table, cross-checked against an independent ledger at end of run.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:110",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:354",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:359",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:455",
+        "skydiscover/synthesize/examples/llm-router/evaluator/generic_policy.py:66",
+        ".skydiscover/llm-router/specification/sources/litellm/litellm/router_strategy/budget_limiter.py:243",
+        ".skydiscover/llm-router/specification/sources/llmrouterbench/baselines/GraphRouter/model/multi_task_graph_router.py:158",
+        ".skydiscover/llm-router/specification/sources/routellm/routellm/calibrate_threshold.py:55"
+      ]
+    },
+    "policy_state_and_determinism": {
+      "property": "Two replays of the same trace produce identical decisions, and everything the router remembers between requests carries an explicit size or age limit. Decisions replay_reproducibility, memory_the_router_keeps.",
+      "guarantee": "No unseeded randomness and no dependence on wall-clock time or iteration order of an unordered container: decide() is a deterministic function of (req, now_ms, fleet_view, the router's own declared state). Every cross-request structure the router keeps is bounded by a declared capacity or a declared age, so memory does not grow with the number of requests served. Both reference gateways get this wrong in the same way (an unseeded random draw in placement, an ever-growing per-router tally), which is exactly the defect this property forbids.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:229",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:235",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py:35",
+        ".skydiscover/llm-router/specification/sources/litellm/litellm/router_strategy/simple_shuffle.py:70",
+        ".skydiscover/llm-router/specification/sources/portkey-gateway/src/handlers/handlerUtils.ts:704",
+        ".skydiscover/llm-router/specification/sources/routellm/routellm/controller.py:113",
+        ".skydiscover/llm-router/specification/sources/llmrouterbench/baselines/data_loader.py:381"
+      ]
+    },
+    "decision_observability": {
+      "property": "After a request goes wrong an operator can see which provider and model served it, how many attempts it took, and why each earlier attempt failed. Decision what_an_operator_can_see.",
+      "guarantee": "The router keeps a bounded, per-request decision record (chosen provider, chosen model, attempt count, the typed reason of each earlier failure as delivered to on_error) and exposes it through an explicit operator-facing accessor. Nothing the router reports can move the score: every scored number is read from harness truth, so this record is for the operator only and must never be mistaken for accounting.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:82",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:503",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:522",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:524",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:527",
+        ".skydiscover/llm-router/specification/sources/portkey-gateway/src/handlers/services/responseService.ts:99",
+        ".skydiscover/llm-router/specification/sources/litellm/litellm/router.py:5374",
+        ".skydiscover/llm-router/specification/sources/gaie/pkg/epp/requestcontrol/director.go:332 (read at 1748e829d)"
+      ]
+    },
+    "correctness.observable_signals_only": {
+      "property": "REQUIRED CORRECTNESS CLASS. The router reads only signals observable at request time: req.features, req.cls, req.prompt_tokens, req.expected_output_tokens, req.max_tokens, req.stream, req.slo, req.model_requested, req.equiv_class, req.downgrade_ok, req.retry_safe, req.session_id, req.prefix_id, now_ms, and the fleet view. It NEVER reads req.quality, and never joins req.features['prompt_id'] against any per-prompt score matrix or any other ground-truth-derived table.",
+      "guarantee": "req.quality is the harness's grading key (router_interface.py:31, scored at replay_tenants.py:412); reading it makes the specialist an unreachable oracle and beats the baseline on information rather than on policy. The shipped baseline itself does not read it: it scores from a precomputed prediction head keyed by req.features['prompt_id'] (generic_policy.py:42, :60). Measured separation: the observable-feature ceiling is U_A 0.669 / U_B 0.462, the forbidden oracle ceiling is U_A 0.802 / U_B 0.572, an information gap of 0.133 and 0.109. The specific hack to exclude (decision log row 26, from the environment agent's notes): a prompt_id -> train-matrix score lookup reproduces the oracle ceiling on train and has ZERO coverage on val and test, because make_tenant_traces.py:64 splits prompt ids by sha256 into disjoint train/val/test sets. The legitimate use of prompt_id is as the key of an estimator FITTED FROM PROMPT TEXT that generalizes to unseen ids, as the shipped ridge head is. Severity: a candidate whose train U approaches the oracle ceiling rather than the achievable ceiling is a defect, not an advisory.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:31",
+        "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:35",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:412",
+        "skydiscover/synthesize/examples/llm-router/evaluator/generic_policy.py:42",
+        "skydiscover/synthesize/examples/llm-router/evaluator/generic_policy.py:60",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/data/make_tenant_traces.py:64",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/baseline/train_generic.py:84",
+        ".skydiscover/llm-router/decision_log.json row 26 (reward-hack lead, environment mode)",
+        ".skydiscover/llm-router/specification/cards/environment.json ceiling.oracle_ceiling_unreachable"
+      ]
+    },
+    "correctness.exactly_once_completion": {
+      "property": "REQUIRED CORRECTNESS CLASS. Every request in the trace ends exactly once: completed once, or legally shed once. None is left neither completed nor shed, and none is completed twice.",
+      "guarantee": "A request still pending when the event queue drains is a typed lost_request (replay_tenants.py:452). A second billed completion is a typed double_bill (:409, :410) and the documented way to cause one is returning an Action from on_complete, which a correct router never does (router_interface.py:85). The replay must report violation_count 0 with no lost_request and no double_bill entry.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:409",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:410",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:452",
+        "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:85",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:486"
+      ]
+    },
+    "correctness.shed_legality": {
+      "property": "REQUIRED CORRECTNESS CLASS. The router sheds a request only under real overload: at the instant of the shed, no non-down provider stocking a legally substitutable model has rpm, tpm AND concurrency headroom.",
+      "guarantee": "Shedding while some provider could have served the request right then is a typed illegal_shed (replay_tenants.py:283); a down provider is not admission headroom (:274). A legal shed is still never profitable: it books zero quality, misses its floor (:466) and counts as a violated request in the tenant's SLO rate (:492). The replay must report no illegal_shed.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:265",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:266",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:274",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:277",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:283",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:466",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:492"
+      ]
+    },
+    "correctness.substitution_legality": {
+      "property": "REQUIRED CORRECTNESS CLASS. The router dispatches only to (provider, model) pairs that exist: the model is req.model_requested, or a member of req.equiv_class when req.downgrade_ok is true; the provider is a known provider that stocks that model.",
+      "guarantee": "Serving a model outside {model_requested} union (equiv_class if downgrade_ok) is a typed substitution (replay_tenants.py:312, :315); an unknown provider is a typed unknown_provider (:316, :318) and a provider that does not stock the model is a typed unknown_model (:320, :321). None of these is retried automatically, so the request is lost unless the router acts again. Reach is limited by the FLEET, not the request: value stocks 8 of the 12 models, prime and courier all 12, so 32 of a nominal 36 placements are legal on every row of this workload.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:312",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:315",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:316",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:320",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:321",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/data/cards/tenantA.card.yaml:7",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/data/cards/tenantB.card.yaml:7"
+      ]
+    },
+    "correctness.outage_loss_avoidance": {
+      "property": "REQUIRED CORRECTNESS CLASS. The router never loses a request to an announced outage: it does not keep dispatching into a provider whose fleet-view entry is down past the retry grace of 8 outage-blind dispatches.",
+      "guarantee": "A down provider publishes an empty model catalogue plus an outage_until ETA and admits nothing (replay_tenants.py:145, :72); the ninth outage-blind dispatch is a typed outage_lost and the request dies (:330, :333, :337; env_card.yaml:137). Health need not be inferred. The response must be driven by the published outage_until, not by trace position: the val windows are literal absolute times, the sealed test windows are derived as span fractions at replay time (env_card.yaml:138, replay_tenants.py:36). The replay must report no outage_lost.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:72",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:124",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:145",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:330",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:333",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:337",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml:137",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/env_card.yaml:138"
+      ]
+    },
+    "correctness.no_mutation": {
+      "property": "REQUIRED CORRECTNESS CLASS. The router mutates neither the request nor the fleet view: it changes no trace field on its copy of a Request, and changes nothing in the fleet_view dict or the environment behind it.",
+      "guarantee": "The harness diffs the router's copy of the request against truth after every callback and rolls back any edit, recording a typed req_mutation (replay_tenants.py:229, :235, :243). The fleet config is fingerprinted at start and end (:453) and each provider's meter is cross-checked against an independent ledger (:455, :457), giving typed env_mutation and meter_mutation. A bill below the all-cached floor is a typed bad_bill (:359, :362). Scratch data the router wants to keep belongs on self or under a router-owned attribute, never on a trace field. Any exception escaping a callback is a typed router_exception (:251, :253).",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:229",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:235",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:243",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:247",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:251",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:359",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:453",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:455",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:156"
+      ]
+    },
+    "correctness.replay_determinism": {
+      "property": "REQUIRED CORRECTNESS CLASS. Two replays of the same trace with the same env card and the same split produce identical decisions and identical books.",
+      "guarantee": "A fresh router instance replaying the same trace twice must emit the same (provider, model, kind, until_ms) sequence and the same mean_quality, cost_usd and slo_violation_rate to full precision. The simulation itself is deterministic (sim_seed 11), so any difference comes from the router: unseeded randomness, wall-clock reads, or iteration over an unordered container. Both reference gateways fail this (an unseeded random.choice / Math.random in placement), so it is a real defect class, not a hypothetical one.",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:503",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py:35",
+        ".skydiscover/llm-router/specification/sources/litellm/litellm/router_strategy/simple_shuffle.py:70",
+        ".skydiscover/llm-router/specification/sources/portkey-gateway/src/handlers/handlerUtils.ts:704",
+        ".skydiscover/llm-router/specification/sources/llmrouterbench/baselines/data_loader.py:381",
+        ".skydiscover/llm-router/specification/cards/environment.json limit.method"
+      ]
+    },
+    "correctness.bounded_router_memory": {
+      "property": "REQUIRED CORRECTNESS CLASS. Everything the router keeps between requests is bounded by an explicit size or age limit, so its memory does not grow with the number of requests served.",
+      "guarantee": "Each cross-request structure declares a capacity or a retention age and evicts when it is reached. The harness re-invokes decide() up to 512 times per request (replay.py:35), so a per-attempt accumulator grows far faster than the trace: on tenant A's 2,899-request train trace that is up to 1.48M decide() calls. A per-request record that is never released, or a per-prompt table keyed by an unbounded id space, is the failure this class forbids; RouteLLM ships exactly that defect (an ever-growing per-router decision tally). The replay must also finish inside the 600 s wall-clock budget (replay.py:34) without a typed harness_hang (:447).",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py:34",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py:35",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py:36",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:447",
+        ".skydiscover/llm-router/specification/sources/routellm/routellm/controller.py:113",
+        ".skydiscover/llm-router/specification/sources/gaie/pkg/epp/framework/plugins/requestcontrol/dataproducer/approximateprefix/types.go:88 (read at 1748e829d)"
+      ]
+    },
+    "correctness.operator_observability": {
+      "property": "REQUIRED CORRECTNESS CLASS. After any request that went wrong, an operator can recover from the router which provider and model served it, how many attempts it took, and the typed reason each earlier attempt failed.",
+      "guarantee": "The router exposes a bounded operator-facing record per request, populated from decide() and on_error(). It never swallows a failure silently and never surfaces a self-reported number as if it were accounting: billing, token counts, SLO accounting and quality all come from the harness's own books (replay_tenants.py:503, :522, :524, :527), so nothing the router reports can move the score. Liveness must also stay visible: deferring a structurally unservable request more than 32 times is a typed unserviceable loss (replay.py:40, replay_tenants.py:290, :294).",
+      "evidence": [
+        "skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:82",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:290",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:294",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:503",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:522",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:524",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:527",
+        "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py:40"
+      ]
+    }
+  },
+  "required_properties": [
+    {
+      "id": "quality_information_source",
+      "axis": "model_selection",
+      "requirement": "What may the router use to judge how well each candidate model would answer a given request?",
+      "value": "only signals a deployed router could observe at request time",
+      "by": "ai",
+      "rationale": "Determined by the shipped baseline, not a free choice: evaluator/generic_policy.py:60 scores with a precomputed prediction head keyed by req.features['prompt_id'] (evaluator/benchmark/artifacts/generic_predictions.json), never req.quality. Reading the ground-truth req.quality dict the harness grades with would make the specialist an unreachable oracle and beat the baseline on information, not policy: a reward hack. Router code may read req.features and req.slo only."
+    },
+    {
+      "id": "model_substitution_appetite",
+      "axis": "model_selection",
+      "requirement": "How freely may the router serve a different model from the one the request named, given that the request permits it?",
+      "value": "serve whichever model in the permitted set looks best on quality against price for this request",
+      "by": "ai",
+      "rationale": "SETTLED BY THE MEASURED TRACE, not a default. All 6,504 train+val rows carry downgrade_ok:true and one identical equiv_class of all 12 models, so the permitted set is the whole fleet on every request. On the measured score/cost matrices the requested model is dominated for tenant A: qwen3-235b-a22b-2507 scores 0.5350 vs gpt-5's 0.5113 on val (0.5254 vs 0.4950 on train) at $0.002418 vs $0.025722 per request, a static utility of 0.5277 vs 0.4342. Fleet cost spread is 15.3-20.8x on A traffic and 112.7-123.4x on B traffic, so with the objective's -3.0*cost weight substitution is the widest single lever. cards/workload.json dimensions.quality_cost_landscape."
+    },
+    {
+      "id": "placement_signal",
+      "axis": "placement",
+      "requirement": "Among the providers that stock the chosen model, what decides which one gets the request?",
+      "value": "remaining allowance and expected time-to-answer weighed together",
+      "by": "ai",
+      "rationale": "declared default"
+    },
+    {
+      "id": "behaviour_when_nothing_has_room",
+      "axis": "admission_and_overload",
+      "requirement": "When no provider can serve a request right now, does the router wait for capacity or refuse the request?",
+      "value": "wait for capacity, with an explicit point at which the router gives up",
+      "by": "ai",
+      "rationale": "declared default"
+    },
+    {
+      "id": "give_up_point",
+      "axis": "admission_and_overload",
+      "requirement": "How long may a request that cannot be served yet keep waiting before the router stops waiting on it?",
+      "value": "until its own deadline runs out, and no longer",
+      "by": "ai",
+      "rationale": "SETTLED BY THE MEASURED TRACE. A single fixed patience is provably wrong for one of the two tenants: A's whole budget is 2,500 ms from arrival while B's median queue slack is 532 s and its p90 is 391 s, and B's waves need 109-190 s of whole-fleet drain time that only deadline-length patience makes room for. Both tenants carry a deadline on every row (measured: 100% coverage, no row without an slo field), so tying patience to the request's own deadline is always defined. cards/workload.json dimensions.deadline_feasibility_headroom."
+    },
+    {
+      "id": "allowance_respect",
+      "axis": "rate_limit_pacing",
+      "requirement": "How should the router stay inside a provider's published request and token allowance?",
+      "value": "subtract the request's own expected consumption from the published remaining allowance before dispatching",
+      "by": "ai",
+      "rationale": "SETTLED BY THE MEASURED TRACE. Learning from a rejection is unaffordable for tenant A: a 429 costs a fixed 2,000 ms of a 2,500 ms budget, after which only prime can still land and only for prompts under 6,000 tokens, so 6.28% of A val rows (61/972, every tau2 row) can never recover from one throttle. The rejections are real, not hypothetical: A's val peak offers 181 requests per 60 s against prime's rpm 132 (137%) and courier's 150 (121%), and the env card records 19.4% of tenant-A requests taking at least one prime 429 under the reference router. Token allowances never bind (worst measured 60 s demand is 45% of the tightest tpm), so the subtraction that matters is against rpm and concurrency. cards/workload.json dimensions.fleet_headroom_at_peak."
+    },
+    {
+      "id": "after_a_rejected_attempt",
+      "axis": "retry_and_fallback",
+      "requirement": "After an attempt is rejected, should the next attempt go to a different provider or wait and try the same one again?",
+      "value": "try a different provider first, waiting only when no alternative has room",
+      "by": "ai",
+      "rationale": "declared default"
+    },
+    {
+      "id": "when_a_provider_may_be_used_again",
+      "axis": "outage_and_health",
+      "requirement": "Once a provider is known to be unavailable, when may the router send it real traffic again?",
+      "value": "not before the announced end of its unavailability",
+      "by": "ai",
+      "rationale": "SETTLED BY THE MEASURED TRACE. Outage exposure is not a corner case in this workload: measured against the val schedule, 41.3% of tenant B's val arrivals (286/693, an entire wave: 348.0-437.7 s inside the 300-420 s window) and 15.2% of tenant A's (148/972) land inside an announced prime outage, against 20.0% and 10.8% on train. With retry_grace 8, a policy that re-probes with real traffic burns the loss allowance nine dispatches into a window that lasts 120-150 s. The fleet publishes outage_until, so nothing needs to be inferred. cards/workload.json dimensions.outage_exposure."
+    },
+    {
+      "id": "avoiding_a_provider_that_is_merely_struggling",
+      "axis": "outage_and_health",
+      "requirement": "Should a provider that is not formally unavailable, but has just been refusing or failing requests, be avoided for a while?",
+      "value": "yes: a provider that has just been refusing or failing is passed over for a bounded period",
+      "by": "ai",
+      "rationale": "declared default"
+    },
+    {
+      "id": "deadline_awareness",
+      "axis": "deadline_and_priority",
+      "requirement": "Does the time left before a request's deadline change what the router does with it?",
+      "value": "the deadline changes both the choice of provider and model and how long the request is willing to wait",
+      "by": "ai",
+      "rationale": "SETTLED BY THE MEASURED TRACE. The two tenants' deadlines are 2,500 ms TTFT (A, 100% of 3,871 rows) and 600,000 ms end-to-end (B, 100% of 2,633 rows), a factor of 240, and the feasible action sets differ in kind, not degree: after one 429 A has 500 ms left, so only prime (ttft_base 400 ms) can still meet the SLO and only under 6,000 prompt tokens, while B's median request can queue 532 s and still finish. Measured: A first-try TTFT feasibility prime 98.05% / value 94.44% / courier 93.72% on val; B solo end-to-end feasibility 99.6-100% at every provider. cards/workload.json dimensions.deadline_feasibility_headroom."
+    },
+    {
+      "id": "request_whose_deadline_is_already_gone",
+      "axis": "deadline_and_priority",
+      "requirement": "What should the router do with a request that can no longer meet its deadline?",
+      "value": "serve it anyway, as cheaply as the permitted set allows",
+      "by": "ai",
+      "rationale": "declared default"
+    },
+    {
+      "id": "taking_capacity_from_the_other_tenant",
+      "axis": "tenant_isolation",
+      "requirement": "May a tenant's router take capacity on the shared fleet that the other tenant would otherwise have used?",
+      "value": "yes, up to whatever the provider's published limits allow",
+      "by": "ai",
+      "rationale": "Default taken, and the harness makes it non-adversarial: evaluator/benchmark/replay_tenants.py replays ONE tenant trace at a time (trace_tenantA_val.jsonl / trace_tenantB_val.jsonl), so no specialist can observe or starve the other tenant inside a scored replay. Self-imposed headroom would only handicap; published provider limits remain the binding constraint."
+    },
+    {
+      "id": "spend_bound",
+      "axis": "cost_control",
+      "requirement": "Is what the router spends bounded by anything other than the traffic itself?",
+      "value": "price is weighed against quality on every request, with no hard ceiling",
+      "by": "ai",
+      "rationale": "declared default"
+    },
+    {
+      "id": "replay_reproducibility",
+      "axis": "policy_state_and_determinism",
+      "requirement": "Must two replays of the same trace produce the same decisions?",
+      "value": "identical decisions on identical input",
+      "by": "ai",
+      "rationale": "declared default"
+    },
+    {
+      "id": "memory_the_router_keeps",
+      "axis": "policy_state_and_determinism",
+      "requirement": "What bounds anything the router remembers between requests?",
+      "value": "an explicit size or age limit on everything remembered",
+      "by": "ai",
+      "rationale": "declared default"
+    },
+    {
+      "id": "what_an_operator_can_see",
+      "axis": "decision_observability",
+      "requirement": "What must an operator be able to see after a request goes wrong?",
+      "value": "which provider and model served it, how many attempts it took, and why each earlier attempt failed",
+      "by": "ai",
+      "rationale": "declared default"
+    }
+  ]
+}

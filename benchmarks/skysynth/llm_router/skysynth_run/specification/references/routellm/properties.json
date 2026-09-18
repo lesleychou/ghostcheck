@@ -1,0 +1,155 @@
+{
+  "axes": [
+    {
+      "axis": "model_selection",
+      "properties": [
+        {
+          "property": "model selection",
+          "value": "Binary strong-vs-weak: a predicted strong-model win rate at or above the caller's threshold selects the strong model, otherwise the weak one, scored from the last message only.",
+          "evidence": [
+            "routellm/routers/routers.py:41",
+            "routellm/controller.py:110",
+            "routellm/calibrate_threshold.py:55"
+          ],
+          "tradeoff": "Selection is a deterministic pure function of the prompt for the mf/bert/causal_llm/sw_ranking routers; it guarantees nothing about the realised quality, only about the strong-call fraction it was calibrated to."
+        }
+      ]
+    },
+    {
+      "axis": "placement",
+      "properties": [
+        {
+          "property": "placement",
+          "value": "not decided: there is no endpoint or deployment concept; one global api_base/api_key is handed to the underlying client.",
+          "evidence": [
+            "routellm/controller.py:153"
+          ],
+          "tradeoff": "none"
+        }
+      ]
+    },
+    {
+      "axis": "admission_and_overload",
+      "properties": [
+        {
+          "property": "admission and overload",
+          "value": "not decided: the only rejection is a 400 for a malformed router/threshold string; there is no queue and no overload signal.",
+          "evidence": [
+            "routellm/openai_server.py:127"
+          ],
+          "tradeoff": "none"
+        }
+      ]
+    },
+    {
+      "axis": "rate_limit_pacing",
+      "properties": [
+        {
+          "property": "rate limit pacing",
+          "value": "not decided: no request or token quota accounting exists anywhere in the package.",
+          "evidence": [
+            "routellm/controller.py:153"
+          ],
+          "tradeoff": "none"
+        }
+      ]
+    },
+    {
+      "axis": "retry_and_fallback",
+      "properties": [
+        {
+          "property": "retry and fallback",
+          "value": "not decided: the upstream result is returned directly and an upstream failure is not caught, retried or diverted.",
+          "evidence": [
+            "routellm/controller.py:153",
+            "routellm/controller.py:170"
+          ],
+          "tradeoff": "none"
+        }
+      ]
+    },
+    {
+      "axis": "outage_and_health",
+      "properties": [
+        {
+          "property": "outage and health",
+          "value": "not decided for upstreams: the health endpoint reports only that the router process is alive.",
+          "evidence": [
+            "routellm/openai_server.py:143"
+          ],
+          "tradeoff": "none"
+        }
+      ]
+    },
+    {
+      "axis": "deadline_and_priority",
+      "properties": [
+        {
+          "property": "deadline and priority",
+          "value": "not decided: the request model carries no deadline, SLO or latency field.",
+          "evidence": [
+            "routellm/openai_server.py:63"
+          ],
+          "tradeoff": "none"
+        }
+      ]
+    },
+    {
+      "axis": "tenant_isolation",
+      "properties": [
+        {
+          "property": "tenant isolation",
+          "value": "not decided: one process-global controller and one shared decision tally serve every caller.",
+          "evidence": [
+            "routellm/openai_server.py:26",
+            "routellm/controller.py:113"
+          ],
+          "tradeoff": "none"
+        }
+      ]
+    },
+    {
+      "axis": "cost_control",
+      "properties": [
+        {
+          "property": "cost control",
+          "value": "Spend is never computed or bounded at decision time; the quantity the project calls cost is the fraction of calls sent to the strong model, and the threshold is tuned offline to hit a target fraction on someone else's traffic.",
+          "evidence": [
+            "routellm/evals/evaluate.py:236",
+            "routellm/calibrate_threshold.py:55",
+            "routellm/evals/evaluate.py:97"
+          ],
+          "tradeoff": "It bounds the share of traffic sent to the expensive model on the calibration distribution only; the realised share on a different workload is explicitly not guaranteed."
+        }
+      ]
+    },
+    {
+      "axis": "policy_state_and_determinism",
+      "properties": [
+        {
+          "property": "policy state and determinism",
+          "value": "A deterministic pure function of the prompt for the trained routers; the only unbounded state is an ever-growing per-router decision tally, and the random router is non-deterministic and only seeded inside the evaluation harness.",
+          "evidence": [
+            "routellm/controller.py:113",
+            "routellm/evals/evaluate.py:221"
+          ],
+          "tradeoff": "Two runs of a trained router on the same prompt give the same model; memory grows with the number of distinct routers, not requests."
+        }
+      ]
+    },
+    {
+      "axis": "decision_observability",
+      "properties": [
+        {
+          "property": "decision observability",
+          "value": "The served model is visible in the response and the running decision counts are logged, but no score, reason or spend is returned to the caller.",
+          "evidence": [
+            "routellm/openai_server.py:133",
+            "routellm/controller.py:113"
+          ],
+          "tradeoff": "An operator can see WHICH model served a request but not WHY."
+        }
+      ]
+    }
+  ]
+}

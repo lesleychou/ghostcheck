@@ -1,0 +1,227 @@
+{
+  "title": "Requirements for: a per-tenant LLM request router on a shared, rate-limited, occasionally-unavailable fleet",
+  "domain": "a per-tenant LLM request router: a policy that places each inbound request on exactly one (provider, model) of a shared, rate-limited, occasionally-unavailable fleet, under per-request quality, cost and deadline constraints",
+  "intro": "Answer each question for the router you need, in terms of what it must do, not how. Every option below is a behaviour at least one real system in this domain actually ships; the declared default is what the reference systems most often choose, or what the scored deployment makes defensible. This run is headless, so every question carries a default.",
+  "settled": [
+    {"id": "substitution_legality", "value": "only the requested model, plus its declared equivalence class when the request permits a downgrade", "derivation": "A hard rule of the scoring harness: skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:312. Both workload cards ship downgrade_ok: true and every trace row carries an equivalence class of all 12 models, so the whole fleet is legally reachable for both tenants."},
+    {"id": "refusal_legality", "value": "a request may be refused only when no provider could have served it right then", "derivation": "replay_tenants.py:265, :277, :283. A legal refusal still books zero quality, a quality-floor miss and a violated deadline (replay_tenants.py:466, :492), so refusing is never a cheap way to improve a scored axis."},
+    {"id": "outage_discovery", "value": "the fleet announces unavailability, with an end time", "derivation": "A down provider publishes an empty catalogue plus an end time in the fleet view (replay_tenants.py:145) and admits nothing (:72). Health need not be inferred from error rates. Dispatching into an announced outage more than 8 times loses the request (:333, env_card.yaml:137)."},
+    {"id": "deadline_definition", "value": "exactly the quantity the request's own deadline field names", "derivation": "replay_tenants.py:422 and :426. Tenant A is 2500 ms to first token (data/cards/tenantA.card.yaml:6); Tenant B is 600000 ms to whole response (tenantB.card.yaml:6). A request that never completes counts as violated (:492)."},
+    {"id": "billing_authority", "value": "the harness's own books; nothing the router reports affects the bill", "derivation": "replay_tenants.py:110 charges from a private price table, :455 cross-checks an independent ledger, :453 fingerprints the frozen fleet. The published fleet view is by value (:156), so editing it edits only the router's copy."},
+    {"id": "liveness_budget", "value": "bounded, and exceeding the bound is a loud typed failure", "derivation": "512 decisions per request (replay.py:35) and 600 s of real time per replay (replay.py:34); waiting more than 32 times on a structurally unservable request is a typed loss (replay.py:40, replay_tenants.py:290)."},
+    {"id": "request_immutability", "value": "the router may hang its own scratch data on its copy of a request, but may not change any trace field", "derivation": "The router gets a copy with stable identity across callbacks (replay_tenants.py:229), diffed against truth after every callback and rolled back on any edit (:235)."},
+    {"id": "who_reschedules", "value": "the harness reschedules a rejected attempt and asks the router to decide again; a rejected attempt is never billed", "derivation": "replay_tenants.py:325, :347, :349. Exactly one completion per request is ever booked; a second is a typed double-bill (:409)."},
+    {"id": "retry_safety", "value": "every request in this workload is declared safe to repeat", "derivation": "Measured over the full validation traces: retry_safe is true on all 972 Tenant A rows and all 693 Tenant B rows. The production question of gating a repeat on declared safety does not arise here, so it is not asked."},
+    {"id": "quality_floor", "value": "no request declares a quality floor above zero", "derivation": "Measured over the full validation traces: quality_floor is 0.0 on all 1665 rows, so the harness's floor-miss counter only ever fires on a refused request (replay_tenants.py:466). Respecting a floor is therefore not a live constraint on model choice."},
+    {"id": "warm_prefix_reuse", "value": "prefix reuse is switched off in this deployment", "derivation": "Measured over the full validation traces: prefix_tokens is 0 on all 1665 rows, and the environment card says so explicitly (env_card.yaml:31). Locality is not a placement signal here."},
+    {"id": "optimization_target", "value": "mean quality minus the deadline-violation rate minus three times the dollars per request", "derivation": "Fixed by the task before the first evaluation and never a question. Correctness is pass/fail and separate from it."}
+  ],
+  "questions": [
+    {
+      "id": "quality_information_source",
+      "axis": "model_selection",
+      "q": "What may the router use to judge how well each candidate model would answer a given request?",
+      "why": "Every trace row carries BOTH the true per-model score the harness will grade with, for all twelve models, AND a separate map of observable signals a deployed router could really compute. The interface says in so many words that choosing between them is a per-experiment decision. Reading the true score makes the result an unreachable upper bound rather than a router anyone could deploy, and the baseline it must beat reads only a signal derived from an observable request identifier.",
+      "options": [
+        {"value": "only signals a deployed router could observe at request time", "why": "What the baseline does, and the only setting in which a reported win means anything about a real deployment."},
+        {"value": "the true per-model score the run will be graded with", "why": "Produces an upper bound on what any router could achieve; useful as a ceiling, invalid as a result."}
+      ],
+      "default": "only signals a deployed router could observe at request time",
+      "multi": false
+    },
+    {
+      "id": "model_substitution_appetite",
+      "axis": "model_selection",
+      "q": "How freely may the router serve a different model from the one the request named, given that the request permits it?",
+      "why": "Quality is booked from the model actually served, and the twelve models differ by more than 100x in dollars per request and by roughly 0.2 in measured score, so this is the largest single lever on the objective. Real systems span the whole range: one always honours the name, one substitutes only on an operator-declared split, one substitutes on a per-request quality estimate.",
+      "options": [
+        {"value": "always serve the model the request named", "why": "The safe, surprise-free behaviour two production systems ship by default; it forgoes every quality and price gain available in the equivalence set."},
+        {"value": "serve a different model only when the named one cannot meet the deadline or is unavailable", "why": "Substitution as a fallback rather than a strategy; keeps caller expectations intact while protecting availability."},
+        {"value": "serve whichever model in the permitted set looks best on quality against price for this request", "why": "What the quality-and-price routing work and the shipped baseline both do; it is where nearly all of the objective's headroom lives."}
+      ],
+      "default": "serve whichever model in the permitted set looks best on quality against price for this request",
+      "multi": false
+    },
+    {
+      "id": "placement_signal",
+      "axis": "placement",
+      "q": "Among the providers that stock the chosen model, what decides which one gets the request?",
+      "why": "The three providers differ deliberately: one is fast with the tightest allowance and takes the outages, one has wide allowances and mid speed, one is 20 percent cheaper and slow and flaky. Price, speed and remaining allowance therefore point at three different providers on the same request, and the fleet publishes all three live on every decision.",
+      "options": [
+        {"value": "the first provider that stocks the model", "why": "What the trusted-correct reference does; simple, and it concentrates every burst on one provider."},
+        {"value": "the cheapest provider that stocks the model", "why": "Directly minimises the heaviest term in the objective; measured in the baseline's own tuning log as worse than speed-aware placement, because it misses deadlines."},
+        {"value": "the provider with the most remaining allowance", "why": "Spreads load and minimises rejections; blind to both price and speed."},
+        {"value": "the provider expected to answer soonest", "why": "What the shipped baseline selected after five logged evaluations; protects the tight deadline, ignores price."},
+        {"value": "remaining allowance and expected time-to-answer weighed together", "why": "What the production systems with live fleet state converge on; more to get right, and the only option that can serve a strict deadline and a wide batch deadline from one policy."}
+      ],
+      "default": "remaining allowance and expected time-to-answer weighed together",
+      "multi": false
+    },
+    {
+      "id": "behaviour_when_nothing_has_room",
+      "axis": "admission_and_overload",
+      "q": "When no provider can serve a request right now, does the router wait for capacity or refuse the request?",
+      "why": "This is the sharpest disagreement between the reference systems: one refuses immediately, one never refuses and never waits, one parks the caller in a bounded line. Here refusing is scored as both a violated deadline and zero quality, while waiting forever is a typed loss, so neither extreme is free.",
+      "options": [
+        {"value": "refuse immediately", "why": "Loud and instant, and it is what a production system does when it has nowhere to put the work; here it costs the request's whole quality contribution."},
+        {"value": "wait for capacity indefinitely", "why": "Never throws away work, but a request that can never be served is reported as lost, and the deciding budget runs out."},
+        {"value": "wait for capacity, with an explicit point at which the router gives up", "why": "The behaviour the queueing reference ships and the only one that is safe in both directions here."}
+      ],
+      "default": "wait for capacity, with an explicit point at which the router gives up",
+      "multi": false
+    },
+    {
+      "id": "give_up_point",
+      "axis": "admission_and_overload",
+      "q": "How long may a request that cannot be served yet keep waiting before the router stops waiting on it?",
+      "why": "The two tenants' deadlines differ by a factor of 240, so one fixed patience is wrong for one of them. The queueing reference ships no limit at all by default and relies on the caller giving up, which here is exactly the shape of a lost request.",
+      "options": [
+        {"value": "until its own deadline runs out, and no longer", "why": "Ties patience to the thing being scored; the reference's own design when the caller supplies a deadline, and every request here supplies one."},
+        {"value": "a fixed maximum wait, the same for every request", "why": "Simple and easy to reason about; necessarily wrong for one of two tenants whose deadlines differ by more than two orders of magnitude."},
+        {"value": "as long as it takes", "why": "The reference's shipped default; here it risks the typed loss for a request nothing can ever serve."}
+      ],
+      "default": "until its own deadline runs out, and no longer",
+      "multi": false
+    },
+    {
+      "id": "allowance_respect",
+      "axis": "rate_limit_pacing",
+      "q": "How should the router stay inside a provider's published request and token allowance?",
+      "why": "The fleet publishes each provider's remaining request count and remaining token count live on every decision, and each request declares its own expected token consumption, so the router can subtract before it dispatches. None of the three production references can do this: two learn only from being rejected, and the third has no allowance concept at all. Rejections cost a fixed two-second wait each, which is most of the tight tenant's deadline.",
+      "options": [
+        {"value": "dispatch and learn from being rejected", "why": "What both production systems do; every breach costs a full round trip and a fixed wait."},
+        {"value": "subtract the request's own expected consumption from the published remaining allowance before dispatching", "why": "Available here and not in the references; converts most rejections into a different placement at no cost."},
+        {"value": "keep part of the published allowance unused so a sudden burst has somewhere to land", "why": "What the shipped baseline does; costs steady-state throughput to protect burst latency."}
+      ],
+      "default": "subtract the request's own expected consumption from the published remaining allowance before dispatching",
+      "multi": false
+    },
+    {
+      "id": "after_a_rejected_attempt",
+      "axis": "retry_and_fallback",
+      "q": "After an attempt is rejected, should the next attempt go to a different provider or wait and try the same one again?",
+      "why": "Both production references prefer moving the work over waiting on it, and the harness always wakes the router again after a fixed two-second wait, so waiting is never free. There is always at least one other provider stocking the same model in this fleet.",
+      "options": [
+        {"value": "try a different provider first, waiting only when no alternative has room", "why": "What both production systems converge on; recovers a burst in one hop instead of one wait."},
+        {"value": "wait the interval the provider asked for and try the same one again", "why": "Gentlest on the provider; costs a fixed two seconds per attempt, which the strict tenant cannot afford."},
+        {"value": "give up after a fixed number of attempts", "why": "Bounds the worst case; here giving up means the request is refused or lost, both of which are scored against the router."}
+      ],
+      "default": "try a different provider first, waiting only when no alternative has room",
+      "multi": false
+    },
+    {
+      "id": "when_a_provider_may_be_used_again",
+      "axis": "outage_and_health",
+      "q": "Once a provider is known to be unavailable, when may the router send it real traffic again?",
+      "why": "This fleet announces the end of an outage, which none of the reference systems can rely on: one re-probes on a short fixed timer, one has no memory of failure at all and rediscovers the outage on every single request. Here the ninth outage-blind attempt on one request loses that request outright.",
+      "options": [
+        {"value": "immediately, on every request", "why": "What the stateless production reference does; here it burns the loss allowance in nine attempts."},
+        {"value": "after a fixed waiting period", "why": "What the stateful production reference does; needs no announcement, but re-probes with real traffic and can re-probe too early or too late."},
+        {"value": "not before the announced end of its unavailability", "why": "Uses what this fleet actually publishes; the only option that cannot lose a request to an outage."}
+      ],
+      "default": "not before the announced end of its unavailability",
+      "multi": false
+    },
+    {
+      "id": "avoiding_a_provider_that_is_merely_struggling",
+      "axis": "outage_and_health",
+      "q": "Should a provider that is not formally unavailable, but has just been refusing or failing requests, be avoided for a while?",
+      "why": "Announced unavailability is only one of the ways a provider stops being useful. The tight provider also refuses on its own allowance and fails at a small random rate, and the cheap provider fails at 2.5 times that rate. One production reference stops using a target after a single refusal when alternatives exist; the other never does.",
+      "options": [
+        {"value": "no: only announced unavailability changes where requests go", "why": "Simple, and correct if refusals are purely a function of the published allowance the router is already tracking."},
+        {"value": "yes: a provider that has just been refusing or failing is passed over for a bounded period", "why": "What the stateful production reference does; avoids paying the same rejection repeatedly, at the risk of avoiding a provider that had already recovered."}
+      ],
+      "default": "yes: a provider that has just been refusing or failing is passed over for a bounded period",
+      "multi": false
+    },
+    {
+      "id": "deadline_awareness",
+      "axis": "deadline_and_priority",
+      "q": "Does the time left before a request's deadline change what the router does with it?",
+      "why": "The two tenants are three orders of magnitude apart: 2.5 seconds to the first token against ten minutes to the whole answer. Every reference system except one is completely deadline-blind, and the one that is not makes deadline ordering an opt-in that most operators never turn on.",
+      "options": [
+        {"value": "no: the deadline never changes the decision", "why": "What every production reference ships; it works only when the traffic is all one shape."},
+        {"value": "the deadline changes which provider and model are chosen", "why": "Lets one policy serve a strict and a relaxed tenant without a mode switch."},
+        {"value": "the deadline changes both the choice of provider and model and how long the request is willing to wait", "why": "What the scheduling reference supports; the fullest use of the information this workload actually carries."}
+      ],
+      "default": "the deadline changes both the choice of provider and model and how long the request is willing to wait",
+      "multi": false
+    },
+    {
+      "id": "request_whose_deadline_is_already_gone",
+      "axis": "deadline_and_priority",
+      "q": "What should the router do with a request that can no longer meet its deadline?",
+      "why": "No reference system asks this: none of them knows a request's deadline is already unreachable. Here the violation is already counted the moment the deadline passes, so what happens next only moves quality and dollars.",
+      "options": [
+        {"value": "serve it anyway, as cheaply as the permitted set allows", "why": "The violation is already booked, so the only remaining levers are quality and price; the cheapest acceptable answer keeps some quality at minimum cost."},
+        {"value": "serve it anyway, at the quality it would have had", "why": "Treats the deadline as advisory and the answer as the product; costs more for no change to the violation count."},
+        {"value": "refuse it, when refusing is legal", "why": "Frees capacity for requests that can still make their deadline; costs the request's entire quality contribution on top of the violation already counted."}
+      ],
+      "default": "serve it anyway, as cheaply as the permitted set allows",
+      "multi": false
+    },
+    {
+      "id": "taking_capacity_from_the_other_tenant",
+      "axis": "tenant_isolation",
+      "q": "May a tenant's router take capacity on the shared fleet that the other tenant would otherwise have used?",
+      "why": "The deployment is explicitly two tenants on one fleet, each scored on its own book against the same shared-fleet baseline, and the tightest provider is sized so that bursts genuinely contend. No reference system reserves capacity for anyone by default: the one that could does so only if an operator explicitly asks, and its shipped setting provides no protection at all.",
+      "options": [
+        {"value": "yes, up to whatever the provider's published limits allow", "why": "What every reference system does by default; maximises this tenant's own score and is indifferent to the other's."},
+        {"value": "no: leave part of the tightest provider's capacity for the other tenant", "why": "The behaviour a shared-fleet operator would actually want; costs this tenant measurable score with no credit for it in this tenant's book."}
+      ],
+      "default": "yes, up to whatever the provider's published limits allow",
+      "multi": false
+    },
+    {
+      "id": "spend_bound",
+      "axis": "cost_control",
+      "q": "Is what the router spends bounded by anything other than the traffic itself?",
+      "why": "Dollars per request carry three times the weight of the quality term in the objective, and the fleet spans more than a hundredfold in price per request. The references split cleanly: the offline routing work uses only a soft price preference, one production system enforces hard caps that remove a provider from consideration once crossed, and the other has no cost policy at all.",
+      "options": [
+        {"value": "no: spend follows the traffic", "why": "What one production system and the scheduling system do; leaves the heaviest term of the objective entirely uncontrolled."},
+        {"value": "price is weighed against quality on every request, with no hard ceiling", "why": "What the shipped baseline and the routing literature both do; tunable, and it can never force a refusal."},
+        {"value": "a hard ceiling per period that changes what the router does once crossed", "why": "What the production system with budgets does; guarantees the ceiling, and can leave a request with no acceptable option, which here means refusing it."}
+      ],
+      "default": "price is weighed against quality on every request, with no hard ceiling",
+      "multi": false
+    },
+    {
+      "id": "replay_reproducibility",
+      "axis": "policy_state_and_determinism",
+      "q": "Must two replays of the same trace produce the same decisions?",
+      "why": "The scheduling reference deliberately breaks ties by chance from a clock-seeded source, and one production system picks its target at random by declared weight, so neither can be replayed. Here the run is audited by replaying the same trace, and the router is asked to decide up to 512 times per request.",
+      "options": [
+        {"value": "identical decisions on identical input", "why": "What the offline routing systems guarantee; the only setting in which a scored replay can be audited or a failure explained."},
+        {"value": "decisions may differ between runs as long as the outcome distribution is the same", "why": "What both live systems do; spreads tied traffic evenly and resists systematic concentration, at the cost of being unreplayable."}
+      ],
+      "default": "identical decisions on identical input",
+      "multi": false
+    },
+    {
+      "id": "memory_the_router_keeps",
+      "axis": "policy_state_and_determinism",
+      "q": "What bounds anything the router remembers between requests?",
+      "why": "One production reference keeps a process-wide store with no size limit that only drops an entry when someone reads it after it expired; the scheduling reference caps every accumulator explicitly. The router here is asked to decide up to 512 times per request across thousands of requests, so anything kept per request adds up.",
+      "options": [
+        {"value": "nothing is remembered between requests", "why": "What the stateless production system does; trivially bounded and trivially replayable, and it forecloses tracking a provider's recent behaviour."},
+        {"value": "an explicit size or age limit on everything remembered", "why": "What the scheduling reference does for every one of its accumulators; bounded under any traffic shape."},
+        {"value": "whatever the policy needs, with no stated limit", "why": "What the stateless system's one piece of shared memory actually does; the failure mode is invisible until it is not."}
+      ],
+      "default": "an explicit size or age limit on everything remembered",
+      "multi": false
+    },
+    {
+      "id": "what_an_operator_can_see",
+      "axis": "decision_observability",
+      "q": "What must an operator be able to see after a request goes wrong?",
+      "why": "Nothing the router reports can move the score, so this is pure operator value at no risk. The references disagree anyway: one returns the full attempt chain and its cost with the answer, another names the serving node but reports a sentinel instead of the real attempt count, and a third returns only which model answered.",
+      "options": [
+        {"value": "nothing", "why": "What the model-choosing systems do; leaves an operator unable to explain a single bad request."},
+        {"value": "which provider and model served it", "why": "The common floor across the reference systems."},
+        {"value": "which provider and model served it, how many attempts it took, and why each earlier attempt failed", "why": "What the production systems with real fleets surface; costs nothing against the score and is the difference between a debuggable and an opaque failure."}
+      ],
+      "default": "which provider and model served it, how many attempts it took, and why each earlier attempt failed",
+      "multi": false
+    }
+  ]
+}

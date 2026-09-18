@@ -1,0 +1,7 @@
+[
+ {"axis":"model_selection","kind":"spec","path":"baselines/AvengersPro/simple_cluster_router.py","line":530,"copied_as":"simple_cluster_router.py","what_it_checks":"the simplest shipped decision rule: exactly one model per prompt, argmax of a learned per-prompt quality score"},
+ {"axis":"cost_control","kind":"spec","path":"baselines/AvengersPro/balance_cluster_router.py","line":198,"copied_as":"balance_cluster_router.py","what_it_checks":"the soft quality-versus-price objective, defaults 0.7 quality / 0.3 cost"},
+ {"axis":"policy_state_and_determinism","kind":"spec","path":"baselines/data_loader.py","line":336,"copied_as":"data_loader.py","what_it_checks":"the leakage guard: the train/test boundary is drawn per prompt so no model's row for a test prompt is ever seen in training"},
+ {"axis":"policy_state_and_determinism","kind":"assert","path":"baselines/data_loader.py","line":411,"copied_as":"data_loader.py","what_it_checks":"the fixed split ratio and seed that make an evaluation reproducible"},
+ {"axis":"model_selection","kind":"spec","path":"baselines/schema.py","line":42,"copied_as":"schema.py","what_it_checks":"the per-record schema a router may read: score, prompt_tokens, completion_tokens, cost, and no time field at all"}
+]

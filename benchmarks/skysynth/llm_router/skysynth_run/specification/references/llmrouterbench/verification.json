@@ -1,0 +1,164 @@
+{
+  "system": "llmrouterbench",
+  "checked_at": "2026-09-13T19:04:18",
+  "method": "Every file:line in this system's spec.json, properties.json, design_principles.json and decisions.json was re-read from the pinned source. The asserted line number was ignored: the most distinctive identifier or numeric literal on that line was extracted and the whole file grepped for it. CONFIRMED = the symbol really is on that line; OFF_BY = it is elsewhere in the file (corrected line given); WRONG = it is not in the file at all; UNVERIFIABLE = the file or line does not exist, or the line carries no distinctive symbol (a brace, a comment marker).",
+  "source_pin": "read at cloned HEAD",
+  "counts": {
+    "CONFIRMED": 19
+  },
+  "total": 19,
+  "rows": [
+    {
+      "path": "baselines/AvengersPro/balance_cluster_router.py",
+      "line": 198,
+      "verdict": "CONFIRMED",
+      "symbol": "normalized_accuracy",
+      "matched_within_lines": 1,
+      "text": "balance_score = performance_weight * normalized_accuracy + cost_sensitivity * cost_score"
+    },
+    {
+      "path": "baselines/AvengersPro/simple_cluster_router.py",
+      "line": 499,
+      "verdict": "CONFIRMED",
+      "symbol": "closest_cluster_indices",
+      "matched_within_lines": 1,
+      "text": "closest_cluster_indices = np.argsort(query_distances)[:self.config.top_k]"
+    },
+    {
+      "path": "baselines/AvengersPro/simple_cluster_router.py",
+      "line": 530,
+      "verdict": "CONFIRMED",
+      "symbol": "sorted_experts",
+      "matched_within_lines": 1,
+      "text": "sorted_experts = sorted(expert_scores.items(), key=lambda x: x[1], reverse=True)"
+    },
+    {
+      "path": "baselines/FrugalGPT/train_router_from_results.py",
+      "line": 665,
+      "verdict": "CONFIRMED",
+      "symbol": "over_budget",
+      "matched_within_lines": 1,
+      "text": "over_budget = cost_sum > budget * max(L_mat.shape[0], 1)"
+    },
+    {
+      "path": "baselines/GraphRouter/model/multi_task_graph_router.py",
+      "line": 158,
+      "verdict": "CONFIRMED",
+      "symbol": "Performance",
+      "matched_within_lines": 1,
+      "text": "if self.scenario == \"Performance First\":"
+    },
+    {
+      "path": "baselines/aggregators.py",
+      "line": 264,
+      "verdict": "CONFIRMED",
+      "symbol": "random_seed",
+      "matched_within_lines": 1,
+      "text": "rng = random.Random(random_seed)"
+    },
+    {
+      "path": "baselines/aggregators.py",
+      "line": 709,
+      "verdict": "CONFIRMED",
+      "symbol": "to_summary_table",
+      "matched_within_lines": 1,
+      "text": "def to_summary_table(self,"
+    },
+    {
+      "path": "baselines/aggregators.py",
+      "line": 881,
+      "verdict": "CONFIRMED",
+      "symbol": "avg_cost_per_record",
+      "matched_within_lines": 1,
+      "text": "if cost_metric not in ['total_cost', 'avg_cost_per_record']:"
+    },
+    {
+      "path": "baselines/aggregators.py",
+      "line": 939,
+      "verdict": "CONFIRMED",
+      "symbol": "random_router_row",
+      "matched_within_lines": 1,
+      "text": "performance_df.loc['Random Router'] = random_router_row"
+    },
+    {
+      "path": "baselines/aggregators.py",
+      "line": 950,
+      "verdict": "CONFIRMED",
+      "symbol": "max_expert_cost_row",
+      "matched_within_lines": 1,
+      "text": "cost_df.loc['Max Expert'] = max_expert_cost_row"
+    },
+    {
+      "path": "baselines/aggregators.py",
+      "line": 970,
+      "verdict": "CONFIRMED",
+      "symbol": "performance_df",
+      "matched_within_lines": 1,
+      "text": "performance_df.loc['Oracle'] = oracle_row"
+    },
+    {
+      "path": "baselines/data_loader.py",
+      "line": 336,
+      "verdict": "CONFIRMED",
+      "symbol": "split_by_dataset_then_prompt",
+      "matched_within_lines": 1,
+      "text": "def split_by_dataset_then_prompt("
+    },
+    {
+      "path": "baselines/data_loader.py",
+      "line": 381,
+      "verdict": "CONFIRMED",
+      "symbol": "random_seed",
+      "matched_within_lines": 1,
+      "text": "random.seed(random_seed)"
+    },
+    {
+      "path": "baselines/data_loader.py",
+      "line": 405,
+      "verdict": "CONFIRMED",
+      "symbol": "is_ood",
+      "matched_within_lines": 1,
+      "text": "if is_ood:"
+    },
+    {
+      "path": "baselines/data_loader.py",
+      "line": 411,
+      "verdict": "CONFIRMED",
+      "symbol": "records",
+      "matched_within_lines": 1,
+      "text": "# Group records by prompt for this dataset"
+    },
+    {
+      "path": "baselines/schema.py",
+      "line": 42,
+      "verdict": "CONFIRMED",
+      "symbol": "dataset_id",
+      "matched_within_lines": 1,
+      "text": "dataset_id: str"
+    },
+    {
+      "path": "baselines/schema.py",
+      "line": 59,
+      "verdict": "CONFIRMED",
+      "symbol": "Resources",
+      "matched_within_lines": 1,
+      "text": "# Resources"
+    },
+    {
+      "path": "config/data_collector_proprietary_model_config.yaml",
+      "line": 146,
+      "verdict": "CONFIRMED",
+      "symbol": "pricing",
+      "matched_within_lines": 1,
+      "text": "pricing:"
+    },
+    {
+      "path": "generators/generator.py",
+      "line": 177,
+      "verdict": "CONFIRMED",
+      "symbol": "hasattr",
+      "matched_within_lines": 1,
+      "text": "if hasattr(usage, 'cost') and usage.cost is not None:"
+    }
+  ]
+}

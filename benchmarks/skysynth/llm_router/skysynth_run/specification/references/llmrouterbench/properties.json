@@ -1,0 +1,159 @@
+{
+  "axes": [
+    {
+      "axis": "model_selection",
+      "properties": [
+        {
+          "property": "model selection",
+          "value": "Exactly one model per prompt, chosen as the argmax of a learned per-prompt quality score (or a quality-minus-cost score) over a fixed model pool.",
+          "evidence": [
+            "baselines/AvengersPro/simple_cluster_router.py:530",
+            "baselines/AvengersPro/simple_cluster_router.py:499"
+          ],
+          "tradeoff": "Every prompt gets exactly one attempt at one model; there is no escalation, no second opinion and no notion of the request having named a model in the first place."
+        }
+      ]
+    },
+    {
+      "axis": "cost_control",
+      "properties": [
+        {
+          "property": "cost control",
+          "value": "Two shipped shapes: a soft price preference folded into the objective as a weighted sum of normalised accuracy and normalised cost, and a hard per-prompt dollar budget that makes an over-budget choice infeasible.",
+          "evidence": [
+            "baselines/GraphRouter/model/multi_task_graph_router.py:158",
+            "baselines/AvengersPro/balance_cluster_router.py:198",
+            "baselines/FrugalGPT/train_router_from_results.py:665"
+          ],
+          "tradeoff": "The soft form guarantees only a trade-off direction, with shipped weight pairs (1.0,0.0), (0.5,0.5) and (0.2,0.8) and an AvengersPro default of 0.7 performance / 0.3 cost; the hard form guarantees no prompt exceeds its budget, default $0.1."
+        }
+      ]
+    },
+    {
+      "axis": "policy_state_and_determinism",
+      "properties": [
+        {
+          "property": "policy state and determinism",
+          "value": "Stateless at inference time and fully seeded, so a replay is exactly reproducible.",
+          "evidence": [
+            "baselines/data_loader.py:381",
+            "baselines/aggregators.py:264"
+          ],
+          "tradeoff": "The same fitted policy on the same split produces byte-identical decisions; no cross-request state is carried."
+        }
+      ]
+    },
+    {
+      "axis": "placement",
+      "properties": [
+        {
+          "property": "placement",
+          "value": "not decided: the benchmark models a single-attempt offline lookup over a frozen (prompt x model) table, with no fleet, no clock and no failures.",
+          "evidence": [
+            "baselines/schema.py:59",
+            "baselines/AvengersPro/simple_cluster_router.py:530"
+          ],
+          "tradeoff": "none"
+        }
+      ]
+    },
+    {
+      "axis": "admission_and_overload",
+      "properties": [
+        {
+          "property": "admission and overload",
+          "value": "not decided: the benchmark models a single-attempt offline lookup over a frozen (prompt x model) table, with no fleet, no clock and no failures.",
+          "evidence": [
+            "baselines/schema.py:59",
+            "baselines/AvengersPro/simple_cluster_router.py:530"
+          ],
+          "tradeoff": "none"
+        }
+      ]
+    },
+    {
+      "axis": "rate_limit_pacing",
+      "properties": [
+        {
+          "property": "rate limit pacing",
+          "value": "not decided: the benchmark models a single-attempt offline lookup over a frozen (prompt x model) table, with no fleet, no clock and no failures.",
+          "evidence": [
+            "baselines/schema.py:59",
+            "baselines/AvengersPro/simple_cluster_router.py:530"
+          ],
+          "tradeoff": "none"
+        }
+      ]
+    },
+    {
+      "axis": "retry_and_fallback",
+      "properties": [
+        {
+          "property": "retry and fallback",
+          "value": "not decided: the benchmark models a single-attempt offline lookup over a frozen (prompt x model) table, with no fleet, no clock and no failures.",
+          "evidence": [
+            "baselines/schema.py:59",
+            "baselines/AvengersPro/simple_cluster_router.py:530"
+          ],
+          "tradeoff": "none"
+        }
+      ]
+    },
+    {
+      "axis": "outage_and_health",
+      "properties": [
+        {
+          "property": "outage and health",
+          "value": "not decided: the benchmark models a single-attempt offline lookup over a frozen (prompt x model) table, with no fleet, no clock and no failures.",
+          "evidence": [
+            "baselines/schema.py:59",
+            "baselines/AvengersPro/simple_cluster_router.py:530"
+          ],
+          "tradeoff": "none"
+        }
+      ]
+    },
+    {
+      "axis": "deadline_and_priority",
+      "properties": [
+        {
+          "property": "deadline and priority",
+          "value": "not decided: the benchmark models a single-attempt offline lookup over a frozen (prompt x model) table, with no fleet, no clock and no failures.",
+          "evidence": [
+            "baselines/schema.py:59",
+            "baselines/AvengersPro/simple_cluster_router.py:530"
+          ],
+          "tradeoff": "none"
+        }
+      ]
+    },
+    {
+      "axis": "tenant_isolation",
+      "properties": [
+        {
+          "property": "tenant isolation",
+          "value": "not decided: the benchmark models a single-attempt offline lookup over a frozen (prompt x model) table, with no fleet, no clock and no failures.",
+          "evidence": [
+            "baselines/schema.py:59",
+            "baselines/AvengersPro/simple_cluster_router.py:530"
+          ],
+          "tradeoff": "none"
+        }
+      ]
+    },
+    {
+      "axis": "decision_observability",
+      "properties": [
+        {
+          "property": "decision observability",
+          "value": "not decided: the benchmark models a single-attempt offline lookup over a frozen (prompt x model) table, with no fleet, no clock and no failures.",
+          "evidence": [
+            "baselines/schema.py:59",
+            "baselines/AvengersPro/simple_cluster_router.py:530"
+          ],
+          "tradeoff": "none"
+        }
+      ]
+    }
+  ]
+}

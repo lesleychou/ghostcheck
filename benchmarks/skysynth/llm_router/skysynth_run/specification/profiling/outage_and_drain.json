@@ -1,0 +1,143 @@
+{
+ "val_windows_ms": [
+  [
+   300000,
+   420000
+  ],
+  [
+   780000,
+   930000
+  ]
+ ],
+ "outage_provider": "prime",
+ "retry_grace": 8,
+ "A_train": {
+  "n": 2899,
+  "span_ms": 3085271,
+  "arrivals_in_window": [
+   275,
+   37
+  ],
+  "total": 312,
+  "frac": 0.1076,
+  "windows_inside_span": [
+   true,
+   true
+  ]
+ },
+ "A_val": {
+  "n": 972,
+  "span_ms": 1356818,
+  "arrivals_in_window": [
+   97,
+   51
+  ],
+  "total": 148,
+  "frac": 0.1523,
+  "windows_inside_span": [
+   true,
+   true
+  ]
+ },
+ "B_train": {
+  "n": 1940,
+  "span_ms": 2846782,
+  "arrivals_in_window": [
+   388,
+   0
+  ],
+  "total": 388,
+  "frac": 0.2,
+  "windows_inside_span": [
+   true,
+   true
+  ]
+ },
+ "B_val": {
+  "n": 693,
+  "span_ms": 1104462,
+  "arrivals_in_window": [
+   286,
+   0
+  ],
+  "total": 286,
+  "frac": 0.4127,
+  "windows_inside_span": [
+   true,
+   true
+  ]
+ },
+ "fleet_decode_capacity": {
+  "deepseek-r1-0528": {
+   "fleet_decode_tokens_per_sec": 6800
+  },
+  "deepseek-v3-0324": {
+   "fleet_decode_tokens_per_sec": 11840
+  },
+  "qwen3-235b-a22b-2507": {
+   "fleet_decode_tokens_per_sec": 11840
+  },
+  "qwen3-235b-a22b-thinking-2507": {
+   "fleet_decode_tokens_per_sec": 6800
+  },
+  "deepseek-v3.1-terminus": {
+   "fleet_decode_tokens_per_sec": 11840
+  }
+ },
+ "B_train_wave_drain": {
+  "requests_per_wave": 388,
+  "wave_submit_window_sec": 89.5,
+  "mean_output_tokens": 3617.8,
+  "output_tokens_per_wave": 1403695,
+  "drain_sec_whole_fleet": {
+   "deepseek-r1-0528": 206.4,
+   "deepseek-v3-0324": 118.6,
+   "qwen3-235b-a22b-2507": 118.6,
+   "qwen3-235b-a22b-thinking-2507": 206.4,
+   "deepseek-v3.1-terminus": 118.6
+  },
+  "deadline_sec": 600,
+  "rpm_needed_to_admit_wave_in_its_window": 260.1,
+  "fleet_rpm": 702
+ },
+ "B_val_wave_drain": {
+  "requests_per_wave": 347,
+  "wave_submit_window_sec": 89.7,
+  "mean_output_tokens": 3725.9,
+  "output_tokens_per_wave": 1292878,
+  "drain_sec_whole_fleet": {
+   "deepseek-r1-0528": 190.1,
+   "deepseek-v3-0324": 109.2,
+   "qwen3-235b-a22b-2507": 109.2,
+   "qwen3-235b-a22b-thinking-2507": 190.1,
+   "deepseek-v3.1-terminus": 109.2
+  },
+  "deadline_sec": 600,
+  "rpm_needed_to_admit_wave_in_its_window": 232.1,
+  "fleet_rpm": 702
+ },
+ "A_ttft_arithmetic": {
+  "slo_ttft_ms": 2500,
+  "retry_after_ms_429": 2000,
+  "retry_after_ms_503": 1000,
+  "ttft_base_ms": {
+   "value": 700,
+   "prime": 400,
+   "courier": 1700
+  },
+  "budget_left_after_one_429_ms": 500,
+  "providers_still_feasible_after_one_429": [
+   "prime"
+  ],
+  "max_prompt_tokens_on_prime_after_one_429": 6000,
+  "max_prompt_tokens_on_prime_first_try": 126000,
+  "max_prompt_tokens_on_value_first_try": 45000,
+  "max_prompt_tokens_on_courier_first_try": 9600,
+  "frac_train_over_prime_first_try_limit": 0.0217,
+  "frac_train_over_prime_after_429_limit": 0.0559,
+  "frac_train_over_courier_first_try_limit": 0.0559,
+  "frac_val_over_prime_first_try_limit": 0.0195,
+  "frac_val_over_prime_after_429_limit": 0.0628,
+  "frac_val_over_courier_first_try_limit": 0.0628
+ }
+}

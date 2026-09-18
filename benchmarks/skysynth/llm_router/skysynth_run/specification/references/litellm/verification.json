@@ -1,0 +1,300 @@
+{
+  "system": "litellm",
+  "checked_at": "2026-09-13T19:04:18",
+  "method": "Every file:line in this system's spec.json, properties.json, design_principles.json and decisions.json was re-read from the pinned source. The asserted line number was ignored: the most distinctive identifier or numeric literal on that line was extracted and the whole file grepped for it. CONFIRMED = the symbol really is on that line; OFF_BY = it is elsewhere in the file (corrected line given); WRONG = it is not in the file at all; UNVERIFIABLE = the file or line does not exist, or the line carries no distinctive symbol (a brace, a comment marker).",
+  "source_pin": "read at cloned HEAD",
+  "counts": {
+    "CONFIRMED": 36
+  },
+  "total": 36,
+  "rows": [
+    {
+      "path": "litellm/__init__.py",
+      "line": 539,
+      "verdict": "CONFIRMED",
+      "symbol": "allowed_fails",
+      "matched_within_lines": 1,
+      "text": "allowed_fails: int = 3"
+    },
+    {
+      "path": "litellm/constants.py",
+      "line": 11,
+      "verdict": "CONFIRMED",
+      "symbol": "ROUTER_MAX_FALLBACKS",
+      "matched_within_lines": 1,
+      "text": "ROUTER_MAX_FALLBACKS: Final = int(os.getenv(\"ROUTER_MAX_FALLBACKS\", 5))"
+    },
+    {
+      "path": "litellm/constants.py",
+      "line": 70,
+      "verdict": "CONFIRMED",
+      "symbol": "DEFAULT_FAILURE_THRESHOLD_PERCENT",
+      "matched_within_lines": 1,
+      "text": "DEFAULT_FAILURE_THRESHOLD_PERCENT: Final = float("
+    },
+    {
+      "path": "litellm/constants.py",
+      "line": 76,
+      "verdict": "CONFIRMED",
+      "symbol": "DEFAULT_COOLDOWN_TIME_SECONDS",
+      "matched_within_lines": 1,
+      "text": "DEFAULT_COOLDOWN_TIME_SECONDS: Final = int(os.getenv(\"DEFAULT_COOLDOWN_TIME_SECONDS\", 5))"
+    },
+    {
+      "path": "litellm/constants.py",
+      "line": 129,
+      "verdict": "CONFIRMED",
+      "symbol": "SINGLE_DEPLOYMENT_TRAFFIC_FAILURE_THRESHOLD",
+      "matched_within_lines": 1,
+      "text": "SINGLE_DEPLOYMENT_TRAFFIC_FAILURE_THRESHOLD: Final = int("
+    },
+    {
+      "path": "litellm/constants.py",
+      "line": 132,
+      "verdict": "CONFIRMED",
+      "symbol": "DEFAULT_FAILURE_THRESHOLD_MINIMUM_REQUESTS",
+      "matched_within_lines": 1,
+      "text": "DEFAULT_FAILURE_THRESHOLD_MINIMUM_REQUESTS: Final = int("
+    },
+    {
+      "path": "litellm/constants.py",
+      "line": 449,
+      "verdict": "CONFIRMED",
+      "symbol": "DEFAULT_POLLING_INTERVAL",
+      "matched_within_lines": 1,
+      "text": "DEFAULT_POLLING_INTERVAL: Final = float("
+    },
+    {
+      "path": "litellm/proxy/hooks/parallel_request_limiter_v3.py",
+      "line": 641,
+      "verdict": "CONFIRMED",
+      "symbol": "LITELLM_RATE_LIMIT_WINDOW_SIZE",
+      "matched_within_lines": 1,
+      "text": "self.window_size = int(os.getenv(\"LITELLM_RATE_LIMIT_WINDOW_SIZE\", 60))"
+    },
+    {
+      "path": "litellm/router.py",
+      "line": 1003,
+      "verdict": "CONFIRMED",
+      "symbol": "DEFAULT_MAX_RETRIES",
+      "matched_within_lines": 1,
+      "text": "self.num_retries = openai.DEFAULT_MAX_RETRIES"
+    },
+    {
+      "path": "litellm/router.py",
+      "line": 4207,
+      "verdict": "CONFIRMED",
+      "symbol": "monotonic",
+      "matched_within_lines": 1,
+      "text": "end_time: Final = time.monotonic() + self.timeout"
+    },
+    {
+      "path": "litellm/router.py",
+      "line": 5374,
+      "verdict": "CONFIRMED",
+      "symbol": "live_pre_routing_selection",
+      "matched_within_lines": 1,
+      "text": "live_pre_routing_selection: Final = get_pre_routing_selection(kwargs)"
+    },
+    {
+      "path": "litellm/router.py",
+      "line": 7907,
+      "verdict": "CONFIRMED",
+      "symbol": "should_retry_this_error",
+      "matched_within_lines": 1,
+      "text": "def should_retry_this_error("
+    },
+    {
+      "path": "litellm/router.py",
+      "line": 8054,
+      "verdict": "CONFIRMED",
+      "symbol": "healthy_deployments",
+      "matched_within_lines": 1,
+      "text": "elif healthy_deployments is not None and isinstance(healthy_deployments, list) and len(healthy_deployments) > 0:"
+    },
+    {
+      "path": "litellm/router.py",
+      "line": 12755,
+      "verdict": "CONFIRMED",
+      "symbol": "verbose_router_logger",
+      "matched_within_lines": 1,
+      "text": "verbose_router_logger.warning("
+    },
+    {
+      "path": "litellm/router_strategy/adaptive_router/bandit.py",
+      "line": 112,
+      "verdict": "CONFIRMED",
+      "symbol": "pick_best",
+      "matched_within_lines": 1,
+      "text": "def pick_best("
+    },
+    {
+      "path": "litellm/router_strategy/adaptive_router/config.py",
+      "line": 13,
+      "verdict": "CONFIRMED",
+      "symbol": "DEFAULT_QUALITY_WEIGHT",
+      "matched_within_lines": 1,
+      "text": "DEFAULT_QUALITY_WEIGHT: Final[float] = 0.7  # UNVALIDATED \u2014 calibrated against [0] sessions"
+    },
+    {
+      "path": "litellm/router_strategy/budget_limiter.py",
+      "line": 243,
+      "verdict": "CONFIRMED",
+      "symbol": "current_spend",
+      "matched_within_lines": 1,
+      "text": "if config.max_budget and current_spend >= config.max_budget:"
+    },
+    {
+      "path": "litellm/router_strategy/budget_limiter.py",
+      "line": 407,
+      "verdict": "CONFIRMED",
+      "symbol": "async_log_success_event",
+      "matched_within_lines": 1,
+      "text": "async def async_log_success_event(self, kwargs, response_obj, start_time, end_time):"
+    },
+    {
+      "path": "litellm/router_strategy/lowest_cost.py",
+      "line": 238,
+      "verdict": "CONFIRMED",
+      "symbol": "item_litellm_model_cost_map",
+      "matched_within_lines": 1,
+      "text": "item_litellm_model_cost_map = litellm.model_cost.get(item_litellm_model_name, {})"
+    },
+    {
+      "path": "litellm/router_strategy/lowest_cost.py",
+      "line": 250,
+      "verdict": "CONFIRMED",
+      "symbol": "item_litellm_model_cost_map",
+      "matched_within_lines": 1,
+      "text": "item_input_cost = item_litellm_model_cost_map.get(\"input_cost_per_token\", 5.0)"
+    },
+    {
+      "path": "litellm/router_strategy/lowest_cost.py",
+      "line": 253,
+      "verdict": "CONFIRMED",
+      "symbol": "item_litellm_model_cost_map",
+      "matched_within_lines": 1,
+      "text": "item_output_cost = item_litellm_model_cost_map.get(\"output_cost_per_token\", 5.0)"
+    },
+    {
+      "path": "litellm/router_strategy/lowest_latency.py",
+      "line": 27,
+      "verdict": "CONFIRMED",
+      "symbol": "float",
+      "matched_within_lines": 1,
+      "text": "ttl: float = 1 * 60 * 60  # 1 hour"
+    },
+    {
+      "path": "litellm/router_strategy/lowest_tpm_rpm_v2.py",
+      "line": 189,
+      "verdict": "CONFIRMED",
+      "symbol": "_increment_value_in_current_window",
+      "matched_within_lines": 1,
+      "text": "result = await self._increment_value_in_current_window(key=rpm_key, value=1, ttl=self.routing_args.ttl)"
+    },
+    {
+      "path": "litellm/router_strategy/lowest_tpm_rpm_v2.py",
+      "line": 284,
+      "verdict": "CONFIRMED",
+      "symbol": "routing_args",
+      "matched_within_lines": 1,
+      "text": "ttl=self.routing_args.ttl,"
+    },
+    {
+      "path": "litellm/router_strategy/lowest_tpm_rpm_v2.py",
+      "line": 430,
+      "verdict": "CONFIRMED",
+      "symbol": "current_minute",
+      "matched_within_lines": 1,
+      "text": "current_minute: Final = dt.strftime(\"%H-%M\")"
+    },
+    {
+      "path": "litellm/router_strategy/simple_shuffle.py",
+      "line": 58,
+      "verdict": "CONFIRMED",
+      "symbol": "selected_index",
+      "matched_within_lines": 1,
+      "text": "selected_index = random.choices(range(len(weights)), weights=weights)[0]"
+    },
+    {
+      "path": "litellm/router_strategy/simple_shuffle.py",
+      "line": 70,
+      "verdict": "CONFIRMED",
+      "symbol": "healthy_deployments",
+      "matched_within_lines": 1,
+      "text": "item: Final = random.choice(healthy_deployments)"
+    },
+    {
+      "path": "litellm/router_utils/cooldown_handlers.py",
+      "line": 387,
+      "verdict": "CONFIRMED",
+      "symbol": "is_single_deployment_model_group",
+      "matched_within_lines": 1,
+      "text": "if exception_status_int == 429 and not is_single_deployment_model_group:"
+    },
+    {
+      "path": "litellm/router_utils/cooldown_handlers.py",
+      "line": 393,
+      "verdict": "CONFIRMED",
+      "symbol": "DEFAULT_FAILURE_THRESHOLD_PERCENT",
+      "matched_within_lines": 1,
+      "text": "percent_fails > DEFAULT_FAILURE_THRESHOLD_PERCENT"
+    },
+    {
+      "path": "litellm/router_utils/handle_error.py",
+      "line": 75,
+      "verdict": "CONFIRMED",
+      "symbol": "RouterRateLimitError",
+      "matched_within_lines": 1,
+      "text": "Raises a RouterRateLimitError if no deployment is found for the given model."
+    },
+    {
+      "path": "litellm/router_utils/handle_error.py",
+      "line": 91,
+      "verdict": "CONFIRMED",
+      "symbol": "RouterRateLimitError",
+      "matched_within_lines": 1,
+      "text": "return RouterRateLimitError("
+    },
+    {
+      "path": "litellm/scheduler.py",
+      "line": 18,
+      "verdict": "CONFIRMED",
+      "symbol": "priority",
+      "matched_within_lines": 1,
+      "text": "priority: int  # Priority between 0 and 255"
+    },
+    {
+      "path": "litellm/scheduler.py",
+      "line": 47,
+      "verdict": "CONFIRMED",
+      "symbol": "request_id",
+      "matched_within_lines": 1,
+      "text": "heapq.heappush(queue, (request.priority, request.request_id))"
+    },
+    {
+      "path": "litellm/utils.py",
+      "line": 6898,
+      "verdict": "CONFIRMED",
+      "symbol": "retry_after",
+      "matched_within_lines": 1,
+      "text": "if retry_after is not None and 0 < retry_after <= 60:"
+    },
+    {
+      "path": "litellm/utils.py",
+      "line": 6902,
+      "verdict": "CONFIRMED",
+      "symbol": "remaining_retries",
+      "matched_within_lines": 1,
+      "text": "num_retries: Final = max_retries - remaining_retries"
+    },
+    {
+      "path": "litellm/utils.py",
+      "line": 6907,
+      "verdict": "CONFIRMED",
+      "symbol": "MAX_RETRY_DELAY",
+      "matched_within_lines": 1,
+      "text": "sleep_seconds = min(sleep_seconds, MAX_RETRY_DELAY)"
+    }
+  ]
+}

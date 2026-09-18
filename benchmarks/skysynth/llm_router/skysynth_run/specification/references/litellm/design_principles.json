@@ -1,0 +1,64 @@
+{
+  "principle_1_divert_before_you_wait": {
+    "name": "Divert before you wait",
+    "summary": "When a target rejects, the first move is another target that is believed healthy, with zero delay; back-off is only for the case where no alternative exists.",
+    "tradeoff": "Recovers a burst in milliseconds instead of seconds; spreads load onto targets that may themselves be near their limit, and consumes a request-quota slot per failed attempt.",
+    "evidence": [
+      "litellm/router.py:8054",
+      "litellm/utils.py:6898"
+    ]
+  },
+  "principle_2_quarantine_on_evidence": {
+    "name": "Quarantine a target on evidence, and let it back in on a timer",
+    "summary": "A target is removed from the candidate set for a fixed short period once its failures pass a threshold, with a minimum traffic volume so the rate is meaningful.",
+    "tradeoff": "Stops a dead target absorbing a whole burst; a short fixed timer means a still-dead target is re-probed with real traffic, and the minimum-volume rule means a low-traffic target is never quarantined at all.",
+    "evidence": [
+      "litellm/constants.py:76",
+      "litellm/router_utils/cooldown_handlers.py:393",
+      "litellm/constants.py:132"
+    ]
+  },
+  "principle_3_never_have_nothing": {
+    "name": "Never let the candidate set go empty by accident",
+    "summary": "When every target is quarantined the router either refuses loudly with a 429 or, under an explicit configured policy, deliberately serves a known-bad target rather than failing.",
+    "tradeoff": "Turns a total outage into an explicit configured choice between refusing and trying anyway; the bypass path silently sends traffic to a target the system just declared unhealthy.",
+    "evidence": [
+      "litellm/router_utils/handle_error.py:91",
+      "litellm/router.py:12755"
+    ]
+  },
+  "principle_4_pace_requests_ahead_tokens_behind": {
+    "name": "Pace what you can predict; account for what you cannot",
+    "summary": "Request counts are reserved before the call because they are known in advance; token counts are charged after, because the real usage is not known until the answer exists.",
+    "tradeoff": "Correct request pacing for free; token pacing that is structurally one call behind and can overshoot on a single large request.",
+    "evidence": [
+      "litellm/router_strategy/lowest_tpm_rpm_v2.py:189",
+      "litellm/router_strategy/lowest_tpm_rpm_v2.py:284"
+    ]
+  },
+  "principle_5_budgets_filter_candidates": {
+    "name": "A budget is a filter on the candidate set, not a penalty on the objective",
+    "summary": "An over-spent provider or tag is removed from consideration before placement rather than made more expensive in a score.",
+    "tradeoff": "Makes the cap unbuyable; can empty the candidate set, which then falls through to the overload path.",
+    "evidence": [
+      "litellm/router_strategy/budget_limiter.py:243"
+    ]
+  },
+  "principle_6_explain_in_band": {
+    "name": "Return the decision with the answer",
+    "summary": "Which target served the call, how many attempts it took and what it cost travel back in the response itself.",
+    "tradeoff": "Makes every request self-describing for debugging; leaks internal topology to the caller.",
+    "evidence": [
+      "litellm/router.py:5374"
+    ]
+  },
+  "principle_7_unknown_price_is_not_free": {
+    "name": "Treat an unknown price as maximal, not as zero",
+    "summary": "A target missing from the price table is priced at an absurdly high rate so a cost-ranking policy sorts it last instead of preferring it.",
+    "tradeoff": "Fails safe against a cost blow-out on an unpriced target; also makes that target effectively unreachable under a price-ranking policy even when it is the right answer.",
+    "evidence": [
+      "litellm/router_strategy/lowest_cost.py:250",
+      "litellm/router_strategy/lowest_cost.py:253"
+    ]
+  }
+}

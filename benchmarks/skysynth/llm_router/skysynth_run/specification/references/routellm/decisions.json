@@ -1,0 +1,57 @@
+[
+  {
+    "axis": "model_selection",
+    "property": "substitution policy",
+    "reference_choice": "substitute freely between two models based on a predicted per-prompt quality signal compared to a fixed threshold",
+    "question": "When a request names a model, may the router serve a different one from a declared equivalent set, and on what evidence?",
+    "default": "substitute within the declared equivalent set when the request permits it, using a per-request predicted quality signal",
+    "alternatives": [
+      "always serve exactly the model named",
+      "substitute only when the named model is unavailable",
+      "substitute freely within the declared equivalent set on a per-request quality estimate"
+    ],
+    "mode": "assume",
+    "rationale": "Every reference system that has a quality signal uses it to substitute; the shipped harness makes substitution legal and books quality from the served model."
+  },
+  {
+    "axis": "cost_control",
+    "property": "spend bound",
+    "reference_choice": "no dollar bound at all; only an indirect bound on the share of traffic sent to the expensive option",
+    "question": "Is spend bounded by anything other than the traffic itself?",
+    "default": "a price-aware preference with no hard ceiling",
+    "alternatives": [
+      "no cost consideration at all",
+      "a price-aware preference with no hard ceiling",
+      "a hard spend ceiling per window that changes behaviour once crossed"
+    ],
+    "mode": "ask",
+    "rationale": "Reference systems split: this one has only a soft preference, gateways ship hard budgets. Cost carries weight 3.0 in the scored objective, so this is consequential."
+  },
+  {
+    "axis": "policy_state_and_determinism",
+    "property": "replay reproducibility",
+    "reference_choice": "deterministic per-prompt decision for trained routers; an unbounded decision tally is the only growing state",
+    "question": "Must two replays of the same trace produce the same decisions?",
+    "default": "identical decisions on identical input",
+    "alternatives": [
+      "identical decisions on identical input",
+      "decisions may differ between runs as long as the outcome distribution is the same"
+    ],
+    "mode": "assume",
+    "rationale": "Every trained reference router is a pure function of the prompt, and a scored replay that cannot be reproduced cannot be audited."
+  },
+  {
+    "axis": "decision_observability",
+    "property": "decision explainability",
+    "reference_choice": "the served model is visible; the reason is not",
+    "question": "After the fact, must an operator be able to see why a given request went where it did?",
+    "default": "the chosen target is recorded but the reason need not be",
+    "alternatives": [
+      "nothing is recorded",
+      "the chosen target is recorded but the reason need not be",
+      "the chosen target and the deciding signal are both recorded per request"
+    ],
+    "mode": "assume",
+    "rationale": "The harness scores from its own books, so self-reporting cannot move the score; recording the target is the common floor across the reference systems."
+  }
+]

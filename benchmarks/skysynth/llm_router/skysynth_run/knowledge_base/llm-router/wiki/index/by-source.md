@@ -1,0 +1,73 @@
+# by-source (auto-generated)
+
+- **doc-frugalgpt** (doc) grounds hack-llm-router-silent-downgrade, prop-llm-router-cost-control, prop-llm-router-model-selection
+- **doc-gaie-architecture** (doc) grounds hack-llm-router-tenant-starvation, prop-llm-router-admission-under-overload, prop-llm-router-decision-observability, prop-llm-router-placement, prop-llm-router-tenant-isolation, test-llm-router-tenant-fair-share
+- **doc-llmrouterbench-paper** (doc) grounds bench-llm-router-two-tenant-replay, hack-llm-router-id-memorisation, hack-llm-router-oracle-label-peek, hack-llm-router-seed-shopping, hack-llm-router-self-reported-cost, hack-llm-router-slo-denominator-trim, hack-llm-router-split-peek, roof-llm-router-shared-fleet, prop-llm-router-cost-control, prop-llm-router-model-selection, prop-llm-router-policy-state-and-determinism, test-llm-router-billed-cost-from-books, test-llm-router-frozen-fleet, test-llm-router-hidden-label-invariance, test-llm-router-id-permutation-invariance, test-llm-router-replay-determinism, test-llm-router-slo-denominator, test-llm-router-train-split-isolation
+- **doc-melange** (doc) grounds prop-llm-router-placement
+- **doc-rfc6585** (doc) grounds hack-llm-router-rate-limit-freeload, hack-llm-router-retry-storm, prop-llm-router-quota-pacing, prop-llm-router-retry-and-fallback, test-llm-router-quota-pacing, test-llm-router-retry-after
+- **doc-rfc9110** (doc) grounds hack-llm-router-retry-storm, prop-llm-router-retry-and-fallback, test-llm-router-completed-exactly-once, test-llm-router-retry-after
+- **doc-routellm-paper** (doc) grounds bench-llm-router-two-tenant-replay, hack-llm-router-oracle-label-peek, prop-llm-router-cost-control, prop-llm-router-model-selection, test-llm-router-hidden-label-invariance
+- **doc-sre-overload** (doc) grounds hack-llm-router-outage-hammering, hack-llm-router-park-the-request, hack-llm-router-shed-the-hard-ones, hack-llm-router-slo-denominator-trim, prop-llm-router-admission-under-overload, prop-llm-router-deadline-and-priority, prop-llm-router-outage-and-health, test-llm-router-decision-budget, test-llm-router-no-free-shed, test-llm-router-slo-denominator
+- **issue-gaie-2394** (issue) grounds prop-llm-router-placement
+- **issue-gaie-2500** (issue) grounds prop-llm-router-policy-state-and-determinism
+- **issue-gaie-2804** (issue) grounds test-llm-router-replay-determinism
+- **issue-gaie-2878** (issue) grounds test-llm-router-decision-budget
+- **issue-litellm-39309** (issue) grounds test-llm-router-no-free-shed, test-llm-router-quota-pacing, test-llm-router-slo-denominator
+- **issue-litellm-39713** (issue) grounds test-llm-router-quota-pacing, test-llm-router-tenant-fair-share
+- **issue-litellm-40095** (issue) grounds test-llm-router-tenant-fair-share
+- **issue-litellm-40564** (issue) grounds test-llm-router-decision-budget
+- **issue-llmrouterbench-1** (issue) grounds bench-llm-router-two-tenant-replay
+- **issue-llmrouterbench-2** (issue) grounds bench-llm-router-two-tenant-replay
+- **issue-llmrouterbench-5** (issue) grounds bench-llm-router-two-tenant-replay
+- **issue-portkey-1142** (issue) grounds test-llm-router-completed-exactly-once
+- **issue-portkey-1205** (issue) grounds prop-llm-router-retry-and-fallback
+- **issue-portkey-1206** (issue) grounds prop-llm-router-decision-observability
+- **issue-portkey-1237** (issue) grounds prop-llm-router-policy-state-and-determinism
+- **issue-portkey-1289** (issue) grounds test-llm-router-outage-grace
+- **issue-routellm-10** (issue) grounds test-llm-router-id-permutation-invariance
+- **issue-routellm-22** (issue) grounds test-llm-router-hidden-label-invariance, test-llm-router-train-split-isolation
+- **issue-routellm-36** (issue) grounds hack-llm-router-split-peek, test-llm-router-train-split-isolation
+- **issue-routellm-5** (issue) grounds test-llm-router-billed-cost-from-books
+- **issue-routellm-7** (issue) grounds test-llm-router-equiv-class
+- **issue-routellm-9** (issue) grounds prop-llm-router-model-selection
+- **pr-gaie-2126** (pr) grounds test-llm-router-no-free-shed, test-llm-router-placement-legality
+- **pr-gaie-2372** (pr) grounds test-llm-router-decision-record
+- **pr-gaie-2415** (pr) grounds prop-llm-router-placement
+- **pr-gaie-2512** (pr) grounds test-llm-router-decision-record
+- **pr-gaie-2583** (pr) grounds test-llm-router-placement-legality
+- **pr-gaie-2674** (pr) grounds test-llm-router-tenant-fair-share
+- **pr-gaie-2719** (pr) grounds test-llm-router-decision-record
+- **pr-gaie-2802** (pr) grounds prop-llm-router-quota-pacing
+- **pr-gaie-2805** (pr) grounds test-llm-router-replay-determinism
+- **pr-gaie-2819** (pr) grounds prop-llm-router-quota-pacing
+- **pr-gaie-2823** (pr) grounds prop-llm-router-placement
+- **pr-gaie-2848** (pr) grounds prop-llm-router-quota-pacing
+- **pr-litellm-28805** (pr) grounds test-llm-router-quota-pacing
+- **pr-litellm-30098** (pr) grounds test-llm-router-retry-after
+- **pr-litellm-37736** (pr) grounds test-llm-router-billed-cost-from-books, test-llm-router-frozen-fleet
+- **pr-litellm-38344** (pr) grounds test-llm-router-billed-cost-from-books, test-llm-router-frozen-fleet
+- **pr-litellm-39675** (pr) grounds test-llm-router-outage-grace
+- **pr-litellm-40025** (pr) grounds test-llm-router-outage-grace
+- **pr-litellm-40202** (pr) grounds prop-llm-router-placement
+- **pr-litellm-40224** (pr) grounds prop-llm-router-outage-and-health
+- **pr-litellm-40225** (pr) grounds prop-llm-router-cost-control
+- **pr-litellm-40229** (pr) grounds prop-llm-router-policy-state-and-determinism
+- **pr-litellm-40636** (pr) grounds prop-llm-router-deadline-and-priority
+- **pr-litellm-40757** (pr) grounds test-llm-router-equiv-class
+- **pr-portkey-1010** (pr) grounds test-llm-router-retry-after
+- **pr-portkey-1030** (pr) grounds test-llm-router-retry-after
+- **pr-portkey-1163** (pr) grounds test-llm-router-outage-grace
+- **pr-portkey-1239** (pr) grounds prop-llm-router-retry-and-fallback
+- **pr-portkey-227** (pr) grounds test-llm-router-placement-legality
+- **pr-portkey-3** (pr) grounds test-llm-router-completed-exactly-once, test-llm-router-decision-record
+- **pr-portkey-403** (pr) grounds prop-llm-router-deadline-and-priority
+- **pr-portkey-472** (pr) grounds prop-llm-router-deadline-and-priority
+- **pr-portkey-991** (pr) grounds test-llm-router-completed-exactly-once
+- **pr-routellm-1** (pr) grounds test-llm-router-hidden-label-invariance, test-llm-router-id-permutation-invariance, test-llm-router-train-split-isolation
+- **pr-routellm-11** (pr) grounds prop-llm-router-placement
+- **pr-routellm-13** (pr) grounds prop-llm-router-policy-state-and-determinism
+- **repo-gaie** (repo) grounds hack-llm-router-fleet-table-edit, hack-llm-router-outage-hammering, hack-llm-router-park-the-request, hack-llm-router-rate-limit-freeload, hack-llm-router-reason-drift, hack-llm-router-seed-shopping, hack-llm-router-self-reported-cost, hack-llm-router-shed-the-hard-ones, hack-llm-router-slo-denominator-trim, hack-llm-router-tenant-starvation, roof-llm-router-shared-fleet, prop-llm-router-admission-under-overload, prop-llm-router-deadline-and-priority, prop-llm-router-decision-observability, prop-llm-router-outage-and-health, prop-llm-router-placement, prop-llm-router-policy-state-and-determinism, prop-llm-router-quota-pacing, prop-llm-router-retry-and-fallback, prop-llm-router-tenant-isolation, test-llm-router-decision-budget, test-llm-router-decision-record, test-llm-router-no-free-shed, test-llm-router-outage-grace, test-llm-router-placement-legality, test-llm-router-quota-pacing, test-llm-router-replay-determinism, test-llm-router-slo-denominator, test-llm-router-tenant-fair-share
+- **repo-litellm** (repo) grounds hack-llm-router-fleet-table-edit, hack-llm-router-outage-hammering, hack-llm-router-park-the-request, hack-llm-router-rate-limit-freeload, hack-llm-router-reason-drift, hack-llm-router-retry-storm, hack-llm-router-self-reported-cost, hack-llm-router-shed-the-hard-ones, hack-llm-router-silent-downgrade, hack-llm-router-slo-denominator-trim, hack-llm-router-tenant-starvation, prop-llm-router-admission-under-overload, prop-llm-router-cost-control, prop-llm-router-deadline-and-priority, prop-llm-router-decision-observability, prop-llm-router-model-selection, prop-llm-router-outage-and-health, prop-llm-router-placement, prop-llm-router-policy-state-and-determinism, prop-llm-router-quota-pacing, prop-llm-router-retry-and-fallback, prop-llm-router-tenant-isolation, test-llm-router-billed-cost-from-books, test-llm-router-completed-exactly-once, test-llm-router-decision-budget, test-llm-router-equiv-class, test-llm-router-frozen-fleet, test-llm-router-no-free-shed, test-llm-router-outage-grace, test-llm-router-placement-legality, test-llm-router-quota-pacing, test-llm-router-retry-after, test-llm-router-slo-denominator, test-llm-router-tenant-fair-share
+- **repo-llmrouterbench** (repo) grounds bench-llm-router-two-tenant-replay, hack-llm-router-fleet-table-edit, hack-llm-router-id-memorisation, hack-llm-router-oracle-label-peek, hack-llm-router-seed-shopping, hack-llm-router-silent-downgrade, hack-llm-router-split-peek, roof-llm-router-shared-fleet, prop-llm-router-cost-control, prop-llm-router-model-selection, prop-llm-router-policy-state-and-determinism, test-llm-router-billed-cost-from-books, test-llm-router-equiv-class, test-llm-router-frozen-fleet, test-llm-router-hidden-label-invariance, test-llm-router-id-permutation-invariance, test-llm-router-replay-determinism, test-llm-router-train-split-isolation
+- **repo-portkey** (repo) grounds hack-llm-router-outage-hammering, hack-llm-router-reason-drift, hack-llm-router-retry-storm, hack-llm-router-self-reported-cost, prop-llm-router-admission-under-overload, prop-llm-router-cost-control, prop-llm-router-deadline-and-priority, prop-llm-router-decision-observability, prop-llm-router-model-selection, prop-llm-router-outage-and-health, prop-llm-router-placement, prop-llm-router-policy-state-and-determinism, prop-llm-router-quota-pacing, prop-llm-router-retry-and-fallback, prop-llm-router-tenant-isolation, test-llm-router-completed-exactly-once, test-llm-router-decision-record, test-llm-router-outage-grace, test-llm-router-retry-after
+- **repo-routellm** (repo) grounds hack-llm-router-id-memorisation, hack-llm-router-oracle-label-peek, hack-llm-router-silent-downgrade, hack-llm-router-split-peek, prop-llm-router-cost-control, prop-llm-router-model-selection, prop-llm-router-policy-state-and-determinism, test-llm-router-equiv-class, test-llm-router-hidden-label-invariance, test-llm-router-id-permutation-invariance, test-llm-router-train-split-isolation

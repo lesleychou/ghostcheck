@@ -1,0 +1,118 @@
+[
+  {
+    "axis": "model_selection",
+    "property": "substitution legality",
+    "reference_choice": "only within {model_requested} union equiv_class, and only when the request carries downgrade_ok",
+    "question": "SETTLED by the shipped harness, not a question: which models may serve a request?",
+    "default": "only the requested model, plus its declared equivalence class when the request permits a downgrade",
+    "alternatives": [],
+    "mode": "assume",
+    "settled_by": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:312 (typed substitution violation) and skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:315",
+    "rationale": "A hard correctness rule of the scoring harness. Both tenant cards ship downgrade_ok: true, so all 12 models are legally reachable for both tenants."
+  },
+  {
+    "axis": "admission_and_overload",
+    "property": "refusal legality",
+    "reference_choice": "a refusal is legal only when no non-down provider stocking a legally substitutable model has request, token AND concurrency headroom at that instant",
+    "question": "SETTLED by the shipped harness, not a question: when may the router refuse a request?",
+    "default": "only when no provider could have served it right then",
+    "alternatives": [],
+    "mode": "assume",
+    "settled_by": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:265, skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:277, skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:283",
+    "rationale": "An illegal refusal is a typed failure. A legal refusal still books zero quality, a quality-floor miss and a violated SLO, so refusing is never a cheap win."
+  },
+  {
+    "axis": "outage_and_health",
+    "property": "outage discovery",
+    "reference_choice": "outages are announced, not inferred: a down provider publishes an empty catalogue plus an end-of-outage time",
+    "question": "SETTLED by the shipped harness, not a question: how does the router learn a provider is down?",
+    "default": "the fleet announces it, with an end time",
+    "alternatives": [],
+    "mode": "assume",
+    "settled_by": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:145, skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:72",
+    "rationale": "Health need not be inferred from error rates here. Dispatching into an announced outage more than 8 times loses the request outright."
+  },
+  {
+    "axis": "deadline_and_priority",
+    "property": "which latency is measured",
+    "reference_choice": "the request names it: whole-response time from arrival for a latency deadline, arrival-to-first-token for a time-to-first-token deadline",
+    "question": "SETTLED by the shipped harness and the workload cards, not a question: what counts as meeting the deadline?",
+    "default": "exactly the quantity the request's own SLO field names",
+    "alternatives": [],
+    "mode": "assume",
+    "settled_by": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:422, skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:426, skydiscover/synthesize/examples/llm-router/evaluator/benchmark/data/cards/tenantA.card.yaml:6, skydiscover/synthesize/examples/llm-router/evaluator/benchmark/data/cards/tenantB.card.yaml:6",
+    "rationale": "Tenant A is 2500 ms to first token; Tenant B is 600000 ms to whole response. A request that never completes counts as violated."
+  },
+  {
+    "axis": "cost_control",
+    "property": "who bills",
+    "reference_choice": "the harness bills from its own private price table and cross-checks its ledger at end of run",
+    "question": "SETTLED by the shipped harness, not a question: what is a request charged?",
+    "default": "the harness's own books; nothing the router reports affects the bill",
+    "alternatives": [],
+    "mode": "assume",
+    "settled_by": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:110, skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:455, skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:453",
+    "rationale": "Billing, token counts and SLO accounting are un-gameable by construction; editing the published fleet view edits only the router's own copy."
+  },
+  {
+    "axis": "policy_state_and_determinism",
+    "property": "liveness budget",
+    "reference_choice": "512 decide() calls per request and 600 s of real wall clock per replay; 32 defers on a structurally unservable request",
+    "question": "SETTLED by the shipped harness, not a question: how long may the router keep thinking about a request?",
+    "default": "bounded, and exceeding the bound is a loud typed failure",
+    "alternatives": [],
+    "mode": "assume",
+    "settled_by": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py:35, skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py:34, skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py:40, skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:290",
+    "rationale": "A non-progressing policy aborts with a diagnostic rather than hanging the test."
+  },
+  {
+    "axis": "policy_state_and_determinism",
+    "property": "request immutability",
+    "reference_choice": "the router gets a copy of each request, diffed against truth after every callback and rolled back on any edit",
+    "question": "SETTLED by the shipped harness, not a question: may the router modify the request?",
+    "default": "no; scratch attributes on its own copy are fine, edits to trace fields are a typed failure",
+    "alternatives": [],
+    "mode": "assume",
+    "settled_by": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:229, skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:235",
+    "rationale": "Identity of the copy is stable across decide/on_error/on_complete, so keying state on it is legitimate; mutating a trace field is not."
+  },
+  {
+    "axis": "retry_and_fallback",
+    "property": "who reschedules",
+    "reference_choice": "the harness reschedules: on a rejection it calls on_error and wakes the router again after the advertised back-off",
+    "question": "SETTLED by the shipped harness, not a question: what happens after a rejected attempt?",
+    "default": "the router is asked to decide again; a rejected attempt is never billed",
+    "alternatives": [],
+    "mode": "assume",
+    "settled_by": "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:325, skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:347, skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:349",
+    "rationale": "Exactly one completion per request is ever booked; a second is a typed double-bill."
+  },
+  {
+    "axis": "model_selection",
+    "property": "quality information source",
+    "reference_choice": "the harness exposes BOTH the ground-truth per-model quality it will score with AND a separate observable feature map, and the interface calls the choice between them a per-experiment decision",
+    "question": "May the router read the ground-truth per-request quality the harness will score it with, or must it work from observable features only?",
+    "default": "observable features only",
+    "alternatives": [
+      "observable features only",
+      "the ground-truth per-request quality of every candidate model"
+    ],
+    "mode": "ask",
+    "settled_by": null,
+    "rationale": "OPEN. skydiscover/synthesize/examples/llm-router/evaluator/router_interface.py:28-31 explicitly leaves this to the experiment. Reading ground truth makes the result an unreachable oracle rather than a deployable router, and the generic baseline it must beat reads only a precomputed prediction keyed on an observable feature (skydiscover/synthesize/examples/llm-router/evaluator/generic_policy.py:60)."
+  },
+  {
+    "axis": "tenant_isolation",
+    "property": "cross-tenant capacity",
+    "reference_choice": "the harness tags tenants and keeps separate books but never tells the router which tenant a request belongs to; both tenants replay against one shared set of provider counters",
+    "question": "May a tenant's specialist router take capacity that would otherwise have served the other tenant?",
+    "default": "yes, within the provider's published limits",
+    "alternatives": [
+      "yes, within the provider's published limits",
+      "no: hold back a share of the tightest provider's capacity"
+    ],
+    "mode": "ask",
+    "settled_by": null,
+    "rationale": "OPEN. Each specialist is replayed on its own tenant trace (skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:172) and scored on its own book (skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:479), so nothing mechanically stops a specialist from being a bad neighbour, yet the deployment is explicitly one shared fleet."
+  }
+]

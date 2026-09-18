@@ -1,0 +1,181 @@
+{
+  "axes": [
+    {
+      "axis": "model_selection",
+      "properties": [
+        {
+          "property": "model selection",
+          "value": "The named model group is honoured by default; an optional pre-routing hook may substitute a different group first, and the shipped online variant scores groups on a weighted quality-and-price objective.",
+          "evidence": [
+            "litellm/router.py:5374",
+            "litellm/router_strategy/adaptive_router/bandit.py:112",
+            "litellm/router_strategy/adaptive_router/config.py:13"
+          ],
+          "tradeoff": "Without a pre-routing hook the served model is always from the requested group; with one, substitution is unconstrained by any declared equivalence set. The shipped weights are 0.7 quality / 0.3 cost."
+        }
+      ]
+    },
+    {
+      "axis": "placement",
+      "properties": [
+        {
+          "property": "placement",
+          "value": "Six interchangeable placement strategies over the surviving deployments; the default is a weighted random pick by declared weight, rpm or tpm, falling through to a uniform random pick.",
+          "evidence": [
+            "litellm/router_strategy/simple_shuffle.py:58",
+            "litellm/router_strategy/simple_shuffle.py:70",
+            "litellm/router_strategy/lowest_latency.py:27",
+            "litellm/router_strategy/lowest_cost.py:238"
+          ],
+          "tradeoff": "Placement is a plug-in point, not a fixed policy: shipped alternatives rank by lowest used TPM, lowest mean observed latency over the last 10 samples with a 1 hour TTL, fewest in-flight calls, or lowest static list price."
+        }
+      ]
+    },
+    {
+      "axis": "admission_and_overload",
+      "properties": [
+        {
+          "property": "admission and overload",
+          "value": "When no deployment survives the filters the call is refused immediately with a 429; waiting is opt-in and only happens if the caller supplied a priority.",
+          "evidence": [
+            "litellm/router_utils/handle_error.py:91",
+            "litellm/router_utils/handle_error.py:75",
+            "litellm/constants.py:449",
+            "litellm/scheduler.py:47",
+            "litellm/router.py:4207"
+          ],
+          "tradeoff": "Refusal is instant and explicit rather than silent. The optional queue polls a priority heap every 30 ms until the router timeout expires and then raises a timeout, so a queued request is never silently dropped."
+        }
+      ]
+    },
+    {
+      "axis": "rate_limit_pacing",
+      "properties": [
+        {
+          "property": "rate limit pacing",
+          "value": "Per-deployment request and token counters keyed to the wall-clock minute: the request count is incremented BEFORE the call in the pre-call check, while tokens are charged only AFTER the call from the real usage figures.",
+          "evidence": [
+            "litellm/router_strategy/lowest_tpm_rpm_v2.py:430",
+            "litellm/router_strategy/lowest_tpm_rpm_v2.py:189",
+            "litellm/router_strategy/lowest_tpm_rpm_v2.py:284"
+          ],
+          "tradeoff": "Request pacing is pre-emptive and therefore safe; token pacing is retrospective and therefore always at least one call behind, so a single very large request can overshoot the token quota. A request count is consumed even by an attempt that then fails."
+        }
+      ]
+    },
+    {
+      "axis": "retry_and_fallback",
+      "properties": [
+        {
+          "property": "retry and fallback",
+          "value": "Two layers: in-group retries on other deployments first, then up to five cross-group fallback hops. The back-off is zero when a healthy sibling deployment exists, otherwise the server's own Retry-After when it is in (0,60] s, otherwise exponential with jitter.",
+          "evidence": [
+            "litellm/router.py:1003",
+            "litellm/router.py:8054",
+            "litellm/utils.py:6898",
+            "litellm/utils.py:6902",
+            "litellm/utils.py:6907",
+            "litellm/constants.py:11",
+            "litellm/router.py:7907"
+          ],
+          "tradeoff": "Failover to a different target is preferred over waiting on the same one. Retries are NOT gated on idempotency, and the retry predicate re-issues even after an authentication failure whenever the group has more than one deployment."
+        }
+      ]
+    },
+    {
+      "axis": "outage_and_health",
+      "properties": [
+        {
+          "property": "outage and health",
+          "value": "A failing deployment is quarantined for a fixed period on evidence of failure: one rejection is enough in a multi-deployment group, otherwise it takes a majority-failure rate over a minimum traffic volume.",
+          "evidence": [
+            "litellm/constants.py:76",
+            "litellm/router_utils/cooldown_handlers.py:387",
+            "litellm/router_utils/cooldown_handlers.py:393",
+            "litellm/constants.py:70",
+            "litellm/constants.py:132",
+            "litellm/constants.py:129",
+            "litellm/router.py:12755",
+            "litellm/__init__.py:539"
+          ],
+          "tradeoff": "Default quarantine is 5 s, the failure-rate threshold is 50% over at least 5 requests in the minute, and a single-deployment group needs a total wipeout over at least 1000 requests. Surprising: when EVERY deployment is quarantined and health-check routing is configured with an explicit allowed-fails policy, the quarantine filter is deliberately bypassed and a known-bad deployment is served."
+        }
+      ]
+    },
+    {
+      "axis": "deadline_and_priority",
+      "properties": [
+        {
+          "property": "deadline and priority",
+          "value": "not decided as a deadline: there is no notion of time-remaining or slack anywhere. The only ordering primitive is an optional caller-supplied 0-255 priority.",
+          "evidence": [
+            "litellm/scheduler.py:18",
+            "litellm/scheduler.py:47",
+            "litellm/router.py:4207"
+          ],
+          "tradeoff": "A high-priority request is dequeued first, but nothing relates the wait to any deadline and a request can wait until the router timeout regardless of how much time it had."
+        }
+      ]
+    },
+    {
+      "axis": "tenant_isolation",
+      "properties": [
+        {
+          "property": "tenant isolation",
+          "value": "Sliding-window request and token quotas per key, team, user, organisation, end-user, tag and model, over a 60 s window, plus team-based filtering of which deployments a caller may reach.",
+          "evidence": [
+            "litellm/proxy/hooks/parallel_request_limiter_v3.py:641",
+            "litellm/router_strategy/budget_limiter.py:243"
+          ],
+          "tradeoff": "It bounds what any one caller may CONSUME; it reserves nothing, so a quota-compliant caller can still be starved by another quota-compliant caller when the shared fleet saturates."
+        }
+      ]
+    },
+    {
+      "axis": "cost_control",
+      "properties": [
+        {
+          "property": "cost control",
+          "value": "Hard spend caps per provider, deployment and tag remove over-budget candidates before the call, using spend accumulated after previous calls; separately, a lowest-price placement strategy ranks on a STATIC price table.",
+          "evidence": [
+            "litellm/router_strategy/budget_limiter.py:243",
+            "litellm/router_strategy/budget_limiter.py:407",
+            "litellm/router_strategy/lowest_cost.py:250",
+            "litellm/router_strategy/lowest_cost.py:253"
+          ],
+          "tradeoff": "The cap is enforced pre-call against post-call accounting, so it can overshoot by the in-flight calls. Surprising: a model absent from the static price map is priced at 5.0 per token on BOTH input and output, so it sorts last instead of being skipped."
+        }
+      ]
+    },
+    {
+      "axis": "policy_state_and_determinism",
+      "properties": [
+        {
+          "property": "policy state and determinism",
+          "value": "Stateful and unseeded: the default placement draws from an unseeded random source and the online variant carries per-group posteriors, so two replays of the same traffic do not make the same decisions.",
+          "evidence": [
+            "litellm/router_strategy/simple_shuffle.py:70",
+            "litellm/router_strategy/simple_shuffle.py:58",
+            "litellm/router_strategy/lowest_latency.py:27",
+            "litellm/router_strategy/adaptive_router/bandit.py:112"
+          ],
+          "tradeoff": "No reproducibility guarantee at all. Learned state is explicitly bounded (the online variant caps its per-group sample history), but the latency tracker's per-deployment sample buffers expire only on a 1 hour TTL."
+        }
+      ]
+    },
+    {
+      "axis": "decision_observability",
+      "properties": [
+        {
+          "property": "decision observability",
+          "value": "The decision is returned to the caller in-band as response headers: which deployment served it, how many retries and fallbacks were attempted, what the fallbacks' errors were, and what the call cost.",
+          "evidence": [
+            "litellm/router.py:5374",
+            "litellm/router_strategy/budget_limiter.py:407"
+          ],
+          "tradeoff": "An operator can reconstruct the full attempt chain of any single request from the response alone, without correlating logs."
+        }
+      ]
+    }
+  ]
+}

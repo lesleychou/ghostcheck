@@ -1,0 +1,44 @@
+{
+  "principle_1_one_scalar_knob": {
+    "name": "One scalar knob spans the quality/cost frontier",
+    "summary": "A single threshold moves the router continuously between the cheap and the expensive model, so the whole trade-off curve is one parameter sweep rather than a redesign.",
+    "tradeoff": "Trivially tunable and explainable; but the knob controls a traffic SHARE, not an outcome, so it does not transfer across workloads.",
+    "evidence": [
+      "routellm/routers/routers.py:41",
+      "routellm/calibrate_threshold.py:55"
+    ]
+  },
+  "principle_2_calibrate_to_a_share": {
+    "name": "Calibrate the threshold to a target expensive-call share",
+    "summary": "The threshold is set as a quantile of predicted win rates so that a chosen fraction of calls go to the strong model.",
+    "tradeoff": "Gives a predictable budget; gives no quality floor, and the realised share drifts when the traffic distribution changes.",
+    "evidence": [
+      "routellm/calibrate_threshold.py:55"
+    ]
+  },
+  "principle_3_measure_the_normalised_gap": {
+    "name": "Score a router by how much of the strong/weak gap it recovers per unit of expensive traffic",
+    "summary": "The headline metric normalises the area under the accuracy-vs-expensive-share curve against the weak and strong endpoints, so routers on different fleets are comparable.",
+    "tradeoff": "Comparable and scale-free; erases absolute dollars and ignores latency entirely.",
+    "evidence": [
+      "routellm/evals/evaluate.py:97",
+      "routellm/evals/evaluate.py:83"
+    ]
+  },
+  "principle_4_fail_expensive_is_a_choice": {
+    "name": "Decide what an unusable prediction falls back to",
+    "summary": "When the predictor emits nothing parseable the win rate is treated as maximal, which routes the request to the expensive model.",
+    "tradeoff": "Protects quality on inputs the model cannot score; silently turns predictor breakage into a cost blow-out with no signal.",
+    "evidence": [
+      "routellm/routers/routers.py:98"
+    ]
+  },
+  "principle_5_prediction_on_the_hot_path": {
+    "name": "A predictor on the decision path is a dependency on the decision path",
+    "summary": "Some routers make a blocking remote embedding call for every decision, so the router's own availability and latency now depend on a third service.",
+    "tradeoff": "Better predictions; a new failure mode and an unbounded added latency per decision.",
+    "evidence": [
+      "routellm/routers/routers.py:181"
+    ]
+  }
+}

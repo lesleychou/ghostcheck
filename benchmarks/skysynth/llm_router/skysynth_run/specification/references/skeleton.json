@@ -1,0 +1,48 @@
+{
+  "derivation": "Intersected the module maps in references/<name>/workflow.md across the three systems that are actually request routers (litellm, portkey-gateway, gaie). A stage is 'shared' only when all three have a distinct piece of code doing it; routellm and llmrouterbench are offline model-choosers with no fleet, so they contribute only to the selection stage and are listed as domain_specific. The shipped task harness (task-evaluator) is the clock, the fleet and the books, not a router, so its modules are recorded separately as the contract the skeleton plugs into. This is a reference for the coding agent, not a prescription: a single-file policy that keeps these concerns separable is a legitimate realisation of it.",
+  "shared": [
+    {"id": "request_intake", "label": "Normalise the arriving request and resolve the policy that applies to it: the model it names, the set it may be substituted within, its deadline, and its declared token cost. litellm resolves a model group, portkey parses a per-request config header, gaie looks up a workload objective."},
+    {"id": "candidate_enumeration", "label": "List the (provider, model) pairs that could legally serve this request at all. Structural, not situational: it answers 'who stocks this', not 'who has room'."},
+    {"id": "eligibility_filter", "label": "Remove candidates that must not be used right now: no quota headroom, known unavailable, over budget. A hard yes/no stage, kept separate from preference. All three systems fail this stage's empty result into the overload path rather than into placement."},
+    {"id": "target_ranking", "label": "Order the surviving candidates by preference: price, expected time to answer, remaining headroom, locality. Soft, graded, and the one stage that is explicitly pluggable in all three systems."},
+    {"id": "admission_decision", "label": "Decide, when the eligible set is empty, whether to wait for capacity or refuse. litellm refuses immediately unless a priority was supplied, gaie queues with a per-workload bound, portkey never queues at all. This is the stage the three systems disagree on most."},
+    {"id": "dispatch_and_outcome", "label": "Issue the attempt and classify what came back: served, refused for quota, refused for unavailability, failed. The classification, not the error text, is what the next stage acts on."},
+    {"id": "failure_response", "label": "Given a classified failure, decide what happens next and when: divert to another candidate, wait a bounded interval and retry, or give up. litellm and portkey both divert before waiting; gaie does neither."},
+    {"id": "cross_request_state", "label": "Whatever the policy remembers between requests, with an explicit bound on each accumulator: quota counters, unavailability, per-request attempt counts, learned statistics. portkey deliberately holds none; litellm and gaie both hold several and cap them."},
+    {"id": "decision_record", "label": "What the router makes visible about the decision and about its own failures. All three emit the chosen target and the attempt history; none of them lets it affect the outcome."}
+  ],
+  "domain_specific": {
+    "litellm": [
+      {"id": "spend_ledger", "label": "Per-provider, per-deployment and per-tag spend accumulated after each call, used to filter candidates before the next one"},
+      {"id": "model_group_resolution", "label": "An indirection from a caller-facing model name to a list of concrete deployments"},
+      {"id": "priority_wait_queue", "label": "An opt-in ordered wait set for callers who supplied a priority, polled until the router timeout"}
+    ],
+    "portkey-gateway": [
+      {"id": "recursive_target_tree", "label": "A per-request nested policy tree where every strategy is a node in one recursive walk"},
+      {"id": "output_check_hooks", "label": "Before- and after-request content checks that can deny a request or consume the retry budget"},
+      {"id": "response_store", "label": "An optional process-wide store of previous answers, keyed by request content"}
+    ],
+    "gaie": [
+      {"id": "workload_queues", "label": "One bounded queue per (caller, priority) pair, with a swappable policy deciding whose turn it is"},
+      {"id": "saturation_detector", "label": "A live per-target utilisation estimate that drives both refusal and the dispatch ceiling"},
+      {"id": "scoring_framework", "label": "A registry of named filters, scorers and pickers assembled into profiles at load time"},
+      {"id": "telemetry_freshness", "label": "A per-target staleness clock that decides whether the router's picture of a target may still be acted on"}
+    ],
+    "routellm": [
+      {"id": "quality_predictor", "label": "A per-request estimate of how well each candidate model would answer, learned offline"},
+      {"id": "threshold_calibration", "label": "An offline step that turns a target share of expensive traffic into the scalar the online path compares against"}
+    ],
+    "llmrouterbench": [
+      {"id": "offline_evaluation", "label": "A frozen (request x model) matrix of measured quality and measured dollars, replayed to score a policy without serving anything"},
+      {"id": "leakage_guarded_split", "label": "A train/test boundary drawn per request rather than per row, so no model's row for a held-out request is ever seen in fitting"}
+    ]
+  },
+  "contract_it_plugs_into": {
+    "task-evaluator": [
+      {"id": "clock_and_event_queue", "label": "The harness owns simulated time and re-invokes the policy on arrival, on wake-up and on completion"},
+      {"id": "fleet_view_publisher", "label": "A read-only, by-value snapshot of every provider's catalogue, in-flight count, remaining request and token headroom, and outage end time"},
+      {"id": "billing_and_slo_books", "label": "The harness's own private ledger: quality from the model actually served, dollars from a private price table, the deadline measured from arrival"},
+      {"id": "violation_typing", "label": "The correctness oracle: illegal refusal, illegal substitution, request lost, completed twice, lost to an announced outage, request mutated, policy livelocked"}
+    ]
+  }
+}

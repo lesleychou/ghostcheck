@@ -1,0 +1,140 @@
+{
+  "domain": "a per-tenant LLM request router: a policy that places each inbound request on exactly one (provider, model) of a shared, rate-limited, occasionally-unavailable fleet, under per-request quality, cost and deadline/SLO constraints",
+  "derivation": "Stage 5 of the code-to-spec procedure. Seeded from the universal baseline (purpose/interface, control flow, state, failure and recovery, resource bounds, correctness invariants) and specialised against the five reference systems cloned for this run plus the shipped task contract. An axis is kept only when at least two of those systems decide it differently.",
+  "axes": [
+    {
+      "id": "model_selection",
+      "axis": "model_selection",
+      "question": "Given a request that names a model, which model actually gets served?",
+      "rationale": "The single biggest lever on quality and cost. Real systems disagree: some always honour the named model, some substitute inside a declared equivalent set by a predicted quality/cost trade-off, some start cheap and escalate on a confidence signal.",
+      "look_for": "request->model resolution, model groups/aliases, deployment lists, router-strategy scoring, predicted-win/quality heads, thresholds, escalation"
+    },
+    {
+      "id": "placement",
+      "axis": "placement",
+      "question": "Among the endpoints that can serve the chosen model, which one gets the request?",
+      "rationale": "Placement is where latency, price and load all meet. The reference systems ship first-listed, cheapest, lowest-observed-latency, least-busy and affinity-based selection, and the shipped fleet makes all of them measurably different.",
+      "look_for": "endpoint/deployment picking, weighted or usage-based selection, latency tracking, queue-depth or inflight signals, session or prefix affinity"
+    },
+    {
+      "id": "admission_and_overload",
+      "axis": "admission_and_overload",
+      "question": "When nothing can serve the request right now, does the router wait, or refuse?",
+      "rationale": "The shipped harness makes refusing a typed correctness question (a refusal is legal only under real overload) and waiting forever a typed loss. Real systems split between unbounded queueing, bounded queueing then rejection, and immediate rejection.",
+      "look_for": "queueing, saturation detection, admission control, 429/503 returned to the caller, queue depth limits, drop policy"
+    },
+    {
+      "id": "rate_limit_pacing",
+      "axis": "rate_limit_pacing",
+      "question": "How does the router stay inside an upstream's request and token quota?",
+      "rationale": "The fleet publishes live headroom. A router may ignore it and learn from rejections, track a local budget and pre-subtract the request's own cost, or hold back a reserve. Each choice changes the rejection rate and therefore the deadline miss rate.",
+      "look_for": "rpm/tpm accounting, budget counters, pre-call cost estimation, headroom reserve, sliding windows, quota exhaustion handling"
+    },
+    {
+      "id": "retry_and_fallback",
+      "axis": "retry_and_fallback",
+      "question": "After an attempt is rejected or fails, what is attempted next, and when?",
+      "rationale": "Retrying the same target, waiting the advertised back-off, or diverting to a different target are all shipped behaviours; so is respecting a server-supplied retry-after versus inventing one. The choice decides whether a burst recovers or amplifies.",
+      "look_for": "retry counts, backoff schedules, retry-after honouring, fallback chains, per-error-class policy, idempotency/retry-safety gating"
+    },
+    {
+      "id": "outage_and_health",
+      "axis": "outage_and_health",
+      "question": "Once a target is known to be unavailable, how long is it avoided, and on what evidence?",
+      "rationale": "The shipped fleet announces outages explicitly with an ETA, and losing a request to outage-blind retrying is a typed failure. Real systems use error-rate thresholds, fixed quarantine periods, and explicit health signals, and disagree on when a target is trusted again.",
+      "look_for": "health state per endpoint, error-rate thresholds, quarantine/cooldown duration, re-probe policy, explicit unavailable signal, failure counting window"
+    },
+    {
+      "id": "deadline_and_priority",
+      "axis": "deadline_and_priority",
+      "question": "Does the time left before a request's deadline change the decision, and how?",
+      "rationale": "Two tenants here carry wildly different deadlines (seconds vs minutes). Some systems are deadline-blind and rely on fast placement; others order work by remaining slack or spend more to save a near-deadline request.",
+      "look_for": "SLO/deadline fields, time-budget estimation, priority or criticality tiers, ordering of pending work, degrade-near-deadline logic"
+    },
+    {
+      "id": "tenant_isolation",
+      "axis": "tenant_isolation",
+      "question": "On a shared fleet, what stops one traffic shape from starving another?",
+      "rationale": "The task is explicitly two tenants on one fleet. Systems range from no isolation at all, through per-caller budgets and quotas, to reserved shares of capacity.",
+      "look_for": "per-key/per-team/per-tenant budgets, virtual keys, quota objects, fairness or share-based scheduling, noisy-neighbour handling"
+    },
+    {
+      "id": "cost_control",
+      "axis": "cost_control",
+      "question": "Is spend bounded by anything other than the traffic itself?",
+      "rationale": "Cost is a first-class term in the scored objective and a first-class feature of the reference systems, which disagree between a soft price preference and a hard budget that changes behaviour once crossed.",
+      "look_for": "price tables, cost-per-request estimation, budget/max-budget enforcement, spend tracking, cheapest-first selection, cost-quality weighting"
+    },
+    {
+      "id": "policy_state_and_determinism",
+      "axis": "policy_state_and_determinism",
+      "question": "How much state does the policy carry across requests, and is a replay reproducible?",
+      "rationale": "A pure function of the request is trivially reproducible and bounded; a policy that learns online or caches per-session decisions is neither unless it is explicitly bounded and seeded. The shipped harness re-invokes the policy many times per request, so unbounded per-request state is a real resource risk.",
+      "look_for": "per-request/per-session caches, learned or updated statistics, randomness and seeding, memory growth per request, state reset between runs"
+    },
+    {
+      "id": "decision_observability",
+      "axis": "decision_observability",
+      "question": "What does the router make visible about why a request went where it did, and about its own failures?",
+      "rationale": "The harness bills and scores from its own books, so anything the router reports is for the operator, not the score. The reference systems disagree on whether a routing decision is explainable after the fact and whether a swallowed error is visible at all.",
+      "look_for": "logging/callback hooks, decision metadata returned to the caller, per-endpoint metrics, error surfacing vs swallowing, spend/usage reporting"
+    }
+  ],
+  "mechanisms": [
+    "bandit",
+    "multi-armed bandit",
+    "thompson sampling",
+    "epsilon-greedy",
+    "ucb",
+    "priority queue",
+    "heap",
+    "token bucket",
+    "leaky bucket",
+    "sliding window counter",
+    "circuit breaker",
+    "cooldown",
+    "quarantine",
+    "health check",
+    "heartbeat",
+    "earliest deadline first",
+    "edf",
+    "weighted fair queueing",
+    "fair share scheduler",
+    "consistent hashing",
+    "power of two choices",
+    "least request",
+    "least connections",
+    "round robin",
+    "weighted round robin",
+    "load balancer",
+    "prefix cache affinity",
+    "session affinity",
+    "sticky session",
+    "cascade",
+    "cascading router",
+    "deferral head",
+    "matrix factorization",
+    "ridge regression",
+    "classifier",
+    "embedding model",
+    "semantic router",
+    "similarity weighted ranking",
+    "elo",
+    "fallback chain",
+    "retry policy",
+    "exponential backoff",
+    "jitter",
+    "lru",
+    "scorer",
+    "filter",
+    "plugin",
+    "middleware",
+    "profile",
+    "picker",
+    "linear program",
+    "knapsack",
+    "greedy",
+    "lookup table",
+    "precomputed artifact"
+  ]
+}

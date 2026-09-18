@@ -1,0 +1,64 @@
+{
+  "principle_1_harness_owns_the_books": {
+    "name": "The scorer never trusts the scored",
+    "summary": "Billing, token counts, SLO accounting and quality all come from the harness's private records; the router's copy of the fleet is published by value and diffed after every callback.",
+    "tradeoff": "Makes every number un-gameable, at the cost of a router being unable to learn from anything it was not explicitly handed.",
+    "evidence": [
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:156",
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:235",
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:453",
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:455"
+    ]
+  },
+  "principle_2_refusal_is_priced": {
+    "name": "Refusing work is priced, not free",
+    "summary": "A shed request books zero quality, a quality-floor miss and a violated SLO, and is legal only when no provider could have served it right then.",
+    "tradeoff": "Removes the degenerate 'drop the hard traffic' strategy, but makes a router that over-sheds during a burst worse than one that queues.",
+    "evidence": [
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:265",
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:283",
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:466",
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:492"
+    ]
+  },
+  "principle_3_waiting_is_also_losing": {
+    "name": "Waiting forever is a typed loss, not a stall",
+    "summary": "Deferring a structurally unservable request past a 32-defer grace, or dispatching into an announced outage past an 8-attempt grace, is reported as losing the request rather than allowed to hang.",
+    "tradeoff": "Forces a router to have an explicit give-up path; costs it the option of optimistically waiting out a long outage.",
+    "evidence": [
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py:40",
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:290",
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:330",
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:333"
+    ]
+  },
+  "principle_4_announced_failure_beats_inferred": {
+    "name": "Announce unavailability instead of making it inferable",
+    "summary": "A down provider publishes an empty catalogue and an ETA rather than merely erroring, so a correct router never has to estimate health from error rates.",
+    "tradeoff": "Simplifies the policy enormously, but only works where the fleet is cooperative; a real gateway must infer.",
+    "evidence": [
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:145",
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:72"
+    ]
+  },
+  "principle_5_one_slo_field_per_request": {
+    "name": "The request names which latency matters",
+    "summary": "A request carries either ttft_ms or latency_ms and the harness measures exactly that quantity, so one policy can serve an interactive and a batch tenant without a mode switch.",
+    "tradeoff": "Keeps the interface small; hides the fact that the two regimes want opposite placements on the same fleet.",
+    "evidence": [
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:422",
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:426"
+    ]
+  },
+  "principle_6_liveness_fails_loudly": {
+    "name": "A livelocked policy aborts, it does not grind",
+    "summary": "Explicit per-request decide() and wall-clock budgets convert a non-progressing policy into a typed harness_hang with its own diagnostic instead of a hung test.",
+    "tradeoff": "Bounds test time; a legitimately slow policy must be told the budget exists.",
+    "evidence": [
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py:34",
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay.py:35",
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:382",
+      "skydiscover/synthesize/examples/llm-router/evaluator/benchmark/replay_tenants.py:446"
+    ]
+  }
+}

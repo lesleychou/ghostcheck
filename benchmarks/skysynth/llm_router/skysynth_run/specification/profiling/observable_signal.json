@@ -1,0 +1,380 @@
+{
+ "A": {
+  "per_class_train": {
+   "gpqa": {
+    "n": 126,
+    "best_model": "qwen3-235b-a22b-thinking-2507",
+    "best_utility": 0.8045,
+    "best_quality": 0.8413,
+    "best_cost": 0.012279,
+    "top3": [
+     "qwen3-235b-a22b-thinking-2507",
+     "deepseek-v3.1-terminus",
+     "deepseek-r1-0528"
+    ]
+   },
+   "simpleqa": {
+    "n": 2611,
+    "best_model": "qwen3-235b-a22b-2507",
+    "best_utility": 0.53,
+    "best_quality": 0.5301,
+    "best_cost": 4.7e-05,
+    "top3": [
+     "qwen3-235b-a22b-2507",
+     "gemini-2.5-pro",
+     "qwen3-235b-a22b-thinking-2507"
+    ]
+   },
+   "tau2": {
+    "n": 162,
+    "best_model": "glm-4.6",
+    "best_utility": 0.277,
+    "best_quality": 0.5802,
+    "best_cost": 0.101054,
+    "top3": [
+     "glm-4.6",
+     "qwen3-235b-a22b-2507",
+     "deepseek-v3.1-terminus"
+    ]
+   }
+  },
+  "per_class_val": {
+   "gpqa": {
+    "n": 32,
+    "best_model": "deepseek-r1-0528",
+    "best_utility": 0.6677,
+    "best_quality": 0.7188,
+    "best_cost": 0.017042,
+    "top3": [
+     "deepseek-r1-0528",
+     "deepseek-v3.1-terminus",
+     "kimi-k2-0905"
+    ]
+   },
+   "simpleqa": {
+    "n": 879,
+    "best_model": "qwen3-235b-a22b-2507",
+    "best_utility": 0.5448,
+    "best_quality": 0.5449,
+    "best_cost": 4.5e-05,
+    "top3": [
+     "qwen3-235b-a22b-2507",
+     "gemini-2.5-pro",
+     "qwen3-235b-a22b-thinking-2507"
+    ]
+   },
+   "tau2": {
+    "n": 61,
+    "best_model": "qwen3-235b-a22b-2507",
+    "best_utility": 0.3459,
+    "best_quality": 0.459,
+    "best_cost": 0.037693,
+    "top3": [
+     "qwen3-235b-a22b-2507",
+     "deepseek-v3.1-terminus",
+     "glm-4.6"
+    ]
+   }
+  },
+  "policy_transfer_train_to_val": {
+   "per_class_policy_fitted_on_train": {
+    "gpqa": "qwen3-235b-a22b-thinking-2507",
+    "simpleqa": "qwen3-235b-a22b-2507",
+    "tau2": "glm-4.6"
+   },
+   "per_class_policy_utility_on_val": 0.5301,
+   "single_best_model_fitted_on_train": "qwen3-235b-a22b-2507",
+   "single_best_utility_on_val": 0.5277,
+   "gain_from_class_routing": 0.0024
+  },
+  "difficulty_quartiles_train": [
+   {
+    "q": 1,
+    "n": 724,
+    "hint_range": [
+     0.005,
+     0.0115
+    ],
+    "oracle_best_quality": 0.8992,
+    "best_static_model_here": "qwen3-235b-a22b-2507",
+    "best_static_utility_here": 0.6007,
+    "mean_expected_output_tokens": 378.0
+   },
+   {
+    "q": 2,
+    "n": 724,
+    "hint_range": [
+     0.0115,
+     0.014
+    ],
+    "oracle_best_quality": 0.8398,
+    "best_static_model_here": "qwen3-235b-a22b-2507",
+    "best_static_utility_here": 0.5441,
+    "mean_expected_output_tokens": 376.2
+   },
+   {
+    "q": 3,
+    "n": 724,
+    "hint_range": [
+     0.014,
+     0.018
+    ],
+    "oracle_best_quality": 0.7983,
+    "best_static_model_here": "qwen3-235b-a22b-2507",
+    "best_static_utility_here": 0.4943,
+    "mean_expected_output_tokens": 379.8
+   },
+   {
+    "q": 4,
+    "n": 727,
+    "hint_range": [
+     0.018,
+     1.0
+    ],
+    "oracle_best_quality": 0.8349,
+    "best_static_model_here": "qwen3-235b-a22b-2507",
+    "best_static_utility_here": 0.4352,
+    "mean_expected_output_tokens": 1402.2
+   }
+  ],
+  "difficulty_quartiles_val": [
+   {
+    "q": 1,
+    "n": 243,
+    "hint_range": [
+     0.006,
+     0.011
+    ],
+    "oracle_best_quality": 0.9012,
+    "best_static_model_here": "qwen3-235b-a22b-2507",
+    "best_static_utility_here": 0.613,
+    "mean_expected_output_tokens": 374.8
+   },
+   {
+    "q": 2,
+    "n": 243,
+    "hint_range": [
+     0.011,
+     0.014
+    ],
+    "oracle_best_quality": 0.8272,
+    "best_static_model_here": "qwen3-235b-a22b-2507",
+    "best_static_utility_here": 0.5143,
+    "mean_expected_output_tokens": 357.5
+   },
+   {
+    "q": 3,
+    "n": 243,
+    "hint_range": [
+     0.014,
+     0.018
+    ],
+    "oracle_best_quality": 0.8395,
+    "best_static_model_here": "qwen3-235b-a22b-2507",
+    "best_static_utility_here": 0.5389,
+    "mean_expected_output_tokens": 372.4
+   },
+   {
+    "q": 4,
+    "n": 243,
+    "hint_range": [
+     0.018,
+     1.0
+    ],
+    "oracle_best_quality": 0.8354,
+    "best_static_model_here": "qwen3-235b-a22b-2507",
+    "best_static_utility_here": 0.4446,
+    "mean_expected_output_tokens": 1307.7
+   }
+  ]
+ },
+ "B": {
+  "per_class_train": {
+   "hle": {
+    "n": 1272,
+    "best_model": "qwen3-235b-a22b-2507",
+    "best_utility": 0.0921,
+    "best_quality": 0.0983,
+    "best_cost": 0.00207,
+    "top3": [
+     "qwen3-235b-a22b-2507",
+     "deepseek-v3.1-terminus",
+     "gpt-5"
+    ]
+   },
+   "livecodebench": {
+    "n": 594,
+    "best_model": "qwen3-235b-a22b-thinking-2507",
+    "best_utility": 0.7431,
+    "best_quality": 0.7845,
+    "best_cost": 0.013797,
+    "top3": [
+     "qwen3-235b-a22b-thinking-2507",
+     "deepseek-r1-0528",
+     "gpt-5"
+    ]
+   },
+   "livemathbench": {
+    "n": 74,
+    "best_model": "qwen3-235b-a22b-2507",
+    "best_utility": 0.7108,
+    "best_quality": 0.7162,
+    "best_cost": 0.001787,
+    "top3": [
+     "qwen3-235b-a22b-2507",
+     "deepseek-v3.1-terminus",
+     "kimi-k2-0905"
+    ]
+   }
+  },
+  "per_class_val": {
+   "hle": {
+    "n": 447,
+    "best_model": "qwen3-235b-a22b-2507",
+    "best_utility": 0.0919,
+    "best_quality": 0.0984,
+    "best_cost": 0.002163,
+    "top3": [
+     "qwen3-235b-a22b-2507",
+     "deepseek-v3.1-terminus",
+     "intern-s1"
+    ]
+   },
+   "livecodebench": {
+    "n": 229,
+    "best_model": "deepseek-r1-0528",
+    "best_utility": 0.7178,
+    "best_quality": 0.8035,
+    "best_cost": 0.028571,
+    "top3": [
+     "deepseek-r1-0528",
+     "qwen3-235b-a22b-thinking-2507",
+     "gpt-5"
+    ]
+   },
+   "livemathbench": {
+    "n": 17,
+    "best_model": "deepseek-v3.1-terminus",
+    "best_utility": 0.7585,
+    "best_quality": 0.7647,
+    "best_cost": 0.00208,
+    "top3": [
+     "deepseek-v3.1-terminus",
+     "gemini-2.5-flash",
+     "qwen3-235b-a22b-2507"
+    ]
+   }
+  },
+  "policy_transfer_train_to_val": {
+   "per_class_policy_fitted_on_train": {
+    "hle": "qwen3-235b-a22b-2507",
+    "livecodebench": "qwen3-235b-a22b-thinking-2507",
+    "livemathbench": "qwen3-235b-a22b-2507"
+   },
+   "per_class_policy_utility_on_val": 0.3133,
+   "single_best_model_fitted_on_train": "deepseek-r1-0528",
+   "single_best_utility_on_val": 0.2813,
+   "gain_from_class_routing": 0.0321
+  },
+  "difficulty_quartiles_train": [
+   {
+    "q": 1,
+    "n": 485,
+    "hint_range": [
+     0.031,
+     0.0735
+    ],
+    "oracle_best_quality": 0.5443,
+    "best_static_model_here": "gpt-5",
+    "best_static_utility_here": 0.1755,
+    "mean_expected_output_tokens": 3524.8
+   },
+   {
+    "q": 2,
+    "n": 485,
+    "hint_range": [
+     0.0735,
+     0.142
+    ],
+    "oracle_best_quality": 0.5443,
+    "best_static_model_here": "qwen3-235b-a22b-2507",
+    "best_static_utility_here": 0.1315,
+    "mean_expected_output_tokens": 4548.9
+   },
+   {
+    "q": 3,
+    "n": 485,
+    "hint_range": [
+     0.1425,
+     0.2525
+    ],
+    "oracle_best_quality": 0.7485,
+    "best_static_model_here": "qwen3-235b-a22b-thinking-2507",
+    "best_static_utility_here": 0.4845,
+    "mean_expected_output_tokens": 3101.1
+   },
+   {
+    "q": 4,
+    "n": 485,
+    "hint_range": [
+     0.2525,
+     1.0
+    ],
+    "oracle_best_quality": 0.7629,
+    "best_static_model_here": "qwen3-235b-a22b-thinking-2507",
+    "best_static_utility_here": 0.4684,
+    "mean_expected_output_tokens": 3296.3
+   }
+  ],
+  "difficulty_quartiles_val": [
+   {
+    "q": 1,
+    "n": 173,
+    "hint_range": [
+     0.032,
+     0.0765
+    ],
+    "oracle_best_quality": 0.5723,
+    "best_static_model_here": "deepseek-v3.1-terminus",
+    "best_static_utility_here": 0.1623,
+    "mean_expected_output_tokens": 3862.7
+   },
+   {
+    "q": 2,
+    "n": 173,
+    "hint_range": [
+     0.0765,
+     0.1455
+    ],
+    "oracle_best_quality": 0.5607,
+    "best_static_model_here": "qwen3-235b-a22b-2507",
+    "best_static_utility_here": 0.1498,
+    "mean_expected_output_tokens": 4541.6
+   },
+   {
+    "q": 3,
+    "n": 173,
+    "hint_range": [
+     0.146,
+     0.2655
+    ],
+    "oracle_best_quality": 0.763,
+    "best_static_model_here": "qwen3-235b-a22b-2507",
+    "best_static_utility_here": 0.4982,
+    "mean_expected_output_tokens": 3111.4
+   },
+   {
+    "q": 4,
+    "n": 174,
+    "hint_range": [
+     0.266,
+     1.0
+    ],
+    "oracle_best_quality": 0.7414,
+    "best_static_model_here": "qwen3-235b-a22b-thinking-2507",
+    "best_static_utility_here": 0.4698,
+    "mean_expected_output_tokens": 3389.7
+   }
+  ]
+ }
+}

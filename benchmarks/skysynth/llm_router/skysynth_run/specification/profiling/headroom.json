@@ -1,0 +1,445 @@
+{
+ "A_train": {
+  "peak_requests_per_60s": 240,
+  "mean_requests_per_60s": 56.4,
+  "peak_admission_tokens_per_60s": 2344727,
+  "mean_admission_tokens_per_60s": 411738,
+  "rpm_utilisation_at_peak": {
+   "value": 0.571,
+   "prime": 1.818,
+   "courier": 1.6
+  },
+  "rpm_utilisation_at_mean": {
+   "value": 0.134,
+   "prime": 0.427,
+   "courier": 0.376
+  },
+  "tpm_utilisation_at_peak": {
+   "value": 0.1954,
+   "prime": 0.6699,
+   "courier": 0.4689
+  },
+  "rpm_sum_all_three": 702,
+  "rpm_utilisation_at_peak_whole_fleet": 0.342,
+  "concurrency_demand_requested_model": {
+   "prime": {
+    "model": "gpt-5",
+    "mean_service_sec": 12.1,
+    "p90_service_sec": 17.4,
+    "peak_concurrency_little": 48.2,
+    "mean_concurrency_little": 11.3,
+    "provider_concurrency_limit": 32
+   },
+   "courier": {
+    "model": "gpt-5",
+    "mean_service_sec": 27.6,
+    "p90_service_sec": 39.4,
+    "peak_concurrency_little": 110.6,
+    "mean_concurrency_little": 26.0,
+    "provider_concurrency_limit": 48
+   }
+  },
+  "concurrency_demand_cheap_alt": {
+   "value": {
+    "model": "deepseek-v3-0324",
+    "mean_service_sec": 10.0,
+    "peak_concurrency_little": 40.1,
+    "provider_concurrency_limit": 96
+   },
+   "prime": {
+    "model": "deepseek-v3-0324",
+    "mean_service_sec": 6.9,
+    "peak_concurrency_little": 27.4,
+    "provider_concurrency_limit": 32
+   },
+   "courier": {
+    "model": "deepseek-v3-0324",
+    "mean_service_sec": 18.1,
+    "peak_concurrency_little": 72.5,
+    "provider_concurrency_limit": 48
+   }
+  },
+  "ttft_feasible_first_try": {
+   "value": {
+    "gpt-5": null,
+    "deepseek-v3-0324": 0.9483
+   },
+   "prime": {
+    "gpt-5": 0.9783,
+    "deepseek-v3-0324": 0.9783
+   },
+   "courier": {
+    "gpt-5": 0.9441,
+    "deepseek-v3-0324": 0.9441
+   }
+  },
+  "ttft_feasible_after_one_429": {
+   "value": 0.0,
+   "prime": 0.9441,
+   "courier": 0.0
+  },
+  "prompt_tokens_too_big_for_prime_ttft": 63,
+  "prompt_tokens_too_big_for_courier_ttft": 162,
+  "prompt_tokens_too_big_for_value_ttft": 150
+ },
+ "A_val": {
+  "peak_requests_per_60s": 181,
+  "mean_requests_per_60s": 43.1,
+  "peak_admission_tokens_per_60s": 1577019,
+  "mean_admission_tokens_per_60s": 313100,
+  "rpm_utilisation_at_peak": {
+   "value": 0.431,
+   "prime": 1.371,
+   "courier": 1.207
+  },
+  "rpm_utilisation_at_mean": {
+   "value": 0.103,
+   "prime": 0.327,
+   "courier": 0.288
+  },
+  "tpm_utilisation_at_peak": {
+   "value": 0.1314,
+   "prime": 0.4506,
+   "courier": 0.3154
+  },
+  "rpm_sum_all_three": 702,
+  "rpm_utilisation_at_peak_whole_fleet": 0.258,
+  "concurrency_demand_requested_model": {
+   "prime": {
+    "model": "gpt-5",
+    "mean_service_sec": 11.5,
+    "p90_service_sec": 15.5,
+    "peak_concurrency_little": 34.6,
+    "mean_concurrency_little": 8.3,
+    "provider_concurrency_limit": 32
+   },
+   "courier": {
+    "model": "gpt-5",
+    "mean_service_sec": 26.4,
+    "p90_service_sec": 35.5,
+    "peak_concurrency_little": 79.6,
+    "mean_concurrency_little": 19.0,
+    "provider_concurrency_limit": 48
+   }
+  },
+  "concurrency_demand_cheap_alt": {
+   "value": {
+    "model": "deepseek-v3-0324",
+    "mean_service_sec": 9.6,
+    "peak_concurrency_little": 28.9,
+    "provider_concurrency_limit": 96
+   },
+   "prime": {
+    "model": "deepseek-v3-0324",
+    "mean_service_sec": 6.5,
+    "peak_concurrency_little": 19.7,
+    "provider_concurrency_limit": 32
+   },
+   "courier": {
+    "model": "deepseek-v3-0324",
+    "mean_service_sec": 17.3,
+    "peak_concurrency_little": 52.3,
+    "provider_concurrency_limit": 48
+   }
+  },
+  "ttft_feasible_first_try": {
+   "value": {
+    "gpt-5": null,
+    "deepseek-v3-0324": 0.9444
+   },
+   "prime": {
+    "gpt-5": 0.9805,
+    "deepseek-v3-0324": 0.9805
+   },
+   "courier": {
+    "gpt-5": 0.9372,
+    "deepseek-v3-0324": 0.9372
+   }
+  },
+  "ttft_feasible_after_one_429": {
+   "value": 0.0,
+   "prime": 0.9372,
+   "courier": 0.0
+  },
+  "prompt_tokens_too_big_for_prime_ttft": 19,
+  "prompt_tokens_too_big_for_courier_ttft": 61,
+  "prompt_tokens_too_big_for_value_ttft": 54,
+  "val_outage_windows_ms": [
+   [
+    300000,
+    420000
+   ],
+   [
+    780000,
+    930000
+   ]
+  ],
+  "requests_arriving_during_prime_outage": 148,
+  "frac_arriving_during_prime_outage": 0.1523,
+  "per_window": [
+   {
+    "window_ms": [
+     300000,
+     420000
+    ],
+    "n": 97
+   },
+   {
+    "window_ms": [
+     780000,
+     930000
+    ],
+    "n": 51
+   }
+  ]
+ },
+ "B_train": {
+  "peak_requests_per_60s": 278,
+  "mean_requests_per_60s": 46.0,
+  "peak_admission_tokens_per_60s": 1140625,
+  "mean_admission_tokens_per_60s": 184252,
+  "rpm_utilisation_at_peak": {
+   "value": 0.662,
+   "prime": 2.106,
+   "courier": 1.853
+  },
+  "rpm_utilisation_at_mean": {
+   "value": 0.11,
+   "prime": 0.349,
+   "courier": 0.307
+  },
+  "tpm_utilisation_at_peak": {
+   "value": 0.0951,
+   "prime": 0.3259,
+   "courier": 0.2281
+  },
+  "rpm_sum_all_three": 702,
+  "rpm_utilisation_at_peak_whole_fleet": 0.396,
+  "concurrency_demand_requested_model": {
+   "value": {
+    "model": "deepseek-r1-0528",
+    "mean_service_sec": 91.2,
+    "p90_service_sec": 202.5,
+    "peak_concurrency_little": 422.4,
+    "mean_concurrency_little": 69.9,
+    "provider_concurrency_limit": 96
+   },
+   "prime": {
+    "model": "deepseek-r1-0528",
+    "mean_service_sec": 66.2,
+    "p90_service_sec": 147.2,
+    "peak_concurrency_little": 306.7,
+    "mean_concurrency_little": 50.8,
+    "provider_concurrency_limit": 32
+   },
+   "courier": {
+    "model": "deepseek-r1-0528",
+    "mean_service_sec": 146.4,
+    "p90_service_sec": 324.6,
+    "peak_concurrency_little": 678.5,
+    "mean_concurrency_little": 112.4,
+    "provider_concurrency_limit": 48
+   }
+  },
+  "concurrency_demand_cheap_alt": {
+   "value": {
+    "model": "deepseek-v3-0324",
+    "mean_service_sec": 52.4,
+    "peak_concurrency_little": 242.8,
+    "provider_concurrency_limit": 96
+   },
+   "prime": {
+    "model": "deepseek-v3-0324",
+    "mean_service_sec": 36.6,
+    "peak_concurrency_little": 169.5,
+    "provider_concurrency_limit": 32
+   },
+   "courier": {
+    "model": "deepseek-v3-0324",
+    "mean_service_sec": 92.2,
+    "peak_concurrency_little": 427.1,
+    "provider_concurrency_limit": 48
+   }
+  },
+  "e2e_feasible_solo": {
+   "value": {
+    "deepseek-r1-0528": 1.0,
+    "deepseek-v3-0324": 1.0
+   },
+   "prime": {
+    "deepseek-r1-0528": 1.0,
+    "deepseek-v3-0324": 1.0
+   },
+   "courier": {
+    "deepseek-r1-0528": 0.9964,
+    "deepseek-v3-0324": 1.0
+   }
+  },
+  "queue_slack_sec_p50_p90_min": [
+   533.0,
+   397.5,
+   181.5
+  ]
+ },
+ "B_val": {
+  "peak_requests_per_60s": 252,
+  "mean_requests_per_60s": 55.0,
+  "peak_admission_tokens_per_60s": 1088779,
+  "mean_admission_tokens_per_60s": 227284,
+  "rpm_utilisation_at_peak": {
+   "value": 0.6,
+   "prime": 1.909,
+   "courier": 1.68
+  },
+  "rpm_utilisation_at_mean": {
+   "value": 0.131,
+   "prime": 0.416,
+   "courier": 0.366
+  },
+  "tpm_utilisation_at_peak": {
+   "value": 0.0907,
+   "prime": 0.3111,
+   "courier": 0.2178
+  },
+  "rpm_sum_all_three": 702,
+  "rpm_utilisation_at_peak_whole_fleet": 0.359,
+  "concurrency_demand_requested_model": {
+   "value": {
+    "model": "deepseek-r1-0528",
+    "mean_service_sec": 93.9,
+    "p90_service_sec": 208.7,
+    "peak_concurrency_little": 394.2,
+    "mean_concurrency_little": 86.0,
+    "provider_concurrency_limit": 96
+   },
+   "prime": {
+    "model": "deepseek-r1-0528",
+    "mean_service_sec": 68.2,
+    "p90_service_sec": 151.6,
+    "peak_concurrency_little": 286.2,
+    "mean_concurrency_little": 62.4,
+    "provider_concurrency_limit": 32
+   },
+   "courier": {
+    "model": "deepseek-r1-0528",
+    "mean_service_sec": 150.8,
+    "p90_service_sec": 334.4,
+    "peak_concurrency_little": 633.2,
+    "mean_concurrency_little": 138.1,
+    "provider_concurrency_limit": 48
+   }
+  },
+  "concurrency_demand_cheap_alt": {
+   "value": {
+    "model": "deepseek-v3-0324",
+    "mean_service_sec": 53.9,
+    "peak_concurrency_little": 226.6,
+    "provider_concurrency_limit": 96
+   },
+   "prime": {
+    "model": "deepseek-v3-0324",
+    "mean_service_sec": 37.7,
+    "peak_concurrency_little": 158.2,
+    "provider_concurrency_limit": 32
+   },
+   "courier": {
+    "model": "deepseek-v3-0324",
+    "mean_service_sec": 94.9,
+    "peak_concurrency_little": 398.5,
+    "provider_concurrency_limit": 48
+   }
+  },
+  "e2e_feasible_solo": {
+   "value": {
+    "deepseek-r1-0528": 1.0,
+    "deepseek-v3-0324": 1.0
+   },
+   "prime": {
+    "deepseek-r1-0528": 1.0,
+    "deepseek-v3-0324": 1.0
+   },
+   "courier": {
+    "deepseek-r1-0528": 0.9957,
+    "deepseek-v3-0324": 1.0
+   }
+  },
+  "queue_slack_sec_p50_p90_min": [
+   532.2,
+   391.3,
+   213.8
+  ],
+  "val_outage_windows_ms": [
+   [
+    300000,
+    420000
+   ],
+   [
+    780000,
+    930000
+   ]
+  ],
+  "requests_arriving_during_prime_outage": 286,
+  "frac_arriving_during_prime_outage": 0.4127,
+  "per_window": [
+   {
+    "window_ms": [
+     300000,
+     420000
+    ],
+    "n": 286
+   },
+   {
+    "window_ms": [
+     780000,
+     930000
+    ],
+    "n": 0
+   }
+  ]
+ },
+ "fleet_reachability": {
+  "A": {
+   "equiv_class_size": 12,
+   "distinct_equiv_sets": 1,
+   "legal_provider_model_pairs": 32,
+   "pairs_by_provider": {
+    "value": 8,
+    "prime": 12,
+    "courier": 12
+   },
+   "models_missing_on_value": [
+    "claude-sonnet-4",
+    "gemini-2.5-flash",
+    "gemini-2.5-pro",
+    "gpt-5"
+   ],
+   "requested_model": "gpt-5",
+   "providers_stocking_requested": [
+    "prime",
+    "courier"
+   ]
+  },
+  "B": {
+   "equiv_class_size": 12,
+   "distinct_equiv_sets": 1,
+   "legal_provider_model_pairs": 32,
+   "pairs_by_provider": {
+    "value": 8,
+    "prime": 12,
+    "courier": 12
+   },
+   "models_missing_on_value": [
+    "claude-sonnet-4",
+    "gemini-2.5-flash",
+    "gemini-2.5-pro",
+    "gpt-5"
+   ],
+   "requested_model": "deepseek-r1-0528",
+   "providers_stocking_requested": [
+    "value",
+    "prime",
+    "courier"
+   ]
+  }
+ }
+}

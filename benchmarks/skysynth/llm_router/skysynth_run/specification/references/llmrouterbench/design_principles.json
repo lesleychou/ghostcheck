@@ -1,0 +1,47 @@
+{
+  "principle_1_split_by_prompt": {
+    "name": "Split by prompt, not by record",
+    "summary": "Every model's row for one prompt lands on the same side of the train/test boundary, and whole out-of-distribution datasets go to test.",
+    "tradeoff": "Eliminates the leak that makes a per-prompt quality predictor look clairvoyant; costs training data and makes the test split harder than the train split on purpose.",
+    "evidence": [
+      "baselines/data_loader.py:336",
+      "baselines/data_loader.py:405"
+    ]
+  },
+  "principle_2_report_both_axes": {
+    "name": "Report quality and dollars side by side, never pre-scalarised",
+    "summary": "The harness refuses to collapse quality and cost into one number; the weighting is a property of the policy under test, not of the scoreboard.",
+    "tradeoff": "Honest and comparable; makes ranking policies a judgement call rather than a sort.",
+    "evidence": [
+      "baselines/aggregators.py:709",
+      "baselines/aggregators.py:881"
+    ]
+  },
+  "principle_3_bracket_with_references": {
+    "name": "Bracket every result between a random router, the single best model and an oracle",
+    "summary": "Three reference rows make an absolute number interpretable: below random is broken, above the best single model is real routing gain, the oracle is the ceiling.",
+    "tradeoff": "Turns any measured number into a position on a known interval; requires computing the oracle, which only an offline frozen matrix permits.",
+    "evidence": [
+      "baselines/aggregators.py:939",
+      "baselines/aggregators.py:950",
+      "baselines/aggregators.py:970"
+    ]
+  },
+  "principle_4_freeze_the_dollars": {
+    "name": "Freeze measured dollars per record",
+    "summary": "Cost is measured once from real provider usage (preferring the provider's own reported cost over a list-price estimate) and then replayed, so a policy comparison is not confounded by price drift.",
+    "tradeoff": "Reproducible and cheap to re-run; the frozen rates absorb per-model verbosity and are not list prices.",
+    "evidence": [
+      "generators/generator.py:177",
+      "config/data_collector_proprietary_model_config.yaml:146"
+    ]
+  },
+  "principle_5_hard_budget_as_infeasibility": {
+    "name": "A hard budget is expressed as infeasibility, not as a penalty",
+    "summary": "An over-budget choice is scored as unusable rather than merely expensive, so the policy cannot buy its way past the cap.",
+    "tradeoff": "Makes the cap real; can leave a prompt with no feasible option at all, which the policy must then handle.",
+    "evidence": [
+      "baselines/FrugalGPT/train_router_from_results.py:665"
+    ]
+  }
+}

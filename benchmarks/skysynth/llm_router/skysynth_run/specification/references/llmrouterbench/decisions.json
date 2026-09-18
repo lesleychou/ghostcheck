@@ -1,0 +1,56 @@
+[
+  {
+    "axis": "model_selection",
+    "property": "selection evidence",
+    "reference_choice": "a learned per-prompt quality estimate over a fixed model pool, fitted on a held-out-by-prompt train split",
+    "question": "May the router read the ground-truth per-request quality the harness will score it with, or must it work from observable features only?",
+    "default": "observable features only",
+    "alternatives": [
+      "observable features only",
+      "the ground-truth per-request quality of every candidate model"
+    ],
+    "mode": "ask",
+    "rationale": "The shipped Request exposes both a ground-truth quality map and an observable feature map and the interface explicitly calls this a per-experiment choice; reading ground truth makes the result an unreachable oracle, not a deployable router."
+  },
+  {
+    "axis": "cost_control",
+    "property": "spend bound shape",
+    "reference_choice": "both shipped: a weighted soft preference and a hard per-prompt budget that makes over-budget choices infeasible",
+    "question": "Is spend bounded by anything other than the traffic itself?",
+    "default": "a price-aware preference with no hard ceiling",
+    "alternatives": [
+      "no cost consideration at all",
+      "a price-aware preference with no hard ceiling",
+      "a hard spend ceiling per window that changes behaviour once crossed"
+    ],
+    "mode": "ask",
+    "rationale": "Reference systems ship both shapes and the choice changes behaviour under a burst; the scored objective weights cost at 3.0."
+  },
+  {
+    "axis": "policy_state_and_determinism",
+    "property": "replay reproducibility",
+    "reference_choice": "stateless at inference, fully seeded, byte-identical replays",
+    "question": "Must two replays of the same trace produce the same decisions?",
+    "default": "identical decisions on identical input",
+    "alternatives": [
+      "identical decisions on identical input",
+      "decisions may differ between runs as long as the outcome distribution is the same"
+    ],
+    "mode": "assume",
+    "rationale": "Both offline reference systems are exactly reproducible and a scored replay that cannot be reproduced cannot be audited."
+  },
+  {
+    "axis": "deadline_and_priority",
+    "property": "time awareness",
+    "reference_choice": "not decided: the benchmark has no time axis at all",
+    "question": "Does the time left before a request's deadline change which target is chosen?",
+    "default": "the deadline changes the choice of target",
+    "alternatives": [
+      "the deadline never changes the choice of target",
+      "the deadline changes the choice of target",
+      "the deadline changes both the choice of target and the order work is attempted in"
+    ],
+    "mode": "assume",
+    "rationale": "The quality/cost literature ignores time entirely, but this deployment scores an SLO-violation rate at weight 1.0 and gives the two tenants deadlines three orders of magnitude apart, so time-blindness is not defensible here."
+  }
+]

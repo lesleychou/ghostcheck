@@ -1,0 +1,4 @@
+Export: /path/to/ghostcheck/benchmarks/skysynth/upstream/outputs/synthesize/llm-router_20260913_220035
+Run:    /path/to/ghostcheck/benchmarks/skysynth/upstream/.skydiscover/llm-router
+Upstream commit: c30ca1907b0084c7ef2d2ed4b6398d181a3fad0c
+Date: 2026-09-14T02:05:20Z

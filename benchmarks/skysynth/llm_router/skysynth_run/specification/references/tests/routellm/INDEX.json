@@ -1,0 +1,8 @@
+[
+ {"axis":"model_selection","kind":"spec","path":"routellm/routers/routers.py","line":41,"copied_as":"routers.py","what_it_checks":"the threshold comparison that decides strong vs weak; the executable definition of the selection rule"},
+ {"axis":"cost_control","kind":"spec","path":"routellm/evals/evaluate.py","line":83,"copied_as":"evaluate.py","what_it_checks":"the call-performance-threshold metric: the expensive-call share needed to recover a given fraction of the strong/weak quality gap"},
+ {"axis":"cost_control","kind":"spec","path":"routellm/evals/evaluate.py","line":97,"copied_as":"evaluate.py","what_it_checks":"the area-under-the-curve integration that turns a quality-vs-expensive-share sweep into one comparable number"},
+ {"axis":"cost_control","kind":"spec","path":"routellm/calibrate_threshold.py","line":55,"copied_as":"calibrate_threshold.py","what_it_checks":"that a threshold is chosen as the quantile giving a target expensive-call share, never a target quality"},
+ {"axis":"model_selection","kind":"spec","path":"routellm/evals/benchmarks.py","line":92,"copied_as":"benchmarks.py","what_it_checks":"the equal-mass binning of predicted win rates used to sweep the trade-off curve"},
+ {"axis":"policy_state_and_determinism","kind":"assert","path":"routellm/controller.py","line":113,"copied_as":"controller.py","what_it_checks":"the per-router decision tally: the only cross-request state the policy keeps"}
+]

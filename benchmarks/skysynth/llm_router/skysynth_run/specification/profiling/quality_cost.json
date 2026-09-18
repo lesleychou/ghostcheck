@@ -1,0 +1,390 @@
+{
+ "A_train": {
+  "n": 2899,
+  "models": {
+   "claude-sonnet-4": {
+    "mean_score": 0.1959,
+    "mean_cost_usd": 0.02299,
+    "static_utility_no_slo": 0.127
+   },
+   "deepseek-r1-0528": {
+    "mean_score": 0.2904,
+    "mean_cost_usd": 0.009222,
+    "static_utility_no_slo": 0.2628
+   },
+   "deepseek-v3-0324": {
+    "mean_score": 0.2749,
+    "mean_cost_usd": 0.001701,
+    "static_utility_no_slo": 0.2698
+   },
+   "deepseek-v3.1-terminus": {
+    "mean_score": 0.2787,
+    "mean_cost_usd": 0.003649,
+    "static_utility_no_slo": 0.2678
+   },
+   "gemini-2.5-flash": {
+    "mean_score": 0.3139,
+    "mean_cost_usd": 0.001912,
+    "static_utility_no_slo": 0.3082
+   },
+   "gemini-2.5-pro": {
+    "mean_score": 0.5478,
+    "mean_cost_usd": 0.019739,
+    "static_utility_no_slo": 0.4886
+   },
+   "glm-4.6": {
+    "mean_score": 0.2939,
+    "mean_cost_usd": 0.012194,
+    "static_utility_no_slo": 0.2573
+   },
+   "gpt-5": {
+    "mean_score": 0.495,
+    "mean_cost_usd": 0.026094,
+    "static_utility_no_slo": 0.4167
+   },
+   "intern-s1": {
+    "mean_score": 0.1766,
+    "mean_cost_usd": 0.003571,
+    "static_utility_no_slo": 0.1659
+   },
+   "kimi-k2-0905": {
+    "mean_score": 0.3149,
+    "mean_cost_usd": 0.005812,
+    "static_utility_no_slo": 0.2975
+   },
+   "qwen3-235b-a22b-2507": {
+    "mean_score": 0.5254,
+    "mean_cost_usd": 0.002288,
+    "static_utility_no_slo": 0.5185
+   },
+   "qwen3-235b-a22b-thinking-2507": {
+    "mean_score": 0.4912,
+    "mean_cost_usd": 0.008748,
+    "static_utility_no_slo": 0.465
+   }
+  },
+  "best_static_model": "qwen3-235b-a22b-2507",
+  "best_static_utility": 0.5185,
+  "oracle_best_per_request_quality": 0.843,
+  "oracle_argmax_utility_per_request": 0.8306,
+  "cheapest_model_by_mean_cost": "deepseek-v3-0324",
+  "cost_spread_max_over_min": 15.3
+ },
+ "A_val": {
+  "n": 972,
+  "models": {
+   "claude-sonnet-4": {
+    "mean_score": 0.179,
+    "mean_cost_usd": 0.022881,
+    "static_utility_no_slo": 0.1104
+   },
+   "deepseek-r1-0528": {
+    "mean_score": 0.2942,
+    "mean_cost_usd": 0.009307,
+    "static_utility_no_slo": 0.2663
+   },
+   "deepseek-v3-0324": {
+    "mean_score": 0.2809,
+    "mean_cost_usd": 0.001238,
+    "static_utility_no_slo": 0.2771
+   },
+   "deepseek-v3.1-terminus": {
+    "mean_score": 0.2726,
+    "mean_cost_usd": 0.003751,
+    "static_utility_no_slo": 0.2614
+   },
+   "gemini-2.5-flash": {
+    "mean_score": 0.3169,
+    "mean_cost_usd": 0.001915,
+    "static_utility_no_slo": 0.3111
+   },
+   "gemini-2.5-pro": {
+    "mean_score": 0.5267,
+    "mean_cost_usd": 0.019837,
+    "static_utility_no_slo": 0.4672
+   },
+   "glm-4.6": {
+    "mean_score": 0.287,
+    "mean_cost_usd": 0.01176,
+    "static_utility_no_slo": 0.2518
+   },
+   "gpt-5": {
+    "mean_score": 0.5113,
+    "mean_cost_usd": 0.025722,
+    "static_utility_no_slo": 0.4342
+   },
+   "intern-s1": {
+    "mean_score": 0.1831,
+    "mean_cost_usd": 0.003982,
+    "static_utility_no_slo": 0.1712
+   },
+   "kimi-k2-0905": {
+    "mean_score": 0.3313,
+    "mean_cost_usd": 0.005454,
+    "static_utility_no_slo": 0.3149
+   },
+   "qwen3-235b-a22b-2507": {
+    "mean_score": 0.535,
+    "mean_cost_usd": 0.002418,
+    "static_utility_no_slo": 0.5277
+   },
+   "qwen3-235b-a22b-thinking-2507": {
+    "mean_score": 0.499,
+    "mean_cost_usd": 0.008844,
+    "static_utility_no_slo": 0.4724
+   }
+  },
+  "best_static_model": "qwen3-235b-a22b-2507",
+  "best_static_utility": 0.5277,
+  "oracle_best_per_request_quality": 0.8508,
+  "oracle_argmax_utility_per_request": 0.8374,
+  "cheapest_model_by_mean_cost": "deepseek-v3-0324",
+  "cost_spread_max_over_min": 20.8
+ },
+ "B_train": {
+  "n": 1940,
+  "models": {
+   "claude-sonnet-4": {
+    "mean_score": 0.233,
+    "mean_cost_usd": 0.01195,
+    "static_utility_no_slo": 0.1971
+   },
+   "deepseek-r1-0528": {
+    "mean_score": 0.3861,
+    "mean_cost_usd": 0.0317,
+    "static_utility_no_slo": 0.291
+   },
+   "deepseek-v3-0324": {
+    "mean_score": 0.2526,
+    "mean_cost_usd": 0.001039,
+    "static_utility_no_slo": 0.2495
+   },
+   "deepseek-v3.1-terminus": {
+    "mean_score": 0.2912,
+    "mean_cost_usd": 0.001717,
+    "static_utility_no_slo": 0.2861
+   },
+   "gemini-2.5-flash": {
+    "mean_score": 0.2655,
+    "mean_cost_usd": 0.023769,
+    "static_utility_no_slo": 0.1942
+   },
+   "gemini-2.5-pro": {
+    "mean_score": 0.4021,
+    "mean_cost_usd": 0.128246,
+    "static_utility_no_slo": 0.0173
+   },
+   "glm-4.6": {
+    "mean_score": 0.3237,
+    "mean_cost_usd": 0.032353,
+    "static_utility_no_slo": 0.2267
+   },
+   "gpt-5": {
+    "mean_score": 0.4691,
+    "mean_cost_usd": 0.059675,
+    "static_utility_no_slo": 0.29
+   },
+   "intern-s1": {
+    "mean_score": 0.2387,
+    "mean_cost_usd": 0.00557,
+    "static_utility_no_slo": 0.2219
+   },
+   "kimi-k2-0905": {
+    "mean_score": 0.2814,
+    "mean_cost_usd": 0.002036,
+    "static_utility_no_slo": 0.2753
+   },
+   "qwen3-235b-a22b-2507": {
+    "mean_score": 0.2851,
+    "mean_cost_usd": 0.001732,
+    "static_utility_no_slo": 0.2799
+   },
+   "qwen3-235b-a22b-thinking-2507": {
+    "mean_score": 0.3124,
+    "mean_cost_usd": 0.009921,
+    "static_utility_no_slo": 0.2826
+   }
+  },
+  "best_static_model": "deepseek-r1-0528",
+  "best_static_utility": 0.291,
+  "oracle_best_per_request_quality": 0.65,
+  "oracle_argmax_utility_per_request": 0.6066,
+  "cheapest_model_by_mean_cost": "deepseek-v3-0324",
+  "cost_spread_max_over_min": 123.4
+ },
+ "B_val": {
+  "n": 693,
+  "models": {
+   "claude-sonnet-4": {
+    "mean_score": 0.2338,
+    "mean_cost_usd": 0.01201,
+    "static_utility_no_slo": 0.1977
+   },
+   "deepseek-r1-0528": {
+    "mean_score": 0.3766,
+    "mean_cost_usd": 0.031784,
+    "static_utility_no_slo": 0.2813
+   },
+   "deepseek-v3-0324": {
+    "mean_score": 0.2597,
+    "mean_cost_usd": 0.001156,
+    "static_utility_no_slo": 0.2563
+   },
+   "deepseek-v3.1-terminus": {
+    "mean_score": 0.2987,
+    "mean_cost_usd": 0.001762,
+    "static_utility_no_slo": 0.2934
+   },
+   "gemini-2.5-flash": {
+    "mean_score": 0.241,
+    "mean_cost_usd": 0.025898,
+    "static_utility_no_slo": 0.1633
+   },
+   "gemini-2.5-pro": {
+    "mean_score": 0.4127,
+    "mean_cost_usd": 0.130277,
+    "static_utility_no_slo": 0.0219
+   },
+   "glm-4.6": {
+    "mean_score": 0.3189,
+    "mean_cost_usd": 0.031572,
+    "static_utility_no_slo": 0.2242
+   },
+   "gpt-5": {
+    "mean_score": 0.4762,
+    "mean_cost_usd": 0.060591,
+    "static_utility_no_slo": 0.2944
+   },
+   "intern-s1": {
+    "mean_score": 0.2309,
+    "mean_cost_usd": 0.005738,
+    "static_utility_no_slo": 0.2137
+   },
+   "kimi-k2-0905": {
+    "mean_score": 0.2742,
+    "mean_cost_usd": 0.002275,
+    "static_utility_no_slo": 0.2673
+   },
+   "qwen3-235b-a22b-2507": {
+    "mean_score": 0.2944,
+    "mean_cost_usd": 0.001802,
+    "static_utility_no_slo": 0.289
+   },
+   "qwen3-235b-a22b-thinking-2507": {
+    "mean_score": 0.3175,
+    "mean_cost_usd": 0.010136,
+    "static_utility_no_slo": 0.2871
+   }
+  },
+  "best_static_model": "gpt-5",
+  "best_static_utility": 0.2944,
+  "oracle_best_per_request_quality": 0.6595,
+  "oracle_argmax_utility_per_request": 0.6167,
+  "cheapest_model_by_mean_cost": "deepseek-v3-0324",
+  "cost_spread_max_over_min": 112.7
+ },
+ "A_rank_shift": {
+  "train_order": [
+   "qwen3-235b-a22b-2507",
+   "gemini-2.5-pro",
+   "qwen3-235b-a22b-thinking-2507",
+   "gpt-5",
+   "gemini-2.5-flash",
+   "kimi-k2-0905",
+   "deepseek-v3-0324",
+   "deepseek-v3.1-terminus",
+   "deepseek-r1-0528",
+   "glm-4.6",
+   "intern-s1",
+   "claude-sonnet-4"
+  ],
+  "val_order": [
+   "qwen3-235b-a22b-2507",
+   "qwen3-235b-a22b-thinking-2507",
+   "gemini-2.5-pro",
+   "gpt-5",
+   "kimi-k2-0905",
+   "gemini-2.5-flash",
+   "deepseek-v3-0324",
+   "deepseek-r1-0528",
+   "deepseek-v3.1-terminus",
+   "glm-4.6",
+   "intern-s1",
+   "claude-sonnet-4"
+  ],
+  "top3_train": [
+   "qwen3-235b-a22b-2507",
+   "gemini-2.5-pro",
+   "qwen3-235b-a22b-thinking-2507"
+  ],
+  "top3_val": [
+   "qwen3-235b-a22b-2507",
+   "qwen3-235b-a22b-thinking-2507",
+   "gemini-2.5-pro"
+  ],
+  "max_abs_score_shift": [
+   0.021100000000000008,
+   "gemini-2.5-pro"
+  ],
+  "max_abs_cost_shift": [
+   0.000463,
+   "deepseek-v3-0324"
+  ],
+  "max_abs_utility_shift": [
+   0.0214,
+   "gemini-2.5-pro"
+  ]
+ },
+ "B_rank_shift": {
+  "train_order": [
+   "deepseek-r1-0528",
+   "gpt-5",
+   "deepseek-v3.1-terminus",
+   "qwen3-235b-a22b-thinking-2507",
+   "qwen3-235b-a22b-2507",
+   "kimi-k2-0905",
+   "deepseek-v3-0324",
+   "glm-4.6",
+   "intern-s1",
+   "claude-sonnet-4",
+   "gemini-2.5-flash",
+   "gemini-2.5-pro"
+  ],
+  "val_order": [
+   "gpt-5",
+   "deepseek-v3.1-terminus",
+   "qwen3-235b-a22b-2507",
+   "qwen3-235b-a22b-thinking-2507",
+   "deepseek-r1-0528",
+   "kimi-k2-0905",
+   "deepseek-v3-0324",
+   "glm-4.6",
+   "intern-s1",
+   "claude-sonnet-4",
+   "gemini-2.5-flash",
+   "gemini-2.5-pro"
+  ],
+  "top3_train": [
+   "deepseek-r1-0528",
+   "gpt-5",
+   "deepseek-v3.1-terminus"
+  ],
+  "top3_val": [
+   "gpt-5",
+   "deepseek-v3.1-terminus",
+   "qwen3-235b-a22b-2507"
+  ],
+  "max_abs_score_shift": [
+   0.024500000000000022,
+   "gemini-2.5-flash"
+  ],
+  "max_abs_cost_shift": [
+   0.002129,
+   "gemini-2.5-flash"
+  ],
+  "max_abs_utility_shift": [
+   0.0309,
+   "gemini-2.5-flash"
+  ]
+ }
+}

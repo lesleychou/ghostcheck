@@ -1,0 +1,10 @@
+{
+  "_note": "Where the replay traces live. The traces are ~20 MB and are NOT copied into the run directory; this file records the absolute path of the task root's trace directory. Override with the SKYDISCOVER_TRACES_DIR environment variable.",
+  "env_var": "SKYDISCOVER_TRACES_DIR",
+  "traces_dir": "/path/to/ghostcheck/benchmarks/skysynth/upstream/skydiscover/synthesize/examples/llm-router/evaluator/benchmark/.data/traces",
+  "files": {
+    "A": {"train": "trace_tenantA_train.jsonl", "val": "trace_tenantA_val.jsonl"},
+    "B": {"train": "trace_tenantB_train.jsonl", "val": "trace_tenantB_val.jsonl"}
+  },
+  "_forbidden": "The test split is out of bounds for this whole run: score.py refuses any split other than train or val, and no *_test.* trace, matrix or manifest is read here."
+}
